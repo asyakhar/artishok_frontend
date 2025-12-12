@@ -1,0 +1,78 @@
+.cta-section {
+    background: linear-gradient(135deg, var(--dark) 0%, var(--secondary-color) 100%);
+    color: var(--white);
+  }
+  
+  .cta-card {
+    background-color: var(--white);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    display: flex;
+    min-height: 400px;
+  }
+  
+  .cta-content {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .cta-image {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .cta-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .cta-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 20px;
+  }
+  
+  .cta-text {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+  
+  .cta-actions {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  @media (max-width: 992px) {
+    .cta-card {
+      flex-direction: column;
+    }
+    
+    .cta-content {
+      padding: 40px 30px;
+    }
+    
+    .cta-image {
+      height: 300px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .cta-actions {
+      flex-direction: column;
+    }
+    
+    .cta-title {
+      font-size: 2rem;
+    }
+  }

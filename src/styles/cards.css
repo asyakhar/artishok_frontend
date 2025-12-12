@@ -1,0 +1,400 @@
+/* cards.css */
+
+/* Сетка выставок */
+.exhibitions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* Карточка выставки */
+.event-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-hover);
+}
+
+.event-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.event-card:hover::before {
+    opacity: 1;
+}
+
+/* Изображение в карточке */
+.event-card-image {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+}
+
+.event-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s ease;
+}
+
+.event-card:hover .event-card-image img {
+    transform: scale(1.1);
+}
+
+/* Бейдж статуса */
+.event-card-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    z-index: 2;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.badge-current {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.badge-upcoming {
+    background: linear-gradient(135deg, #007bff, #17a2b8);
+}
+
+.badge-announced {
+    background: linear-gradient(135deg, #6f42c1, #d63384);
+}
+
+.badge-completed {
+    background: linear-gradient(135deg, #6c757d, #adb5bd);
+}
+
+.badge-cancelled {
+    background: linear-gradient(135deg, #dc3545, #fd7e14);
+}
+
+.badge-draft {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+}
+
+/* Содержимое карточки */
+.event-card-content {
+    padding: 1.8rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--secondary);
+    margin-bottom: 0.8rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.event-card-gallery {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+    font-weight: 500;
+    text-decoration: none;
+    margin-bottom: 0.8rem;
+    transition: color 0.3s;
+    font-size: 0.95rem;
+}
+
+.event-card-gallery:hover {
+    color: var(--primary-dark);
+}
+
+.event-card-date {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.event-card-date i {
+    color: var(--primary);
+    font-size: 1rem;
+}
+
+.event-card-description {
+    color: var(--gray);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Футер карточки */
+.event-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--light-gray);
+    margin-top: auto;
+}
+
+.event-card-stats {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.event-card-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray);
+    font-size: 0.85rem;
+}
+
+.event-card-stat i {
+    color: var(--primary);
+    font-size: 0.9rem;
+}
+
+.event-card-actions {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.event-card-btn {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.event-card-btn.details {
+    background: var(--light-gray);
+    color: var(--dark);
+    border: 1px solid #dee2e6;
+}
+
+.event-card-btn.details:hover {
+    background: var(--gray);
+    color: var(--white);
+}
+
+.event-card-btn.book {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(230, 57, 70, 0.2);
+}
+
+.event-card-btn.book:hover {
+    background: linear-gradient(135deg, var(--primary-dark), #A4161A);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(230, 57, 70, 0.3);
+}
+
+/* Анимация при появлении */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.event-card {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.event-card:nth-child(2) { animation-delay: 0.1s; }
+.event-card:nth-child(3) { animation-delay: 0.2s; }
+.event-card:nth-child(4) { animation-delay: 0.3s; }
+.event-card:nth-child(5) { animation-delay: 0.4s; }
+.event-card:nth-child(6) { animation-delay: 0.5s; }
+
+/* Сетка галерей */
+.galleries-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.gallery-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.gallery-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.gallery-card-image {
+    height: 200px;
+    overflow: hidden;
+}
+
+.gallery-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.gallery-card:hover .gallery-card-image img {
+    transform: scale(1.05);
+}
+
+.gallery-card-content {
+    padding: 1.5rem;
+}
+
+.gallery-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--secondary);
+    margin-bottom: 0.5rem;
+}
+
+.gallery-card-location {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.gallery-card-location i {
+    color: var(--primary);
+}
+
+.gallery-card-description {
+    color: var(--gray);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.gallery-card-stats {
+    display: flex;
+    justify-content: space-between;
+    color: var(--gray);
+    font-size: 0.85rem;
+}
+
+/* Состояния */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: var(--gray);
+    background: var(--light-gray);
+    border-radius: var(--radius);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--gray);
+}
+
+.error-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: var(--primary);
+    background: rgba(230, 57, 70, 0.1);
+    border-radius: var(--radius);
+    border: 2px solid rgba(230, 57, 70, 0.2);
+}
+
+.error-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* Кнопка "Показать еще" */
+.load-more-container {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+#loadMoreBtn {
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+}
+
+/* Адаптивность карточек */
+@media (max-width: 768px) {
+    .exhibitions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .galleries-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .event-card-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .event-card-actions {
+        justify-content: center;
+    }
+}

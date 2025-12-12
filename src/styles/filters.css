@@ -1,0 +1,110 @@
+/* Стили для фильтров и сортировки */
+.exhibitions-filters {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.filter-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.8rem 1.8rem;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 50px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.filter-btn:hover {
+    border-color: #E63946;
+    color: #E63946;
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #E63946, #C1121F);
+    color: white;
+    border-color: #E63946;
+    box-shadow: 0 4px 12px rgba(230, 57, 70, 0.2);
+}
+
+.filter-btn i {
+    font-size: 0.9rem;
+}
+
+.sort-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sort-label {
+    color: #495057;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.sort-select {
+    padding: 0.8rem 1.5rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: #495057;
+    background: white;
+    cursor: pointer;
+    min-width: 200px;
+    transition: all 0.3s;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23495057' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px;
+}
+
+.sort-select:focus {
+    border-color: #E63946;
+    box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+}
+
+.load-more-container {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 3rem;
+    border-top: 2px solid #f1f3f5;
+}
+
+#loadMoreBtn {
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+    background: white;
+    border: 2px solid #E63946;
+    color: #E63946;
+}
+
+#loadMoreBtn:hover {
+    background: #E63946;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(230, 57, 70, 0.25);
+}

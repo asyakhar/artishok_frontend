@@ -1,0 +1,15 @@
+.galleries-section {
+    background-color: var(--white);
+  }
+  
+  .galleries-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+  }
+  
+  @media (max-width: 768px) {
+    .galleries-grid {
+      grid-template-columns: 1fr;
+    }
+  }
