@@ -1,18 +1,146 @@
 import { useState, useEffect } from 'react';
 import './Header.css';
 
+const API_BASE_URL = 'http://localhost:8080';
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
+    checkAuth();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const checkAuth = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setUserData(null);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const user = await response.json();
+        setUserData(user);
+        localStorage.setItem('user', JSON.stringify(user));
+        setError('');
+      } else {
+        handleLogout();
+      }
+    } catch (error) {
+      console.error('Ошибка проверки авторизации:', error);
+      handleLogout();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      try {
+        await fetch(`${API_BASE_URL}/api/auth/logout`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (error) {
+        console.error('Ошибка при выходе:', error);
+      }
+    }
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    setUserData(null);
+    window.location.href = '/';
+  };
+
+  // Функция для тестовой регистрации
+  const testRegister = async (role = 'ARTIST') => {
+    setError('');
+    const testEmail = `test_${Date.now()}@example.com`;
+    const testPassword = 'password123';
+
+    try {
+      // ОБРАТИТЕ ВНИМАНИЕ: phoneNumber и другие поля могут быть обязательными!
+      const requestData = {
+        email: testEmail,
+        password: testPassword,
+        fullName: `Тест ${role}`,
+        role: role,
+        phoneNumber: '+79990000122', // Добавляем обязательное поле
+        bio: 'Тестовый пользователь',
+        avatarUrl: ''
+      };
+
+      console.log('Отправляемые данные:', requestData);
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/register-no-verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+      });
+
+      const data = await response.json();
+      console.log('Ответ сервера:', data);
+
+      if (response.ok) {
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUserData(data.user);
+        alert(`✅ Регистрация успешна! Роль: ${role}`);
+      } else {
+        setError(`Ошибка ${response.status}: ${data.error || JSON.stringify(data)}`);
+      }
+    } catch (error) {
+      console.error('Тестовая регистрация не удалась:', error);
+      setError('Сетевая ошибка: ' + error.message);
+    }
+  };
+
+  // Функции для определения пути и названия кабинета
+  const getDashboardPath = () => {
+    if (!userData) return '/login';
+
+    switch (userData.role) {
+      case 'ADMIN': return '/admin/dashboard';
+      case 'GALLERY_OWNER': return '/gallery/dashboard';
+      case 'ARTIST': return '/artist/dashboard';
+      default: return '/dashboard';
+    }
+  };
+
+  const getDashboardLabel = () => {
+    if (!userData) return 'Личный кабинет';
+
+    switch (userData.role) {
+      case 'ADMIN': return 'Админ-панель';
+      case 'GALLERY_OWNER': return 'Кабинет галереи';
+      case 'ARTIST': return 'Кабинет художника';
+      default: return 'Личный кабинет';
+    }
+  };
+
+  const getRoleIcon = () => {
+    if (!userData) return 'fa-user-circle';
+
+    switch (userData.role) {
+      case 'ADMIN': return 'fa-shield-alt';
+      case 'GALLERY_OWNER': return 'fa-building';
+      case 'ARTIST': return 'fa-palette';
+      default: return 'fa-user-circle';
+    }
+  };
 
   const navItems = [
     { label: 'Главная', href: '#', active: true },
@@ -49,12 +177,44 @@ const Header = () => {
             </ul>
 
             <div className="navbar-actions">
-              <a href="/login" className="btn btn-outline btn-sm">
-                <i className="fas fa-sign-in-alt"></i> Войти
-              </a>
-              <a href="/register" className="btn btn-primary btn-sm">
-                <i className="fas fa-user-plus"></i> Регистрация
-              </a>
+              {loading ? (
+                <span className="loading-text">Загрузка...</span>
+              ) : userData ? (
+                <>
+                  <a
+                    href={getDashboardPath()}
+                    className="btn btn-outline btn-sm btn-dashboard"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <i className={`fas ${getRoleIcon()}`}></i>
+                    <span className="user-name">{userData.fullName || getDashboardLabel()}</span>
+                  </a>
+
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={handleLogout}
+                  >
+                    <i className="fas fa-sign-out-alt"></i> Выйти
+                  </button>
+                </>
+              ) : (
+                <>
+                  <a
+                    href="/login"
+                    className="btn btn-outline btn-sm"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <i className="fas fa-sign-in-alt"></i> Войти
+                  </a>
+                  <a
+                    href="/register"
+                    className="btn btn-primary btn-sm"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <i className="fas fa-user-plus"></i> Регистрация
+                  </a>
+                </>
+              )}
             </div>
           </div>
 
@@ -67,6 +227,62 @@ const Header = () => {
           </button>
         </nav>
       </div>
+
+      {/* Блок для тестирования */}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{
+          position: 'fixed',
+          bottom: '10px',
+          right: '10px',
+          background: '#333',
+          color: 'white',
+          padding: '10px',
+          borderRadius: '5px',
+          fontSize: '12px',
+          zIndex: 9999,
+          maxWidth: '300px'
+        }}>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Тест авторизации:</div>
+
+          {error && (
+            <div style={{
+              color: '#ff6b6b',
+              fontSize: '11px',
+              marginBottom: '8px',
+              padding: '5px',
+              background: 'rgba(255,0,0,0.1)',
+              borderRadius: '3px'
+            }}>
+              {error}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '5px' }}>
+            <button onClick={() => testRegister('ARTIST')} style={{ padding: '4px 8px', fontSize: '11px' }}>
+              Artist
+            </button>
+            <button onClick={() => testRegister('GALLERY_OWNER')} style={{ padding: '4px 8px', fontSize: '11px' }}>
+              Gallery Owner
+            </button>
+            <button onClick={() => testRegister('ADMIN')} style={{ padding: '4px 8px', fontSize: '11px' }}>
+              Admin
+            </button>
+          </div>
+
+          <button onClick={handleLogout} style={{
+            padding: '4px 8px',
+            fontSize: '11px',
+            background: '#dc3545',
+            width: '100%'
+          }}>
+            Выйти (Logout)
+          </button>
+
+          <div style={{ marginTop: '8px', fontSize: '10px', opacity: 0.7 }}>
+            Статус: {userData ? `Вошли как ${userData.role}` : 'Не авторизован'}
+          </div>
+        </div>
+      )}
     </header>
   );
 };
