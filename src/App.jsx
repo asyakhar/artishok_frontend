@@ -8,8 +8,8 @@ import GalleriesSection from './components/GalleriesSection'
 import CTASection from './components/CTASection'
 import Footer from './components/Footer'
 import ArtistDashboard from './pages/ArtistDashboard'
-// import LoginPage from './pages/LoginPage' // Создайте эту страницу
-// import RegisterPage from './pages/RegisterPage' // Создайте эту страницу
+import LoginPage from './pages/LoginPage' // Создайте эту страницу
+import RegisterPage from './pages/RegisterPage' // Создайте эту страницу
 
 // Компонент ProtectedRoute для защиты маршрутов
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
@@ -44,6 +44,19 @@ const HomePage = ({ events, galleries, loading, error }) => {
       />
       <CTASection />
       <Footer />
+    </>
+  )
+}
+
+// Layout компонент для страниц с Header и Footer
+const Layout = ({ children, showFooter = true }) => {
+  return (
+    <>
+      <Header />
+      <main className="main-content">
+        {children}
+      </main>
+      {showFooter && <Footer />}
     </>
   )
 }
@@ -125,59 +138,77 @@ function App() {
   return (
     <Router>
       <div className="App">
-        {/* Header отображается на всех страницах */}
-        <Header />
-
+        {/* Header теперь внутри Layout компонента */}
         <Routes>
           {/* Главная страница */}
           <Route path="/" element={
-            <HomePage
-              events={events}
-              galleries={galleries}
-              loading={loading}
-              error={error}
-            />
+            <Layout showFooter={true}>
+              <HomePage
+                events={events}
+                galleries={galleries}
+                loading={loading}
+                error={error}
+              />
+            </Layout>
           } />
 
           {/* Страница входа */}
-          {/* <Route path="/login" element={<LoginPage />} /> */}
+          <Route path="/login" element={
+            <Layout showFooter={false}>
+              <LoginPage />
+            </Layout>
+          } />
 
           {/* Страница регистрации */}
-          {/* <Route path="/register" element={<RegisterPage />} /> */}
+          <Route path="/register" element={
+            <Layout showFooter={false}>
+              <RegisterPage />
+            </Layout>
+          } />
 
           {/* Личный кабинет художника (только для ARTIST) */}
           <Route path="/artist/dashboard" element={
-            <ProtectedRoute allowedRoles={['ARTIST']}>
-              <ArtistDashboard />
-            </ProtectedRoute>
+            <Layout showFooter={false}>
+              <ProtectedRoute allowedRoles={['ARTIST']}>
+                <ArtistDashboard />
+              </ProtectedRoute>
+            </Layout>
           } />
 
           {/* Другие защищенные маршруты можно добавить позже */}
           <Route path="/admin/dashboard" element={
-            <ProtectedRoute allowedRoles={['ADMIN']}>
-              <div>Админ-панель (в разработке)</div>
-            </ProtectedRoute>
+            <Layout showFooter={false}>
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <div>Админ-панель (в разработке)</div>
+              </ProtectedRoute>
+            </Layout>
           } />
 
           <Route path="/gallery/dashboard" element={
-            <ProtectedRoute allowedRoles={['GALLERY_OWNER']}>
-              <div>Кабинет галереи (в разработке)</div>
-            </ProtectedRoute>
+            <Layout showFooter={false}>
+              <ProtectedRoute allowedRoles={['GALLERY_OWNER']}>
+                <div>Кабинет галереи (в разработке)</div>
+              </ProtectedRoute>
+            </Layout>
           } />
 
           {/* Роут для всех других дашбордов */}
           <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <DashboardRedirect />
-            </ProtectedRoute>
+            <Layout showFooter={false}>
+              <ProtectedRoute>
+                <DashboardRedirect />
+              </ProtectedRoute>
+            </Layout>
           } />
 
           {/* 404 страница */}
           <Route path="*" element={
-            <div style={{ padding: '50px', textAlign: 'center' }}>
-              <h1>404 - Страница не найдена</h1>
-              <p>Запрашиваемая страница не существует.</p>
-            </div>
+            <Layout showFooter={true}>
+              <div style={{ padding: '50px', textAlign: 'center' }}>
+                <h1>404 - Страница не найдена</h1>
+                <p>Запрашиваемая страница не существует.</p>
+              </div>
+            </Layout>
           } />
         </Routes>
       </div>

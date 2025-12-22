@@ -83,41 +83,21 @@ const ExhibitionCard = ({ event }) => {
             </div>
           </div>
           
-          <div className="detail-item">
-            <div className="detail-icon">
-              <i className="fas fa-clock"></i>
-            </div>
-            <div className="detail-content">
-              <span className="detail-label">Время</span>
-              <span className="detail-value">10:00 - 20:00</span>
-            </div>
-          </div>
+         
           
-          <div className="detail-item">
-            <div className="detail-icon">
-              <i className="fas fa-users"></i>
-            </div>
-            <div className="detail-content">
-              <span className="detail-label">Места</span>
-              <span className="detail-value">{event.availableSpots || 24} из 50</span>
-            </div>
-          </div>
+          
         </div>
       </div>
       
       <div className="card-footer">
-        <div className="card-price-section">
-          <span className="price-label">от</span>
-          <span className="price-value">{event.price || "500"} ₽</span>
-          <span className="price-note">за человека</span>
-        </div>
+        
         
         <div className="card-actions">
           <button className="btn btn-outline btn-sm">
             <i className="fas fa-info-circle"></i>
             <span className="action-text">Подробнее</span>
           </button>
-          <button className="btn btn-primary btn-sm">
+          <button className="btn btn-outline btn-sm">
             <i className="fas fa-ticket-alt"></i>
             <span className="action-text">Бронировать</span>
           </button>

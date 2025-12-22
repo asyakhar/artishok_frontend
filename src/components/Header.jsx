@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -9,6 +10,7 @@ const Header = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -62,7 +64,7 @@ const Header = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     setUserData(null);
-    window.location.href = '/';
+    navigate('/');
   };
 
   // Функция для тестовой регистрации
@@ -78,7 +80,7 @@ const Header = () => {
         password: testPassword,
         fullName: `Тест ${role}`,
         role: role,
-        phoneNumber: '+79990000122', // Добавляем обязательное поле
+        phoneNumber: '+79990011122', // Добавляем обязательное поле
         bio: 'Тестовый пользователь',
         avatarUrl: ''
       };
@@ -143,11 +145,11 @@ const Header = () => {
   };
 
   const navItems = [
-    { label: 'Главная', href: '#', active: true },
-    { label: 'Выставки', href: '#exhibitions' },
-    { label: 'Галереи', href: '#galleries' },
-    { label: 'Художники', href: '#artists' },
-    { label: 'О проекте', href: '#about' },
+    { label: 'Главная', href: '/', active: true }, 
+    // { label: 'Выставки', href: '/exhibitions' }, 
+    // { label: 'Галереи', href: '/galleries' },
+    // { label: 'Художники', href: '/artists' },
+    // { label: 'О проекте', href: '/about' },
   ];
 
   return (
@@ -155,23 +157,23 @@ const Header = () => {
       <div className="container">
         <nav className="navbar">
           <div className="navbar-brand">
-            <a href="/" className="logo">
+            <Link to="/" className="logo" onClick={() => setIsMenuOpen(false)}> {/* Изменено */}
               <span className="logo-icon">🎨</span>
               <span className="logo-text">АРТи<span className="logo-accent">ШОК</span></span>
-            </a>
+            </Link>
           </div>
 
           <div className={`navbar-menu ${isMenuOpen ? 'active' : ''}`}>
             <ul className="navbar-nav">
               {navItems.map((item) => (
                 <li key={item.label}>
-                  <a
-                    href={item.href}
+                  <Link // Изменено с <a> на <Link>
+                    to={item.href}
                     className={`nav-link ${item.active ? 'active' : ''}`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -181,17 +183,17 @@ const Header = () => {
                 <span className="loading-text">Загрузка...</span>
               ) : userData ? (
                 <>
-                  <a
-                    href={getDashboardPath()}
+                  <Link // Изменено с <a> на <Link>
+                    to={getDashboardPath()}
                     className="btn btn-outline btn-sm btn-dashboard"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <i className={`fas ${getRoleIcon()}`}></i>
                     <span className="user-name">{userData.fullName || getDashboardLabel()}</span>
-                  </a>
+                  </Link>
 
                   <button
-                    className="btn btn-primary btn-sm"
+                    className="btn btn-outline btn-sm"
                     onClick={handleLogout}
                   >
                     <i className="fas fa-sign-out-alt"></i> Выйти
@@ -199,20 +201,20 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  <a
-                    href="/login"
+                  <Link // Изменено с <a> на <Link>
+                    to="/login"
                     className="btn btn-outline btn-sm"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <i className="fas fa-sign-in-alt"></i> Войти
-                  </a>
-                  <a
-                    href="/register"
-                    className="btn btn-primary btn-sm"
+                  </Link>
+                  <Link // Изменено с <a> на <Link>
+                    to="/register"
+                    className="btn btn-outline btn-sm"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <i className="fas fa-user-plus"></i> Регистрация
-                  </a>
+                  </Link>
                 </>
               )}
             </div>

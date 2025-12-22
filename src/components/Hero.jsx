@@ -189,37 +189,7 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Кнопки управления каруселью */}
-      <button 
-        className="carousel-btn carousel-prev" 
-        onClick={handlePrevSlide} 
-        aria-label="Предыдущее фото"
-        disabled={isTransitioning}
-      >
-        <i className="fas fa-chevron-left"></i>
-      </button>
-      
-      <button 
-        className="carousel-btn carousel-next" 
-        onClick={handleNextSlide} 
-        aria-label="Следующее фото"
-        disabled={isTransitioning}
-      >
-        <i className="fas fa-chevron-right"></i>
-      </button>
-
-      {/* Индикаторы слайдов */}
-      <div className="carousel-indicators">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            className={`carousel-indicator ${index === currentSlide ? 'active' : ''}`}
-            onClick={() => goToSlide(index)}
-            aria-label={`Перейти к фото ${index + 1}`}
-            disabled={isTransitioning}
-          />
-        ))}
-      </div>
+     
 
       {/* Скролл индикатор */}
       <div className="hero-scroll-indicator">
