@@ -319,6 +319,19 @@ const ArtistDashboard = () => {
                     <div className="bookings-section">
                         <div className="section-header">
                             <h2><i className="fas fa-calendar-alt"></i> Мои бронирования</h2>
+                            <button
+        className="btn btn-primary btn-sm"
+        onClick={() => navigate('/map/1')}
+        style={{
+          marginLeft: '15px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}
+      >
+        <i className="fas fa-map"></i>
+        Перейти к бронированию
+      </button>
                         </div>
 
                         {loading.bookings ? (

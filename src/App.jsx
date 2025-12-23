@@ -8,8 +8,10 @@ import GalleriesSection from './components/GalleriesSection'
 import CTASection from './components/CTASection'
 import Footer from './components/Footer'
 import ArtistDashboard from './pages/ArtistDashboard'
-import LoginPage from './pages/LoginPage' // Создайте эту страницу
-import RegisterPage from './pages/RegisterPage' // Создайте эту страницу
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import ExhibitionMapPage from './pages/ExhibitionMapPage' 
+import GalleryOwnerDashboard from './pages/GalleryOwnerDashboard';
 
 // Компонент ProtectedRoute для защиты маршрутов
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
@@ -74,11 +76,11 @@ function App() {
   })
 
   useEffect(() => {
-    // Загрузка выставок с вашего сервера
+    // Загрузка выставок с вашего сервера (БЕЗ /api/)
     const loadExhibitions = async () => {
       try {
         setLoading(prev => ({ ...prev, events: true }))
-        const response = await fetch('http://localhost:8080/exhibition-events')
+        const response = await fetch('http://localhost:8080/exhibition-events') // ОРИГИНАЛЬНЫЙ URL
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
@@ -88,9 +90,9 @@ function App() {
 
         // Сортируем по дате, чтобы ближайшие были первыми
         const sortedEvents = data
-          .filter(event => event.startDate) // Фильтруем события без даты
+          .filter(event => event.startDate)
           .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
-          .slice(0, 6) // Берем только 6 ближайших
+          .slice(0, 6)
 
         setEvents(sortedEvents)
         setError(prev => ({ ...prev, events: null }))
@@ -106,18 +108,18 @@ function App() {
       }
     }
 
-    // Загрузка галерей с вашего сервера
+    // Загрузка галерей с вашего сервера (БЕЗ /api/)
     const loadGalleries = async () => {
       try {
         setLoading(prev => ({ ...prev, galleries: true }))
-        const response = await fetch('http://localhost:8080/galleries')
+        const response = await fetch('http://localhost:8080/galleries') // ОРИГИНАЛЬНЫЙ URL
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
 
         const data = await response.json()
-        setGalleries(data.slice(0, 4)) // Берем только 4 галереи для главной
+        setGalleries(data.slice(0, 4))
         setError(prev => ({ ...prev, galleries: null }))
       } catch (err) {
         console.error('Ошибка загрузки галерей:', err)
@@ -138,7 +140,6 @@ function App() {
   return (
     <Router>
       <div className="App">
-        {/* Header теперь внутри Layout компонента */}
         <Routes>
           {/* Главная страница */}
           <Route path="/" element={
@@ -166,7 +167,21 @@ function App() {
             </Layout>
           } />
 
-          {/* Личный кабинет художника (только для ARTIST) */}
+          {/* ========== НОВЫЙ МАРШРУТ ДЛЯ КАРТЫ ========== */}
+          <Route path="/exhibition/:exhibitionId/map" element={
+            <Layout showFooter={false}>
+              <ExhibitionMapPage />
+            </Layout>
+          } />
+
+          {/* Альтернативный путь */}
+          <Route path="/map/:exhibitionId" element={
+            <Layout showFooter={false}>
+              <ExhibitionMapPage />
+            </Layout>
+          } />
+
+          {/* Личный кабинет художника */}
           <Route path="/artist/dashboard" element={
             <Layout showFooter={false}>
               <ProtectedRoute allowedRoles={['ARTIST']}>
@@ -175,24 +190,25 @@ function App() {
             </Layout>
           } />
 
-          {/* Другие защищенные маршруты можно добавить позже */}
-          <Route path="/admin/dashboard" element={
-            <Layout showFooter={false}>
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <div>Админ-панель (в разработке)</div>
-              </ProtectedRoute>
-            </Layout>
-          } />
-
+          {/* Кабинет владельца галереи */}
           <Route path="/gallery/dashboard" element={
             <Layout showFooter={false}>
               <ProtectedRoute allowedRoles={['GALLERY_OWNER']}>
-                <div>Кабинет галереи (в разработке)</div>
+                <GalleryOwnerDashboard />
               </ProtectedRoute>
             </Layout>
           } />
 
-          {/* Роут для всех других дашбордов */}
+          {/* Админ-панель */}
+          <Route path="/admin/dashboard" element={
+            <Layout showFooter={false}>
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            </Layout>
+          } />
+
+          {/* Автоматический редирект на дашборд */}
           <Route path="/dashboard" element={
             <Layout showFooter={false}>
               <ProtectedRoute>
@@ -234,6 +250,17 @@ function DashboardRedirect() {
     default:
       return <Navigate to="/" replace />
   }
+}
+
+
+
+function AdminDashboard() {
+  return (
+    <div style={{ padding: '20px' }}>
+      <h1>Админ-панель</h1>
+      <p>Здесь будет управление системой</p>
+    </div>
+  )
 }
 
 export default App

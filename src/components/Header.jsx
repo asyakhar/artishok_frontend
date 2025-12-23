@@ -80,7 +80,7 @@ const Header = () => {
         password: testPassword,
         fullName: `Тест ${role}`,
         role: role,
-        phoneNumber: '+79990011122', // Добавляем обязательное поле
+        phoneNumber: '+79990011182', // Добавляем обязательное поле
         bio: 'Тестовый пользователь',
         avatarUrl: ''
       };
