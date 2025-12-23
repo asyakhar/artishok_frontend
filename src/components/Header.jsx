@@ -72,15 +72,22 @@ const Header = () => {
     setError('');
     const testEmail = `test_${Date.now()}@example.com`;
     const testPassword = 'password123';
+    const generateRandomPhone = () => {
+      // Генерируем 10 случайных цифр после +7
+      let randomDigits = '';
+      for (let i = 0; i < 10; i++) {
+        randomDigits += Math.floor(Math.random() * 10);
+      }
+      return `+7${randomDigits}`;
+    };
 
     try {
-      // ОБРАТИТЕ ВНИМАНИЕ: phoneNumber и другие поля могут быть обязательными!
       const requestData = {
         email: testEmail,
         password: testPassword,
         fullName: `Тест ${role}`,
         role: role,
-        phoneNumber: '+79990011182', // Добавляем обязательное поле
+        phoneNumber: generateRandomPhone(),
         bio: 'Тестовый пользователь',
         avatarUrl: ''
       };
@@ -145,7 +152,7 @@ const Header = () => {
   };
 
   const navItems = [
-    { label: 'Главная', href: '/', active: true }, 
+    { label: 'Главная', href: '/', active: true },
     // { label: 'Выставки', href: '/exhibitions' }, 
     // { label: 'Галереи', href: '/galleries' },
     // { label: 'Художники', href: '/artists' },
@@ -167,7 +174,7 @@ const Header = () => {
             <ul className="navbar-nav">
               {navItems.map((item) => (
                 <li key={item.label}>
-                  <Link // Изменено с <a> на <Link>
+                  <Link
                     to={item.href}
                     className={`nav-link ${item.active ? 'active' : ''}`}
                     onClick={() => setIsMenuOpen(false)}
@@ -183,7 +190,7 @@ const Header = () => {
                 <span className="loading-text">Загрузка...</span>
               ) : userData ? (
                 <>
-                  <Link // Изменено с <a> на <Link>
+                  <Link
                     to={getDashboardPath()}
                     className="btn btn-outline btn-sm btn-dashboard"
                     onClick={() => setIsMenuOpen(false)}

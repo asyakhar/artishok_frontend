@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './GalleryOwnerDashboard.css';
+import AddExhibitionModal from './AddExhibitionModal';
+import AddGalleryModal from './AddGalleryModal';
 
 const API_BASE_URL = 'http://localhost:8080';
 
@@ -9,8 +11,22 @@ const GalleryOwnerDashboard = () => {
   const [userData, setUserData] = useState(null);
   const [galleries, setGalleries] = useState([]);
   const [exhibitions, setExhibitions] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [selectedGallery, setSelectedGallery] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [selectedExhibition, setSelectedExhibition] = useState(null);
+  const [showBookingsModal, setShowBookingsModal] = useState(false);
+  const [loading, setLoading] = useState({
+    profile: true,
+    galleries: true,
+    exhibitions: true,
+    bookings: true
+  });
+  const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
+  const [showAddExhibitionModal, setShowAddExhibitionModal] = useState(false);
+  const [editingExhibition, setEditingExhibition] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [showEditGalleryModal, setShowEditGalleryModal] = useState(false);
+  const [editingGallery, setEditingGallery] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -29,52 +45,42 @@ const GalleryOwnerDashboard = () => {
     setUserData(user);
     fetchOwnerGalleries(token);
   }, [navigate]);
-  const handleNavigateToExhibitionMap = () => {
-    // Если есть выставки в выбранной галерее
-    if (exhibitions.length > 0) {
-      // Берем первую активную выставку или первую в списке
-      const firstExhibition = exhibitions.find(exh => exh.status === 'ACTIVE') || exhibitions[0];
-      navigate(`/map/${firstExhibition.id}`);
-    } else if (selectedGallery) {
-      // Если выставок нет, предлагаем создать новую
-      if (window.confirm(`У вас нет выставок в галерее "${selectedGallery.name}". Хотите создать новую выставку?`)) {
-        navigate(`/gallery/${selectedGallery.id}/exhibitions/new`);
-      }
-    } else {
-      // Если галерея не выбрана
-      alert('Сначала выберите галерею из списка выше');
-    }
-  };
+
   const fetchOwnerGalleries = async (token) => {
     try {
+      setLoading(prev => ({ ...prev, galleries: true }));
       const response = await fetch(`${API_BASE_URL}/gallery-owner/galleries`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          setGalleries(data.galleries || []);
-          if (data.galleries.length > 0) {
-            setSelectedGallery(data.galleries[0]);
-            fetchGalleryExhibitions(data.galleries[0].id, token);
+          const galleriesList = data.galleries || [];
+          setGalleries(galleriesList);
+
+          if (galleriesList.length > 0) {
+            const firstGallery = galleriesList[0];
+            setSelectedGallery(firstGallery);
+            fetchGalleryExhibitions(firstGallery.id, token);
           }
         }
       }
     } catch (error) {
       console.error('Ошибка загрузки галерей:', error);
     } finally {
-      setLoading(false);
+      setLoading(prev => ({ ...prev, galleries: false, profile: false }));
     }
   };
 
   const fetchGalleryExhibitions = async (galleryId, token) => {
     try {
+      setLoading(prev => ({ ...prev, exhibitions: true }));
       const response = await fetch(
-        `${API_BASE_URL}/gallery-owner/exhibitions?galleryId=${galleryId}`, 
+        `${API_BASE_URL}/gallery-owner/exhibitions?galleryId=${galleryId}`,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -83,22 +89,212 @@ const GalleryOwnerDashboard = () => {
       }
     } catch (error) {
       console.error('Ошибка загрузки выставок:', error);
+    } finally {
+      setLoading(prev => ({ ...prev, exhibitions: false }));
     }
   };
 
+  const fetchExhibitionBookings = async (exhibitionId, token) => {
+    try {
+      setLoading(prev => ({ ...prev, bookings: true }));
+      const response = await fetch(
+        `${API_BASE_URL}/gallery-owner/bookings?exhibitionId=${exhibitionId}`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setBookings(data.bookings || []);
+        }
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки бронирований:', error);
+    } finally {
+      setLoading(prev => ({ ...prev, bookings: false }));
+    }
+  };
+  const handleCreateGallery = async (galleryData) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_BASE_URL}/gallery-owner/create-gallery`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(galleryData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert('Галерея создана и отправлена на модерацию!');
+        // Обновляем список галерей
+        fetchOwnerGalleries(token);
+        return { success: true, gallery: data.gallery };
+      } else {
+        throw new Error(data.error || 'Ошибка при создании галереи');
+      }
+    } catch (error) {
+      console.error('Ошибка создания галереи:', error);
+      return { success: false, error: error.message };
+    }
+  };
   const handleGallerySelect = (gallery) => {
     setSelectedGallery(gallery);
     const token = localStorage.getItem('authToken');
     fetchGalleryExhibitions(gallery.id, token);
   };
+  const handleEditGallery = (gallery) => {
+    setEditingGallery(gallery);
+    setShowEditGalleryModal(true);
+  };
 
-  const handleCreateExhibition = () => {
-    if (selectedGallery) {
-      navigate(`/gallery/${selectedGallery.id}/exhibitions/new`);
+  const handleUpdateGallery = async (galleryData) => {
+    if (!editingGallery) return { success: false, error: 'Галерея не выбрана' };
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(
+        `${API_BASE_URL}/gallery-owner/galleries/${editingGallery.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(galleryData)
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert('Информация о галерее обновлена и отправлена на модерацию!');
+        fetchOwnerGalleries(token);
+        return { success: true, gallery: data.gallery };
+      } else {
+        throw new Error(data.error || 'Ошибка при обновлении галереи');
+      }
+    } catch (error) {
+      console.error('Ошибка обновления галереи:', error);
+      return { success: false, error: error.message };
     }
   };
 
-  if (loading) {
+  const handleGallerySuccess = () => {
+    const token = localStorage.getItem('authToken');
+    fetchOwnerGalleries(token);
+    setShowAddGalleryModal(false);
+    setShowEditGalleryModal(false);
+    setEditingGallery(null);
+  };
+  const handleViewBookings = (exhibition) => {
+    setSelectedExhibition(exhibition);
+    const token = localStorage.getItem('authToken');
+    fetchExhibitionBookings(exhibition.id, token);
+    setShowBookingsModal(true);
+  };
+
+  const handleConfirmBooking = async (bookingId) => {
+    if (!window.confirm('Подтвердить бронирование?')) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_BASE_URL}/gallery-owner/bookings/${bookingId}/confirm`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: 'Бронирование подтверждено владельцем галереи' })
+      });
+
+      if (response.ok) {
+        alert('Бронирование подтверждено!');
+        // Обновляем список бронирований
+        if (selectedExhibition) {
+          fetchExhibitionBookings(selectedExhibition.id, token);
+        }
+      } else {
+        const errorData = await response.json();
+        alert(`Ошибка: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Ошибка подтверждения бронирования:', error);
+      alert('Произошла ошибка при подтверждении бронирования');
+    }
+  };
+
+  const handleRejectBooking = async (bookingId) => {
+    const reason = window.prompt('Укажите причину отклонения бронирования:');
+    if (!reason) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_BASE_URL}/gallery-owner/bookings/${bookingId}/reject`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ reason })
+      });
+
+      if (response.ok) {
+        alert('Бронирование отклонено!');
+        // Обновляем список бронирований
+        if (selectedExhibition) {
+          fetchExhibitionBookings(selectedExhibition.id, token);
+        }
+      } else {
+        const errorData = await response.json();
+        alert(`Ошибка: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Ошибка отклонения бронирования:', error);
+      alert('Произошла ошибка при отклонении бронирования');
+    }
+  };
+
+  const handleCreateExhibition = () => {
+    if (selectedGallery) {
+      setEditingExhibition(null);
+      setIsEditMode(false);
+      setShowAddExhibitionModal(true);
+    }
+  };
+
+  const handleEditExhibition = (exhibition) => {
+    setEditingExhibition(exhibition);
+    setIsEditMode(true);
+    setShowAddExhibitionModal(true);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'ACTIVE': return 'status-badge active';
+      case 'APPROVED': return 'status-badge approved';
+      case 'PENDING': return 'status-badge pending';
+      case 'DRAFT': return 'status-badge draft';
+      case 'CONFIRMED': return 'status-badge confirmed';
+      case 'CANCELLED': return 'status-badge cancelled';
+      default: return 'status-badge';
+    }
+  };
+
+  if (loading.profile) {
     return (
       <div className="dashboard-loading">
         <div className="spinner"></div>
@@ -114,7 +310,7 @@ const GalleryOwnerDashboard = () => {
         <div className="profile-card">
           <div className="profile-avatar">
             {userData?.avatarUrl ? (
-              <img src={userData.avatarUrl} alt="Аватар" />
+              <img src={userData.avatarUrl} alt="Аватар" className="avatar-image" />
             ) : (
               <div className="avatar-placeholder">
                 <i className="fas fa-building"></i>
@@ -139,118 +335,296 @@ const GalleryOwnerDashboard = () => {
 
       {/* Выбор галереи */}
       <div className="galleries-section">
-        <h2><i className="fas fa-store"></i> Мои галереи</h2>
-        <div className="galleries-list">
-          {galleries.map(gallery => (
-            <div 
-              key={gallery.id}
-              className={`gallery-card ${selectedGallery?.id === gallery.id ? 'active' : ''}`}
-              onClick={() => handleGallerySelect(gallery)}
+        <div className="section-header">
+          <h2><i className="fas fa-store"></i> Мои галереи</h2>
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowAddGalleryModal(true)}
+          >
+            <i className="fas fa-plus"></i> Новая галерея
+          </button>
+        </div>
+
+        {loading.galleries ? (
+          <div className="loading-placeholder">Загрузка галерей...</div>
+        ) : galleries.length === 0 ? (
+          <div className="empty-state">
+            <i className="fas fa-store-alt-slash"></i>
+            <p>У вас пока нет галерей</p>
+            <button
+              className="btn btn-primary" // Измените с btn-outline на btn-primary
+              onClick={() => setShowAddGalleryModal(true)} // Измените обработчик
             >
-              <h3>{gallery.name}</h3>
-              <p>{gallery.address}</p>
-              <div className="gallery-status">
-                <span className={`status-badge ${gallery.status?.toLowerCase()}`}>
-                  {gallery.status === 'APPROVED' ? 'Одобрена' : 
-                   gallery.status === 'PENDING' ? 'На модерации' : 'Отклонена'}
+              Создать первую галерею
+            </button>
+          </div>
+        ) : (
+          <div className="gallery-selector">
+            <div className="gallery-selector-header">
+              <label htmlFor="gallery-select">Выберите галерею:</label>
+              {selectedGallery && (
+                <button
+                  className="btn btn-outline btn-sm"
+                  onClick={() => handleEditGallery(selectedGallery)}
+                  title="Редактировать галерею"
+                >
+                  <i className="fas fa-edit"></i> Редактировать
+                </button>
+              )}
+            </div>
+
+            <select
+              id="gallery-select"
+              className="gallery-dropdown"
+              value={selectedGallery?.id || ''}
+              onChange={(e) => {
+                const gallery = galleries.find(g => g.id == e.target.value);
+                if (gallery) handleGallerySelect(gallery);
+              }}
+            >
+              {galleries.map(gallery => (
+                <option key={gallery.id} value={gallery.id}>
+                  {gallery.name} ({gallery.address})
+                </option>
+              ))}
+            </select>
+
+            {selectedGallery && (
+              <div className="selected-gallery-info">
+                <h3>{selectedGallery.name}</h3>
+                <p><i className="fas fa-map-marker-alt"></i> {selectedGallery.address}</p>
+                <p><i className="fas fa-phone"></i> {selectedGallery.contactPhone || 'Телефон не указан'}</p>
+                <span className={getStatusBadgeClass(selectedGallery.status)}>
+                  {selectedGallery.status === 'APPROVED' ? 'Одобрена' :
+                    selectedGallery.status === 'PENDING' ? 'На модерации' : 'Отклонена'}
                 </span>
               </div>
-            </div>
-          ))}
-        </div>
+            )}
+          </div>
+        )}
       </div>
-
-      {/* Выставки выбранной галереи */}
+      <AddGalleryModal
+        show={showAddGalleryModal}
+        onClose={() => setShowAddGalleryModal(false)}
+        onSuccess={handleGallerySuccess}
+        isEditMode={false} // Для создания
+        editData={null}
+      />
+      <AddGalleryModal
+        show={showEditGalleryModal}
+        onClose={() => {
+          setShowEditGalleryModal(false);
+          setEditingGallery(null);
+        }}
+        onSuccess={handleGallerySuccess}
+        isEditMode={true} // Для редактирования
+        editData={editingGallery}
+      />
+      {/* Таблица выставок */}
       {selectedGallery && (
         <div className="exhibitions-section">
           <div className="section-header">
-            <h2><i className="fas fa-calendar-alt"></i> Выставки галереи "{selectedGallery.name}"</h2>
-            <button 
+            <h2>
+              <i className="fas fa-calendar-alt"></i>
+              Выставки галереи "{selectedGallery.name}"
+            </h2>
+            <button
               className="btn btn-primary"
               onClick={handleCreateExhibition}
+              disabled={selectedGallery.status !== 'APPROVED'}
+              title={selectedGallery.status !== 'APPROVED' ? 'Галерея должна быть одобрена' : ''}
             >
               <i className="fas fa-plus"></i> Новая выставка
             </button>
           </div>
 
-          {exhibitions.length === 0 ? (
+          {loading.exhibitions ? (
+            <div className="loading-placeholder">Загрузка выставок...</div>
+          ) : exhibitions.length === 0 ? (
             <div className="empty-state">
               <i className="fas fa-calendar-plus"></i>
-              <p>Нет активных выставок</p>
-              <p>Создайте первую выставку для настройки стендов</p>
+              <p>Нет выставок в этой галерее</p>
+              {selectedGallery.status === 'APPROVED' && (
+                <button
+                  className="btn btn-outline"
+                  onClick={handleCreateExhibition}
+                >
+                  Создать первую выставку
+                </button>
+              )}
             </div>
           ) : (
-            <div className="exhibitions-grid">
-              {exhibitions.map(exhibition => (
-                <div key={exhibition.id} className="exhibition-card">
-                  <div className="exhibition-header">
-                    <h3>{exhibition.title}</h3>
-                    <span className={`status-badge ${exhibition.status?.toLowerCase()}`}>
-                      {exhibition.status === 'ACTIVE' ? 'Активна' : 
-                       exhibition.status === 'DRAFT' ? 'Черновик' : 'Завершена'}
-                    </span>
-                  </div>
-                  
-                  <div className="exhibition-details">
-                    <p><i className="fas fa-calendar"></i> 
-                      {new Date(exhibition.startDate).toLocaleDateString()} - 
-                      {new Date(exhibition.endDate).toLocaleDateString()}
-                    </p>
-                    <p><i className="fas fa-info-circle"></i> {exhibition.description || 'Без описания'}</p>
-                  </div>
+            <div className="table-container">
+              <table className="exhibitions-table">
+                <thead>
+                  <tr>
+                    <th>Название</th>
+                    <th>Описание</th>
+                    <th>Даты проведения</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {exhibitions.map(exhibition => (
+                    <tr key={exhibition.id}>
+                      <td>
+                        <strong>{exhibition.title}</strong>
+                      </td>
+                      <td>
+                        <div className="description-cell">
+                          {exhibition.description || 'Без описания'}
+                        </div>
+                      </td>
+                      <td>
+                        {formatDate(exhibition.startDate)} - {formatDate(exhibition.endDate)}
+                      </td>
+                      <td>
+                        <span className={getStatusBadgeClass(exhibition.status)}>
+                          {exhibition.status === 'ACTIVE' ? 'Активна' :
+                            exhibition.status === 'DRAFT' ? 'Черновик' : 'Завершена'}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="table-actions">
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={() => navigate(`/map/${exhibition.id}`)}
+                            title="Управление стендами"
+                          >
+                            <i className="fas fa-map"></i>
+                          </button>
+                          <button
+                            className="btn btn-info btn-sm"
+                            onClick={() => handleViewBookings(exhibition)}
+                            title="Просмотр бронирований"
+                          >
+                            <i className="fas fa-eye"></i>
+                          </button>
 
-                  <div className="exhibition-actions">
-                    <button 
-                      className="btn btn-primary"
-                      onClick={() => navigate(`/map/${exhibition.id}`)}
-                    >
-                      <i className="fas fa-map"></i> Управление стендами
-                    </button>
-                    
-                    <button 
-                      className="btn btn-outline"
-                      onClick={() => navigate(`/gallery/${selectedGallery.id}/exhibition/${exhibition.id}/edit`)}
-                    >
-                      <i className="fas fa-edit"></i> Редактировать
-                    </button>
-                  </div>
-                </div>
-              ))}
+
+
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
-      )}
-      
+      )
+      }
+
+      {/* Модальное окно бронирований */}
+      {
+        showBookingsModal && selectedExhibition && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h2>
+                  <i className="fas fa-calendar-check"></i>
+                  Бронирования выставки "{selectedExhibition.title}"
+                </h2>
+                <button className="modal-close" onClick={() => setShowBookingsModal(false)}>
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+
+              <div className="modal-body">
+                {loading.bookings ? (
+                  <div className="loading-placeholder">Загрузка бронирований...</div>
+                ) : bookings.length === 0 ? (
+                  <div className="empty-state">
+                    <i className="fas fa-calendar-times"></i>
+                    <p>Нет бронирований на эту выставку</p>
+                  </div>
+                ) : (
+                  <div className="bookings-table-container">
+                    <table className="bookings-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Художник</th>
+                          <th>Стенд</th>
+                          <th>Дата брони</th>
+                          <th>Статус</th>
+                          <th>Действия</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {bookings.map(booking => (
+                          <tr key={booking.id}>
+                            <td>#{booking.id}</td>
+                            <td>
+                              <div>
+                                <strong>{booking.artistName}</strong>
+                                <br />
+                                <small>{booking.artistEmail}</small>
+                              </div>
+                            </td>
+                            <td>
+                              Стенд #{booking.standNumber}
+                              <br />
+                              <small>{booking.width}×{booking.height} см</small>
+                            </td>
+                            <td>{formatDate(booking.bookingDate)}</td>
+                            <td>
+                              <span className={getStatusBadgeClass(booking.status)}>
+                                {booking.status === 'PENDING' ? 'Ожидает' :
+                                  booking.status === 'CONFIRMED' ? 'Подтверждено' : 'Отменено'}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="table-actions">
+                                {booking.status === 'PENDING' && (
+                                  <>
+                                    <button
+                                      className="btn btn-success btn-sm"
+                                      onClick={() => handleConfirmBooking(booking.id)}
+                                      title="Подтвердить"
+                                    >
+                                      <i className="fas fa-check"></i>
+                                    </button>
+                                    <button
+                                      className="btn btn-danger btn-sm"
+                                      onClick={() => handleRejectBooking(booking.id)}
+                                      title="Отклонить"
+                                    >
+                                      <i className="fas fa-times"></i>
+                                    </button>
+                                  </>
+                                )}
+                                {booking.status === 'CONFIRMED' && (
+                                  <span className="confirmed-text">Подтверждено</span>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  className="btn btn-outline"
+                  onClick={() => setShowBookingsModal(false)}
+                >
+                  Закрыть
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
 
       {/* Статистика */}
       <div className="dashboard-stats">
-        {/* Добавьте эту карточку: */}
-        <div 
-  className="stat-card clickable"
-  onClick={() => handleNavigateToExhibitionMap()}
-  style={{
-    cursor: 'pointer',
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    color: 'white'
-  }}
->
-  <div className="stat-icon" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
-    <i className="fas fa-map" style={{ color: 'white' }}></i>
-  </div>
-  <div className="stat-content">
-    <h3 style={{ color: 'white' }}>🗺️</h3>
-    <p style={{ color: 'white', fontWeight: 'bold' }}>
-      Карта выставки
-    </p>
-    <small style={{ opacity: 0.8, fontSize: '12px' }}>
-      {exhibitions.length > 0 
-        ? `Перейти к ${selectedGallery?.name}` 
-        : 'Сначала создайте выставку'}
-    </small>
-  </div>
-</div>
         <div className="stat-card">
-          <div className="stat-icon">
+          <div className="stat-icon gallery">
             <i className="fas fa-store"></i>
           </div>
           <div className="stat-content">
@@ -260,7 +634,7 @@ const GalleryOwnerDashboard = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">
+          <div className="stat-icon exhibition">
             <i className="fas fa-calendar-alt"></i>
           </div>
           <div className="stat-content">
@@ -270,16 +644,44 @@ const GalleryOwnerDashboard = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">
-            <i className="fas fa-chair"></i>
+          <div className="stat-icon booking">
+            <i className="fas fa-ticket-alt"></i>
           </div>
           <div className="stat-content">
-            <h3>0</h3>
-            <p>Стендов всего</p>
+            <h3>{bookings.length}</h3>
+            <p>Всего бронирований</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon pending">
+            <i className="fas fa-clock"></i>
+          </div>
+          <div className="stat-content">
+            <h3>{bookings.filter(b => b.status === 'PENDING').length}</h3>
+            <p>Ожидают подтверждения</p>
           </div>
         </div>
       </div>
-    </div>
+      {showAddExhibitionModal && selectedGallery && (
+        <AddExhibitionModal
+          isOpen={showAddExhibitionModal}
+          onClose={() => {
+            setShowAddExhibitionModal(false);
+            setIsEditMode(false);
+            setEditingExhibition(null);
+          }}
+          onSuccess={() => {
+            // Обновляем список выставок
+            const token = localStorage.getItem('authToken');
+            fetchGalleryExhibitions(selectedGallery.id, token);
+          }}
+          selectedGallery={selectedGallery}
+          isEditMode={isEditMode}
+          editData={editingExhibition}
+        />
+      )}
+    </div >
   );
 };
 

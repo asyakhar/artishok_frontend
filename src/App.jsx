@@ -10,10 +10,10 @@ import Footer from './components/Footer'
 import ArtistDashboard from './pages/ArtistDashboard'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import ExhibitionMapPage from './pages/ExhibitionMapPage' 
+import ExhibitionMapPage from './pages/ExhibitionMapPage'
 import GalleryOwnerDashboard from './pages/GalleryOwnerDashboard';
+import AdminDashboard from './pages/AdminDashBoard';
 
-// Компонент ProtectedRoute для защиты маршрутов
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
   const token = localStorage.getItem('authToken')
@@ -252,15 +252,5 @@ function DashboardRedirect() {
   }
 }
 
-
-
-function AdminDashboard() {
-  return (
-    <div style={{ padding: '20px' }}>
-      <h1>Админ-панель</h1>
-      <p>Здесь будет управление системой</p>
-    </div>
-  )
-}
 
 export default App
