@@ -98,11 +98,13 @@
 }
 
 .role-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .role-badge.admin {
@@ -112,7 +114,57 @@
 
 .role-badge.owner {
     background: #28a745;
+    /* Зеленый как раньше */
     color: white;
+    padding: 6px 10px;
+    min-width: 70px;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.2;
+}
+
+.owner-two-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.owner-two-lines span {
+    display: block;
+    line-height: 1;
+}
+
+/* Владелец галереи - два овала */
+.owner-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.owner-name,
+.owner-email {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: #e9ecef;
+    color: #495057;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+.owner-name {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.owner-email {
+    background: #f8f9fa;
+    color: #6c757d;
+    font-size: 11px;
 }
 
 .role-badge.artist {
@@ -122,19 +174,21 @@
 
 .dashboard-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 2-px;
     margin-bottom: 30px;
 }
 
 .stat-card {
     background: white;
-    padding: 20px;
+    padding: 15px;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     transition: transform 0.3s, box-shadow 0.3s;
+    min-height: 80px;
+    min-width: 270px;
 }
 
 .stat-card:hover {
@@ -143,15 +197,16 @@
 }
 
 .stat-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 10px;
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 15px;
-    font-size: 24px;
+    margin-right: 12px;
+    font-size: 20px;
     color: white;
+    flex-shrink: 0;
 }
 
 .stat-icon.users {
@@ -178,16 +233,43 @@
     background: #e83e8c;
 }
 
+.stat-content {
+    flex: 1;
+    min-width: 0;
+}
+
 .stat-content h3 {
     margin: 0 0 5px 0;
     font-size: 24px;
     font-weight: 700;
+    white-space: nowrap;
 }
 
 .stat-content p {
     margin: 0;
     color: #666;
     font-size: 14px;
+    line-height: 1.3;
+
+    word-break: break-word;
+
+    hyphens: auto;
+
+    min-height: 36px;
+}
+
+.stat-label {
+    margin: 0;
+    color: #666;
+    font-size: 13px;
+    line-height: 1.3;
+    /* Перенос длинных слов */
+    word-break: break-word;
+    hyphens: auto;
+    /* Ограничение по высоте */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .admin-tabs {
