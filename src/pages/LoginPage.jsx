@@ -57,7 +57,9 @@ const LoginPage = () => {
         localStorage.removeItem('rememberMe');
         localStorage.removeItem('rememberedEmail');
       }
-
+      window.dispatchEvent(new CustomEvent('authStateChanged', {
+        detail: { user: data.user, token: data.token }
+      }));
       // Перенаправляем в зависимости от роли
       switch (data.user.role) {
         case 'ADMIN':

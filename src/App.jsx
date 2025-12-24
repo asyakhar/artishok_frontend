@@ -13,6 +13,8 @@ import RegisterPage from './pages/RegisterPage'
 import ExhibitionMapPage from './pages/ExhibitionMapPage'
 import GalleryOwnerDashboard from './pages/GalleryOwnerDashboard';
 import AdminDashboard from './pages/AdminDashBoard';
+import AllExhibitionsPage from './pages/AllExhibitionsPage';
+import { AuthProvider } from './contexts/AuthContext';
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
@@ -138,6 +140,7 @@ function App() {
   }, [])
 
   return (
+    <AuthProvider>
     <Router>
       <div className="App">
         <Routes>
@@ -207,7 +210,11 @@ function App() {
               </ProtectedRoute>
             </Layout>
           } />
-
+<Route path="/exhibition-events" element={
+  <Layout showFooter={true}>
+    <AllExhibitionsPage />
+  </Layout>
+} />
           {/* Автоматический редирект на дашборд */}
           <Route path="/dashboard" element={
             <Layout showFooter={false}>
@@ -229,6 +236,7 @@ function App() {
         </Routes>
       </div>
     </Router>
+    </AuthProvider>
   )
 }
 

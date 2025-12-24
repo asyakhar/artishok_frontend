@@ -49,6 +49,35 @@ const Header = () => {
     }
   };
 
+
+  useEffect(() => {
+    const handleAuthStateChanged = () => {
+      checkAuth(); // Перепроверяем авторизацию при событии
+    };
+
+    window.addEventListener('authStateChanged', handleAuthStateChanged);
+    
+    return () => {
+      window.removeEventListener('authStateChanged', handleAuthStateChanged);
+    };
+  }, []);
+  // ==================================
+
+  // Также добавьте слушатель изменений localStorage (на всякий случай)
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'authToken' || e.key === 'user') {
+        checkAuth();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   const handleLogout = async () => {
     const token = localStorage.getItem('authToken');
     if (token) {
@@ -61,8 +90,15 @@ const Header = () => {
         console.error('Ошибка при выходе:', error);
       }
     }
+    
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
+    
+    // ========== ДОБАВЬТЕ ЭТО ==========
+    // Отправляем событие при выходе
+    window.dispatchEvent(new CustomEvent('authStateChanged'));
+    // ==================================
+    
     setUserData(null);
     navigate('/');
   };

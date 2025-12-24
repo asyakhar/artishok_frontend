@@ -11,10 +11,11 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const MapEditor = ({ mode, hallMap, stands, exhibitionId,onUploadHallMap, onCreateStand, onBookStand }) => {
+const MapEditor = ({ mode, hallMap, stands, exhibitionId, onUploadHallMap, onCreateStand, onBookStand }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const imageOverlayRef = useRef(null);
+  const isDrawingRef = useRef(false);
   const navigate = useNavigate();
   const [selectedStand, setSelectedStand] = useState(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -31,142 +32,125 @@ const MapEditor = ({ mode, hallMap, stands, exhibitionId,onUploadHallMap, onCrea
   const [imageError, setImageError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mapScale, setMapScale] = useState(1);
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    stand: null
+  });
+  // Функция для обработки правого клика:
+const handleStandRightClick = (stand, event) => {
+  if (mode !== 'owner') return;
+  
+  event.preventDefault();
+  event.stopPropagation();
+  
+  setContextMenu({
+    visible: true,
+    x: event.clientX,
+    y: event.clientY,
+    stand: stand
+  });
+};
+const handleDeleteStand = async (standId) => {
+  if (!window.confirm('Вы уверены, что хотите удалить этот стенд?\nЭто действие нельзя отменить.')) {
+    return;
+  }
+  
+  try {
+    // Используйте API для удаления
+    await ownerApi.deleteStand(standId);
+    
+    alert('Стенд успешно удален');
+    
+    // Закрываем контекстное меню
+    setContextMenu({ visible: false, x: 0, y: 0, stand: null });
+    
+    // Обновляем стенды (если передана функция onDeleteStand)
+    if (onDeleteStand) {
+      await onDeleteStand(standId);
+    }
+    
+  } catch (err) {
+    alert('Ошибка удаления стенда: ' + err.message);
+  }
+};
 
   // ========== ИНИЦИАЛИЗАЦИЯ КАРТЫ ==========
-  // useEffect(() => {
-  //   if (!mapRef.current) return;
+  useEffect(() => {
+    if (!mapRef.current) return;
 
-  //   mapInstance.current = L.map(mapRef.current, {
-  //     crs: L.CRS.Simple,
-  //     minZoom: -2,
-  //     maxZoom: 5,
-  //     zoomControl: true,
-  //     attributionControl: false,
-  //     zoomSnap: 0.1,
-  //     zoomDelta: 0.1
-  //   });
-
-  //   // Добавляем контролы
-  //   L.control.zoom({ position: 'topright' }).addTo(mapInstance.current);
-    
-  //   // Центрируем карту
-  //   mapInstance.current.setView([250, 250], 0);
-
-  //   // Рисуем существующие стенды
-  //   renderStands();
-
-  //   // Обработчик клика для владельца
-  //   if (mode === 'owner') {
-  //     mapInstance.current.on('click', handleMapClick);
-  //   }
-
-  //   // Обработчик изменения масштаба
-  //   mapInstance.current.on('zoom', () => {
-  //     if (mapInstance.current) {
-  //       setMapScale(mapInstance.current.getZoom());
-  //     }
-  //   });
-
-  //   return () => {
-  //     if (mapInstance.current) {
-  //       mapInstance.current.off('click');
-  //       mapInstance.current.off('zoom');
-  //       mapInstance.current.remove();
-  //       mapInstance.current = null;
-  //     }
-  //   };
-  // }, [mode]);
-// ========== ИНИЦИАЛИЗАЦИЯ КАРТЫ ==========
-useEffect(() => {
-  if (!mapRef.current) return;
-
-  // Очищаем предыдущую карту
-  if (mapInstance.current) {
-    mapInstance.current.remove();
-    mapInstance.current = null;
-  }
-
-  // Создаем карту с правильными настройками
-  mapInstance.current = L.map(mapRef.current, {
-    crs: L.CRS.Simple,
-    minZoom: -3,
-    maxZoom: 5,
-    zoomControl: true,
-    attributionControl: false,
-    zoomSnap: 0.1,
-    zoomDelta: 0.1,
-    center: [0, 0],
-    zoom: 0,
-    // Отключаем инерцию и баунс
-    inertia: false,
-    bounceAtZoomLimits: false,
-    // Важно: настройки для кликов
-    dragging: true,
-    doubleClickZoom: true,
-    scrollWheelZoom: true,
-    tap: true,
-    touchZoom: true,
-    boxZoom: false,
-    keyboard: false
-  });
-
-  // Устанавливаем базовые границы
-  const defaultBounds = [[-500, -500], [500, 500]];
-  mapInstance.current.setMaxBounds(defaultBounds);
-  
-  // Добавляем zoom control
-  L.control.zoom({ 
-    position: 'topright' 
-  }).addTo(mapInstance.current);
-
-  // Центрируем карту
-  mapInstance.current.setView([0, 0], 0);
-
-  // Обработчик клика
-  mapInstance.current.on('click', handleMapClick);
-
-  // Обработчик изменения масштаба
-  mapInstance.current.on('zoom', () => {
+    // Очищаем предыдущую карту
     if (mapInstance.current) {
-      setMapScale(mapInstance.current.getZoom());
-    }
-  });
-
-  // Стилизуем контейнер карты
-  mapRef.current.style.cursor = 'crosshair';
-
-  return () => {
-    if (mapInstance.current) {
-      mapInstance.current.off('click', handleMapClick);
-      mapInstance.current.off('zoom');
       mapInstance.current.remove();
       mapInstance.current = null;
     }
-  };
-}, [mode]);
 
-// Эффект для изменения курсора при режиме рисования
-useEffect(() => {
-  if (mapRef.current && mode === 'owner') {
+    // Создаем карту
+    mapInstance.current = L.map(mapRef.current, {
+      crs: L.CRS.Simple,
+      minZoom: -3,
+      maxZoom: 5,
+      zoomControl: true,
+      attributionControl: false,
+      zoomSnap: 0.1,
+      zoomDelta: 0.1,
+      center: [0, 0],
+      zoom: 0,
+      dragging: true,
+      doubleClickZoom: true,
+      scrollWheelZoom: true
+    });
+
+    // Устанавливаем базовые границы
+    const defaultBounds = [[-500, -500], [500, 500]];
+    mapInstance.current.setMaxBounds(defaultBounds);
+    
+    // Добавляем zoom control
+    L.control.zoom({ position: 'topright' }).addTo(mapInstance.current);
+
+    // Центрируем карту
+    mapInstance.current.setView([0, 0], 0);
+
+    // Обработчик клика
+    mapInstance.current.on('click', handleMapClick);
+
+    // Обработчик изменения масштаба
+    mapInstance.current.on('zoom', () => {
+      if (mapInstance.current) {
+        setMapScale(mapInstance.current.getZoom());
+      }
+    });
+
+    return () => {
+      if (mapInstance.current) {
+        mapInstance.current.off('click', handleMapClick);
+        mapInstance.current.off('zoom');
+        mapInstance.current.remove();
+        mapInstance.current = null;
+      }
+    };
+  }, [mode]);
+
+  useEffect(() => {
+    isDrawingRef.current = isDrawing;
+    console.log('isDrawingRef обновлен:', isDrawingRef.current);
+  }, [isDrawing]);
+  // Управление перетаскиванием в зависимости от режима
+  useEffect(() => {
+    if (!mapInstance.current || mode !== 'owner') return;
+
     if (isDrawing) {
+      mapInstance.current.dragging.disable();
       mapRef.current.style.cursor = 'crosshair';
-      // Включаем возможность кликов
-      if (mapInstance.current) {
-        mapInstance.current.dragging.disable();
-        mapInstance.current.doubleClickZoom.disable();
-        console.log('Режим рисования: перетаскивание отключено');
-      }
+      console.log('Режим рисования включен, перетаскивание отключено');
     } else {
+      mapInstance.current.dragging.enable();
       mapRef.current.style.cursor = 'grab';
-      // Включаем перетаскивание
-      if (mapInstance.current) {
-        mapInstance.current.dragging.enable();
-        mapInstance.current.doubleClickZoom.enable();
-        console.log('Режим просмотра: перетаскивание включено');
-      }
+      console.log('Режим рисования выключен, перетаскивание включено');
     }
-  }
-}, [isDrawing, mode]);
+  }, [isDrawing, mode]);
+
   // Загружаем изображение при изменении hallMap
   useEffect(() => {
     if (hallMap?.mapImageUrl) {
@@ -180,95 +164,20 @@ useEffect(() => {
   }, [stands, tempStands]);
 
   // ========== ЗАГРУЗКА ИЗОБРАЖЕНИЯ ЗАЛА ==========
-  // const loadHallMapImage = (imageUrl) => {
-  //   if (!mapInstance.current || !imageUrl) {
-  //     console.log('Нет карты или изображения');
-  //     return;
-  //   }
-
-  //   console.log('Загрузка изображения:', imageUrl);
-
-  //   // Удаляем старое изображение
-  //   if (imageOverlayRef.current) {
-  //     mapInstance.current.removeLayer(imageOverlayRef.current);
-  //     imageOverlayRef.current = null;
-  //   }
-
-  //   const img = new Image();
-  //   img.crossOrigin = 'anonymous';
-    
-  //   img.onload = function() {
-  //     console.log('Изображение загружено, размеры:', this.width, 'x', this.height);
-      
-  //     const width = this.width;
-  //     const height = this.height;
-      
-  //     // Увеличиваем границы для рамки (добавляем отступы по 20%)
-  //     const paddingX = width * 0.2;
-  //     const paddingY = height * 0.2;
-  //     const bounds = [
-  //       [-paddingY, -paddingX],
-  //       [height + paddingY, width + paddingX]
-  //     ];
-      
-  //     // Создаем фон для рамки
-  //     const backgroundBounds = [
-  //       [-paddingY - 50, -paddingX - 50],
-  //       [height + paddingY + 50, width + paddingX + 50]
-  //     ];
-      
-  //     // Добавляем фон
-  //     L.rectangle(backgroundBounds, {
-  //       color: '#f8f9fa',
-  //       fillColor: '#f8f9fa',
-  //       fillOpacity: 1,
-  //       interactive: false,
-  //       className: 'map-background'
-  //     }).addTo(mapInstance.current);
-      
-  //     // Добавляем изображение
-  //     imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
-  //       interactive: true,
-  //       className: 'hall-map-image'
-  //     }).addTo(mapInstance.current);
-      
-  //     // Устанавливаем границы и центрируем
-  //     mapInstance.current.fitBounds(bounds);
-  //     mapInstance.current.setMaxBounds(backgroundBounds);
-      
-  //     // Немного отдаляем для отображения рамки
-  //     setTimeout(() => {
-  //       if (mapInstance.current) {
-  //         mapInstance.current.setZoom(0.8);
-  //       }
-  //     }, 100);
-      
-  //     setImageError(false);
-  //     setMapImage(imageUrl);
-  //   };
-    
-  //   img.onerror = function(e) {
-  //     console.error('Ошибка загрузки изображения:', e);
-  //     setImageError(true);
-  //     showPlaceholder();
-  //   };
-    
-  //   img.src = imageUrl;
-  // };
   const loadHallMapImage = (imageUrl) => {
     if (!mapInstance.current || !imageUrl) {
       console.log('Нет карты или изображения');
       return;
     }
-  
+
     console.log('Загрузка изображения:', imageUrl);
-  
+
     // Удаляем старое изображение
     if (imageOverlayRef.current) {
       mapInstance.current.removeLayer(imageOverlayRef.current);
       imageOverlayRef.current = null;
     }
-  
+
     const img = new Image();
     img.crossOrigin = 'anonymous';
     
@@ -278,19 +187,12 @@ useEffect(() => {
       const width = this.width;
       const height = this.height;
       
-      // Важно: устанавливаем bounds относительно реальных размеров
-      // В Leaflet Simple CRS координаты могут быть любыми
       const bounds = [
-        [0, 0],                // верхний левый угол
-        [height, width]        // нижний правый угол (height = Y, width = X)
+        [0, 0],
+        [height, width]
       ];
       
       console.log('Bounds для изображения:', bounds);
-      
-      // Устанавливаем центр карты на центр изображения
-      const centerY = height / 2;
-      const centerX = width / 2;
-      console.log('Центр изображения:', centerX, centerY);
       
       // Очищаем все слои перед добавлением нового изображения
       mapInstance.current.eachLayer((layer) => {
@@ -299,9 +201,9 @@ useEffect(() => {
         }
       });
       
-      // Добавляем изображение с правильными bounds
+      // Добавляем изображение
       imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
-        interactive: true,
+        interactive: false,
         className: 'hall-map-image'
       }).addTo(mapInstance.current);
       
@@ -309,56 +211,9 @@ useEffect(() => {
       mapInstance.current.fitBounds(bounds);
       
       // Устанавливаем центрирование
+      const centerY = height / 2;
+      const centerX = width / 2;
       mapInstance.current.setView([centerY, centerX], 0);
-      
-      // Разрешаем клики по всему изображению
-      imageOverlayRef.current.getElement().style.pointerEvents = 'auto';
-      imageOverlayRef.current.getElement().style.userSelect = 'auto';
-      
-      // Добавляем обработчик клика для изображения
-      imageOverlayRef.current.on('click', function(e) {
-        console.log('Клик по изображению:', e.latlng);
-        
-        if (mode === 'owner' && isDrawing) {
-          // Используем координаты из клика
-          const { lat, lng } = e.latlng;
-          console.log('Координаты клика (lat,lng):', lat, lng);
-          
-          setPendingStandPosition({ lat, lng });
-          setShowStandForm(true);
-          
-          // Временная точка
-          const tempMarker = L.marker([lat, lng], {
-            icon: L.divIcon({
-              html: `
-                <div style="
-                  width: 24px;
-                  height: 24px;
-                  background: #dc3545;
-                  border-radius: 50%;
-                  border: 3px solid white;
-                  box-shadow: 0 0 10px rgba(220,53,69,0.5);
-                  animation: pulse 1.5s infinite;
-                ">
-                  <div style="
-                    width: 8px;
-                    height: 8px;
-                    background: white;
-                    border-radius: 50%;
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                  "></div>
-                </div>
-              `,
-              className: 'temp-marker',
-              iconSize: [30, 30]
-            }),
-            zIndexOffset: 1000
-          }).addTo(mapInstance.current);
-        }
-      });
       
       setImageError(false);
       setMapImage(imageUrl);
@@ -377,12 +232,12 @@ useEffect(() => {
     
     img.src = imageUrl;
   };
+
   const showPlaceholder = () => {
     if (!mapInstance.current) return;
     
     const bounds = [[0, 0], [500, 500]];
     
-    // Фон
     L.rectangle(bounds, {
       color: '#e9ecef',
       fillColor: '#e9ecef',
@@ -390,7 +245,6 @@ useEffect(() => {
       interactive: false
     }).addTo(mapInstance.current);
     
-    // Текст
     L.marker([250, 250], {
       icon: L.divIcon({
         html: `
@@ -415,112 +269,131 @@ useEffect(() => {
     mapInstance.current.fitBounds(bounds);
   };
 
-  // ========== КЛИК ПО КАРТЕ ДЛЯ ДОБАВЛЕНИЯ ТОЧКИ ==========
-  // const handleMapClick = (e) => {
-  //   if (mode !== 'owner' || !isDrawing) return;
-    
-  //   const { lat, lng } = e.latlng;
-  //   console.log('Клик по карте:', lat, lng);
-    
-  //   setPendingStandPosition({ lat, lng });
-  //   setShowStandForm(true);
-    
-  //   // Временная точка
-  //   const tempMarker = L.marker([lat, lng], {
-  //     icon: L.divIcon({
-  //       html: `
-  //         <div style="
-  //           width: 24px;
-  //           height: 24px;
-  //           background: #dc3545;
-  //           border-radius: 50%;
-  //           border: 3px solid white;
-  //           box-shadow: 0 0 10px rgba(220,53,69,0.5);
-  //           animation: pulse 1.5s infinite;
-  //         ">
-  //           <div style="
-  //             width: 8px;
-  //             height: 8px;
-  //             background: white;
-  //             border-radius: 50%;
-  //             position: absolute;
-  //             top: 50%;
-  //             left: 50%;
-  //             transform: translate(-50%, -50%);
-  //           "></div>
-  //         </div>
-  //         <style>
-  //           @keyframes pulse {
-  //             0% { transform: scale(1); opacity: 1; }
-  //             50% { transform: scale(1.2); opacity: 0.8; }
-  //             100% { transform: scale(1); opacity: 1; }
-  //           }
-  //         </style>
-  //       `,
-  //       className: 'temp-marker',
-  //       iconSize: [30, 30]
-  //     }),
-  //     zIndexOffset: 1000
-  //   }).addTo(mapInstance.current);
-    
-  //   // Удаляем при закрытии формы
-  //   setTimeout(() => {
-  //     if (mapInstance.current && tempMarker && !showStandForm) {
-  //       mapInstance.current.removeLayer(tempMarker);
-  //     }
-  //   }, 30000); // 30 секунд
-  // };
+  // ========== ОБРАБОТКА КЛИКА ПО КАРТЕ ==========
   const handleMapClick = (e) => {
-    console.log('=== ОБРАБОТКА КЛИКА ===');
-    console.log('mode:', mode);
-    console.log('isDrawing:', isDrawing);
-    console.log('e.type:', e.type);
-    
-    if (mode !== 'owner' || !isDrawing) {
-      console.log('Не подходящие условия для добавления стенда');
-      return;
-    }
-    
-    e.originalEvent.preventDefault();
-    e.originalEvent.stopPropagation();
-    
-    const { lat, lng } = e.latlng;
-    console.log('Координаты клика:', { lat, lng });
-    
-    // Проверяем наличие изображения
-    if (!imageOverlayRef.current) {
-      alert('⚠️ Сначала загрузите план зала!');
-      setIsDrawing(false);
-      return;
-    }
-    
-    // Проверяем, попадает ли клик в границы изображения
-    const imageBounds = imageOverlayRef.current.getBounds();
-    if (imageBounds && !imageBounds.contains(e.latlng)) {
-      console.log('Клик вне границ изображения');
-      return;
-    }
-    
-    console.log('Создаем новую точку...');
-    
-    // Создаем позицию для стенда
-    const standPosition = { 
-      lat: Math.round(lat * 100) / 100, // Округляем до 2 знаков
-      lng: Math.round(lng * 100) / 100 
-    };
-    
-    setPendingStandPosition(standPosition);
-    setShowStandForm(true);
-    
-    // Очищаем предыдущие временные маркеры
-    clearTempMarkers();
-    
-    // Добавляем временный маркер
-    addTempMarker(standPosition);
-    
-    console.log('Точка установлена:', standPosition);
+  console.log('Клик по карте. Режим:', mode, 'Рисование:', isDrawingRef.current);
+  
+  // Используем ref вместо state
+  if (mode !== 'owner' || !isDrawingRef.current) {
+    console.log('Не подходящие условия для добавления стенда');
+    return;
+  }
+  
+  const { lat, lng } = e.latlng;
+  console.log('Координаты клика:', { lat, lng });
+  
+  // Проверяем наличие изображения
+  if (!imageOverlayRef.current) {
+    alert('⚠️ Сначала загрузите план зала!');
+    setIsDrawing(false);
+    return;
+  }
+  
+  // Создаем позицию для стенда
+  const standPosition = { 
+    lat: Math.round(lat * 100) / 100,
+    lng: Math.round(lng * 100) / 100 
   };
-  // ========== СОЗДАНИЕ СТЕНДА-ТОЧКИ ==========
+  
+  console.log('Создаем точку:', standPosition);
+  
+  // Устанавливаем позицию и показываем форму
+  setPendingStandPosition(standPosition);
+  setShowStandForm(true);
+  
+  // Очищаем предыдущие временные маркеры
+  clearTempMarkers();
+  
+  // Добавляем временный маркер
+  addTempMarker(standPosition);
+};
+
+  // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С МАРКЕРАМИ ==========
+  const clearTempMarkers = () => {
+    if (!mapInstance.current) return;
+    
+    mapInstance.current.eachLayer((layer) => {
+      if (layer instanceof L.Marker && layer.options && layer.options.isTemp) {
+        mapInstance.current.removeLayer(layer);
+      }
+    });
+  };
+
+  const addTempMarker = (position) => {
+    if (!mapInstance.current) return;
+    
+    const tempMarker = L.marker([position.lat, position.lng], {
+      icon: L.divIcon({
+        html: `
+          <div style="
+            width: 30px;
+            height: 30px;
+            background: #ff0000;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 15px rgba(255,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+          ">
+            <div style="
+              width: 12px;
+              height: 12px;
+              background: white;
+              border-radius: 50%;
+            "></div>
+          </div>
+        `,
+        className: 'temp-stand-marker',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+      }),
+      zIndexOffset: 1000,
+      isTemp: true,
+      draggable: false
+    }).addTo(mapInstance.current);
+    
+    tempMarker.bindPopup(`
+      <div style="padding: 10px; min-width: 150px;">
+        <strong>📌 Новая точка</strong>
+        <div style="margin-top: 5px; font-size: 12px;">
+          X: ${Math.round(position.lng)}<br>
+          Y: ${Math.round(position.lat)}
+        </div>
+        <div style="margin-top: 8px; font-size: 11px; color: #666;">
+          Заполните форму слева
+        </div>
+      </div>
+    `).openPopup();
+    
+    return tempMarker;
+  };
+
+  // ========== ПЕРЕКЛЮЧЕНИЕ РЕЖИМА РИСОВАНИЯ ==========
+  const handleToggleDrawing = () => {
+    console.log('Переключение режима рисования. Текущее состояние:', isDrawing);
+    
+    if (mode !== 'owner') {
+      alert('Эта функция доступна только владельцам выставки');
+      return;
+    }
+    
+    if (!imageOverlayRef.current && !isDrawing) {
+      alert('⚠️ Сначала загрузите план зала!');
+      return;
+    }
+    
+    const newState = !isDrawing;
+    console.log('Новое состояние:', newState);
+    setIsDrawing(newState);
+    
+    if (!newState) {
+      clearTempMarkers();
+    }
+  };
+
+  // ========== СОЗДАНИЕ МАРКЕРА СТЕНДА ==========
   const createStandMarker = (stand) => {
     if (!mapInstance.current) return;
     
@@ -546,11 +419,7 @@ useEffect(() => {
             box-shadow: 0 3px 10px rgba(0,0,0,0.3);
             cursor: pointer;
             transition: all 0.2s;
-          " 
-          class="stand-marker" 
-          onmouseenter="this.style.transform='scale(1.2)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.4)';"
-          onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.3)';"
-          >
+          ">
             ${stand.standNumber}
           </div>
         `,
@@ -558,8 +427,9 @@ useEffect(() => {
         iconSize: [46, 46]
       })
     }).addTo(mapInstance.current);
-    
-    // Попап с информацией
+    marker.on('contextmenu', (e) => {
+      handleStandRightClick(stand, e.originalEvent);
+    });
     const popupContent = `
       <div style="padding: 15px; min-width: 250px;">
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
@@ -590,8 +460,6 @@ useEffect(() => {
               font-weight: bold;
               transition: all 0.2s;
             "
-            onmouseover="this.style.background='linear-gradient(135deg, #0056b3, #004085)'; this.style.transform='translateY(-2px)';"
-            onmouseout="this.style.background='linear-gradient(135deg, #007bff, #0056b3)'; this.style.transform='translateY(0)';"
           >
             📝 Забронировать
           </button>` : 
@@ -605,7 +473,6 @@ useEffect(() => {
         await onBookStand(standId);
         alert('Заявка на бронирование отправлена!');
         marker.closePopup();
-        // Обновляем стенды
         renderStands();
       } catch (err) {
         alert('Ошибка: ' + err.message);
@@ -627,7 +494,7 @@ useEffect(() => {
     return marker;
   };
 
-  // ========== РЕНДЕР СУЩЕСТВУЮЩИХ СТЕНДОВ ==========
+  // ========== РЕНДЕР СТЕНДОВ ==========
   const renderStands = () => {
     if (!mapInstance.current) return;
     
@@ -651,17 +518,19 @@ useEffect(() => {
       return;
     }
 
-    const newStand = {
-      standNumber: standFormData.standNumber,
-      positionX: Math.round(pendingStandPosition.lng),
-      positionY: Math.round(pendingStandPosition.lat),
-      width: standFormData.width,
-      height: standFormData.height,
-      type: standFormData.type,
-      status: 'AVAILABLE'
-    };
-
     try {
+      const newStand = {
+        standNumber: standFormData.standNumber,
+        positionX: Math.round(pendingStandPosition.lng),
+        positionY: Math.round(pendingStandPosition.lat),
+        width: standFormData.width,
+        height: standFormData.height,
+        type: standFormData.type,
+        status: 'AVAILABLE'
+      };
+
+      console.log('Создаем новый стенд:', newStand);
+
       // Сохраняем на сервер
       if (onCreateStand) {
         await onCreateStand(newStand);
@@ -670,7 +539,7 @@ useEffect(() => {
       // Добавляем локально
       setTempStands([...tempStands, { ...newStand, id: Date.now() }]);
       
-      // Сбрасываем
+      // Сбрасываем состояние
       setShowStandForm(false);
       setPendingStandPosition(null);
       setStandFormData({
@@ -679,69 +548,18 @@ useEffect(() => {
         width: 100,
         height: 100
       });
-      // setIsDrawing(false);
       
-      alert('Стенд успешно добавлен!');
+      // Очищаем временные маркеры
+      clearTempMarkers();
+      
+      alert('✅ Стенд успешно добавлен!');
+      
     } catch (err) {
-      alert('Ошибка сохранения: ' + err.message);
+      alert('❌ Ошибка сохранения: ' + err.message);
     }
   };
 
-  // ========== ЗАГРУЗКА ИЗОБРАЖЕНИЯ ЗАЛА ==========
-  // const handleImageUpload = async (e) => {
-  //   const file = e.target.files[0];
-  //   if (!file) return;
-    
-  //   if (file.size > 5 * 1024 * 1024) {
-  //     alert('Файл слишком большой. Максимальный размер: 5MB');
-  //     return;
-  //   }
-    
-  //   if (!file.type.match('image.*')) {
-  //     alert('Пожалуйста, выберите файл изображения (JPG, PNG)');
-  //     return;
-  //   }
-    
-  //   try {
-  //     setLoading(true);
-      
-  //     console.log('Загрузка файла для выставки:', exhibitionId);
-  //     console.log('Файл:', file.name, file.size, file.type);
-      
-  //     // Прямая загрузка файла
-  //     const uploadResult = await ownerApi.uploadHallMapImage(exhibitionId, file);
-  //     console.log('Результат загрузки:', uploadResult);
-      
-  //     // Если загрузка успешна
-  //     if (uploadResult && uploadResult.success) {
-  //       const imageUrl = uploadResult.fullUrl || uploadResult.fileUrl;
-        
-  //       // Создаем запись карты зала через родительский компонент
-  //       if (onUploadHallMap) {
-  //         await onUploadHallMap(imageUrl, file.name);
-  //       } else {
-  //         // Или обновляем карту напрямую
-  //         setMapImage(imageUrl);
-  //         setTimeout(() => {
-  //           loadHallMapImage(imageUrl);
-  //         }, 100);
-  //       }
-        
-  //       alert('Карта зала успешно загружена!');
-  //     } else {
-  //       throw new Error(uploadResult?.error || 'Ошибка загрузки файла');
-  //     }
-      
-  //   } catch (err) {
-  //     console.error('Ошибка загрузки:', err);
-  //     console.error('Детали ошибки:', err.response?.data);
-  //     alert(`Ошибка загрузки: ${err.response?.data?.error || err.message}`);
-  //   } finally {
-  //     setLoading(false);
-  //     // Сбрасываем input
-  //     e.target.value = '';
-  //   }
-  // };
+  // ========== ЗАГРУЗКА ИЗОБРАЖЕНИЯ ==========
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -752,13 +570,10 @@ useEffect(() => {
     }
     
     try {
-      // Создаем FileReader для чтения файла
       const reader = new FileReader();
       
       reader.onload = async function(event) {
         const imageUrl = event.target.result;
-        
-        // Создаем изображение для получения размеров
         const img = new Image();
         
         img.onload = function() {
@@ -773,40 +588,26 @@ useEffect(() => {
             imageOverlayRef.current = null;
           }
           
-          // Определяем границы для изображения
-          // В Leaflet Simple CRS мы можем использовать реальные пиксельные координаты
           const bounds = [
-            [0, 0],                     // top-left
-            [imageHeight, imageWidth]   // bottom-right (обратите внимание: height = Y, width = X)
+            [0, 0],
+            [imageHeight, imageWidth]
           ];
-          
-          console.log('Bounds:', bounds);
           
           // Добавляем изображение
           imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
-            interactive: false, // Делаем неинтерактивным, чтобы клики шли на карту
+            interactive: false,
             className: 'hall-map-image'
           }).addTo(mapInstance.current);
           
-          // Устанавливаем границы
           mapInstance.current.fitBounds(bounds);
           
-          // Устанавливаем центр
           const centerY = imageHeight / 2;
           const centerX = imageWidth / 2;
           mapInstance.current.setView([centerY, centerX], 0);
           
-          // Устанавливаем максимальные границы
           mapInstance.current.setMaxBounds(bounds);
           
-          // Включаем клики по всей карте
-          mapInstance.current.dragging.enable();
-          mapInstance.current.doubleClickZoom.enable();
-          
           alert('Фотка загружена! Теперь кликайте по карте чтобы ставить точки.');
-          
-          // Создаем тестовые стенды (опционально)
-          // createTestStandsOnImage(imageWidth, imageHeight);
         };
         
         img.src = imageUrl;
@@ -823,77 +624,10 @@ useEffect(() => {
       alert('Ошибка загрузки изображения');
     }
     
-    // Сбрасываем input
     e.target.value = '';
   };
-  
-  // Функция для создания тестовых стендов на основе размеров фотки
-  const createTestStandsOnImage = (imageWidth, imageHeight) => {
-    console.log('🛠️ Создаю тестовые стенды для фотки...');
-    
-    // Рассчитываем позиции относительно размеров фотки
-    const centerX = imageWidth / 2;
-    const centerY = imageHeight / 2;
-    const spacingX = imageWidth / 4;
-    const spacingY = imageHeight / 4;
-    
-    const testStands = [
-      {
-        id: 1,
-        standNumber: 'A1',
-        positionX: centerX - spacingX,
-        positionY: centerY - spacingY,
-        width: 150,
-        height: 100,
-        type: 'PAINTING',
-        status: 'AVAILABLE'
-      },
-      {
-        id: 2,
-        standNumber: 'A2',
-        positionX: centerX + spacingX,
-        positionY: centerY - spacingY,
-        width: 150,
-        height: 100,
-        type: 'SCULPTURE',
-        status: 'AVAILABLE'
-      },
-      {
-        id: 3,
-        standNumber: 'B1',
-        positionX: centerX - spacingX,
-        positionY: centerY + spacingY,
-        width: 200,
-        height: 150,
-        type: 'PHOTOGRAPHY',
-        status: 'BOOKED'
-      },
-      {
-        id: 4,
-        standNumber: 'B2',
-        positionX: centerX + spacingX,
-        positionY: centerY + spacingY,
-        width: 120,
-        height: 120,
-        type: 'DIGITAL',
-        status: 'AVAILABLE'
-      }
-    ];
-    
-    console.log('✅ Создано тестовых стендов:', testStands.map(s => ({
-      номер: s.standNumber,
-      позиция: `X:${s.positionX}, Y:${s.positionY}`,
-      размер: `${s.width}x${s.height}`
-    })));
-    
-    setTempStands(testStands);
-    
-    // Рисуем стенды на карте
-    setTimeout(() => {
-      renderStands();
-    }, 200);
-  };
-  // ========== БРОНИРОВАНИЕ (ХУДОЖНИК) ==========
+
+  // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
   const handleBookStand = async () => {
     if (!selectedStand) {
       alert('Выберите стенд на карте');
@@ -904,8 +638,6 @@ useEffect(() => {
       await onBookStand(selectedStand.id);
       alert('Заявка на бронирование отправлена!');
       setSelectedStand(null);
-      
-      // Обновляем карту
       renderStands();
     } catch (err) {
       alert('Ошибка: ' + err.message);
@@ -922,7 +654,6 @@ useEffect(() => {
     return types[type] || type;
   };
 
-  // ========== СТАТИСТИКА ==========
   const getStats = () => {
     const allStands = [...(stands || []), ...tempStands];
     return {
@@ -935,25 +666,23 @@ useEffect(() => {
 
   const stats = getStats();
 
-  // ========== КНОПКА СОХРАНИТЬ ==========
   const handleSaveAll = () => {
-    // Здесь можно добавить логику сохранения всех изменений
     alert('Все изменения сохранены!');
   };
 
-  // ========== КНОПКА НАЗАД ==========
   const handleBack = () => {
     if (window.confirm('Все несохраненные изменения будут потеряны. Вернуться в личный кабинет?')) {
       navigate('/gallery/dashboard');
     }
   };
 
+  // ========== RENDER ==========
   return (
     <div style={{
       display: 'flex',
       height: 'calc(100vh - 80px)',
       backgroundColor: '#f8f9fa',
-      padding: '20px', // Увеличиваем нижний padding
+      padding: '20px',
       paddingBottom: '80px'
     }}>
       {/* ШАПКА С КНОПКАМИ */}
@@ -1009,7 +738,7 @@ useEffect(() => {
             onMouseOver={(e) => e.target.style.backgroundColor = '#218838'}
             onMouseOut={(e) => e.target.style.backgroundColor = '#28a745'}
           >
-            💾 Сохранить все изменения
+            Сохранить все изменения
           </button>
         )}
       </div>
@@ -1034,7 +763,7 @@ useEffect(() => {
           paddingBottom: '10px',
           fontSize: '24px'
         }}>
-          {mode === 'owner' ? '🎨 Управление выставкой' : '📅 Бронирование'}
+          {mode === 'owner' ? 'Управление выставкой' : 'Бронирование'}
         </h2>
         
         {mode === 'owner' ? (
@@ -1084,7 +813,7 @@ useEffect(() => {
                   transition: 'all 0.2s',
                   opacity: loading ? 0.7 : 1
                 }}>
-                  {loading ? '⏳ Загрузка...' : '📁 Загрузить план зала'}
+                  {loading ? 'Загрузка...' : 'Загрузить '}
                 </label>
                 
                 {mapImage && !imageError && (
@@ -1099,7 +828,7 @@ useEffect(() => {
                     alignItems: 'center',
                     gap: '10px'
                   }}>
-                    <span style={{ fontSize: '18px' }}>✅</span>
+                    <span style={{ fontSize: '18px' }}></span>
                     <span>Карта зала загружена</span>
                   </div>
                 )}
@@ -1116,7 +845,7 @@ useEffect(() => {
                     alignItems: 'center',
                     gap: '10px'
                   }}>
-                    <span style={{ fontSize: '18px' }}>❌</span>
+                    <span style={{ fontSize: '18px' }}></span>
                     <span>Ошибка загрузки изображения</span>
                   </div>
                 )}
@@ -1148,7 +877,7 @@ useEffect(() => {
               
               <div style={{ marginBottom: '15px' }}>
                 <button
-                  onClick={() => setIsDrawing(!isDrawing)}
+                  onClick={handleToggleDrawing}
                   style={{
                     width: '100%',
                     padding: '15px',
@@ -1164,7 +893,7 @@ useEffect(() => {
                     transition: 'all 0.2s'
                   }}
                 >
-                  {isDrawing ? '❌ Отменить добавление' : '➕ Добавить стенд'}
+                  {isDrawing ? '❌ Отменить добавление' : '➕ Добавить'}
                 </button>
                 
                 <div style={{ 
@@ -1177,7 +906,7 @@ useEffect(() => {
                   border: `2px solid ${isDrawing ? '#c3e6cb' : '#ffeaa7'}`
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    <span style={{ fontSize: '20px' }}>💡</span>
+                    <span style={{ fontSize: '20px' }}></span>
                     <strong>{isDrawing ? 'Режим добавления активен' : 'Инструкция'}</strong>
                   </div>
                   <p style={{ margin: 0 }}>
@@ -1186,6 +915,40 @@ useEffect(() => {
                       : 'Нажмите кнопку выше, чтобы включить режим добавления стендов'}
                   </p>
                 </div>
+
+                {/* ВИЗУАЛЬНЫЙ ИНДИКАТОР РЕЖИМА */}
+                {isDrawing && (
+                  <div style={{
+                    backgroundColor: '#d1ecf1',
+                    border: '2px solid #bee5eb',
+                    color: '#0c5460',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    marginTop: '15px',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}>
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      background: '#17a2b8',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '12px'
+                    }}>🎯</div>
+                    <div>
+                      <strong>Режим добавления активен</strong>
+                      <div style={{ fontSize: '12px', marginTop: '4px', opacity: 0.8 }}>
+                        Кликните на карте, чтобы разместить стенд
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
               
               {/* ФОРМА ДОБАВЛЕНИЯ СТЕНДА */}
@@ -1228,26 +991,15 @@ useEffect(() => {
                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>
                       Тип стенда
                     </label>
-                    <select
-                      value={standFormData.type}
-                      onChange={(e) => setStandFormData({...standFormData, type: e.target.value})}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '2px solid #ced4da',
-                        borderRadius: '6px',
-                        fontSize: '16px',
-                        backgroundColor: 'white',
-                        transition: 'border-color 0.2s'
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = '#007bff'}
-                      onBlur={(e) => e.target.style.borderColor = '#ced4da'}
-                    >
-                      <option value="PAINTING">🎨 Живопись</option>
-                      <option value="SCULPTURE">🗿 Скульптура</option>
-                      <option value="PHOTOGRAPHY">📷 Фотография</option>
-                      <option value="DIGITAL">💻 Цифровое искусство</option>
-                    </select>
+                    // Измените options в форме:
+<select
+  value={standFormData.type}
+  onChange={(e) => setStandFormData({...standFormData, type: e.target.value})}
+>
+  <option value="WALL">🎨 Стена для живописи</option>
+  <option value="BOOTH">🗿 Будка для скульптур</option>
+  <option value="OPEN_SPACE">📷 Открытое пространство</option>
+</select>
                   </div>
                   
                   <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
@@ -1315,12 +1067,13 @@ useEffect(() => {
                       onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
                       onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
                     >
-                      ✅ Сохранить стенд
+                      Сохранить стенд
                     </button>
                     <button
                       onClick={() => {
                         setShowStandForm(false);
                         setPendingStandPosition(null);
+                        clearTempMarkers();
                       }}
                       style={{
                         flex: 1,
@@ -1431,7 +1184,6 @@ useEffect(() => {
                 </div>
               </div>
             </div>
-            
           </>
         ) : (
           /* ИНТЕРФЕЙС ХУДОЖНИКА */
@@ -1533,7 +1285,7 @@ useEffect(() => {
         )}
       </div>
       
-      {/* ПРАВАЯ ПАНЕЛЬ - КАРТА С РАМКОЙ */}
+      {/* ПРАВАЯ ПАНЕЛЬ - КАРТА */}
       <div style={{
         flex: 1,
         position: 'relative',
@@ -1557,7 +1309,7 @@ useEffect(() => {
         }}>
           <div>
             <h3 style={{ margin: 0, color: '#343a40', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ color: '#007bff' }}>🗺️</span>
+              <span style={{ color: '#007bff' }}></span>
               Карта выставки
             </h3>
             <p style={{ margin: '5px 0 0 0', color: '#6c757d', fontSize: '14px' }}>
@@ -1577,7 +1329,7 @@ useEffect(() => {
             alignItems: 'center',
             gap: '8px'
           }}>
-            {mode === 'owner' ? '👑 Владелец' : '🎨 Художник'}
+            {mode === 'owner' ? 'Владелец галереи' : 'Художник'}
           </div>
         </div>
         
@@ -1591,7 +1343,7 @@ useEffect(() => {
           }}
         />
         
-        {/* ПАНЕЛЬ ИНФОРМАЦИИ И УПРАВЛЕНИЯ */}
+        {/* ПАНЕЛЬ ИНФОРМАЦИИ */}
         <div style={{
           padding: '15px 20px',
           backgroundColor: '#f8f9fa',
@@ -1640,72 +1392,5 @@ useEffect(() => {
     </div>
   );
 };
-// Функция для очистки временных маркеров
-const clearTempMarkers = () => {
-  if (!mapInstance.current) return;
-  
-  mapInstance.current.eachLayer((layer) => {
-    if (layer instanceof L.Marker && layer.options && layer.options.isTemp) {
-      mapInstance.current.removeLayer(layer);
-    }
-  });
-};
 
-// Функция для добавления временного маркера
-const addTempMarker = (position) => {
-  if (!mapInstance.current) return;
-  
-  const tempMarker = L.marker([position.lat, position.lng], {
-    icon: L.divIcon({
-      html: `
-        <div style="
-          width: 30px;
-          height: 30px;
-          background: #ff0000;
-          border-radius: 50%;
-          border: 3px solid white;
-          box-shadow: 0 0 15px rgba(255,0,0,0.7);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-        ">
-          <div style="
-            width: 12px;
-            height: 12px;
-            background: white;
-            border-radius: 50%;
-          "></div>
-        </div>
-      `,
-      className: 'temp-stand-marker',
-      iconSize: [36, 36],
-      iconAnchor: [18, 18]
-    }),
-    zIndexOffset: 1000,
-    isTemp: true,
-    draggable: false
-  }).addTo(mapInstance.current);
-  
-  // Открываем popup с информацией
-  tempMarker.bindPopup(`
-    <div style="padding: 10px; min-width: 150px;">
-      <strong>📌 Новая точка</strong>
-      <div style="margin-top: 5px; font-size: 12px;">
-        X: ${Math.round(position.lng)}<br>
-        Y: ${Math.round(position.lat)}
-      </div>
-      <div style="margin-top: 8px; font-size: 11px; color: #666;">
-        Заполните форму слева
-      </div>
-    </div>
-  `).openPopup();
-  
-  // Закрываем popup при клике на маркер
-  tempMarker.on('click', (e) => {
-    e.originalEvent.stopPropagation();
-  });
-  
-  return tempMarker;
-};
 export default MapEditor;

@@ -89,20 +89,7 @@ const ExhibitionCard = ({ event }) => {
         </div>
       </div>
       
-      <div className="card-footer">
-        
-        
-        <div className="card-actions">
-          <button className="btn btn-outline btn-sm">
-            <i className="fas fa-info-circle"></i>
-            <span className="action-text">Подробнее</span>
-          </button>
-          <button className="btn btn-outline btn-sm">
-            <i className="fas fa-ticket-alt"></i>
-            <span className="action-text">Бронировать</span>
-          </button>
-        </div>
-      </div>
+      
       
      
     </div>

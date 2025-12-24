@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ExhibitionCard from './ExhibitionCard';
 import './ExhibitionsSection.css';
+import { Link } from 'react-router-dom';
 
 const ExhibitionsSection = ({ events, loading }) => {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -48,9 +49,9 @@ const ExhibitionsSection = ({ events, loading }) => {
           <p className="section-subtitle">
             Откройте для себя искусство в лучших галереях города
           </p>
-          <a href="/events" className="section-link">
-            Все выставки <i className="fas fa-arrow-right"></i>
-          </a>
+          <Link to="/exhibition-events" className="section-link">
+  Все выставки <i className="fas fa-arrow-right"></i>
+</Link>
         </div>
 
         {/* Простые фильтры */}
