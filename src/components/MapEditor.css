@@ -341,3 +341,71 @@
 .leaflet-interactive {
   cursor: pointer !important;
 }
+/* Добавьте в ваш CSS */
+.hall-map-image {
+  pointer-events: none !important; /* Отключаем клики по самому изображению */
+}
+
+.temp-marker {
+  pointer-events: auto !important;
+}
+
+/* Стили для контейнера карты */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background-color: #f8f9fa;
+}
+
+/* Убедитесь, что контейнер карты принимает клики */
+.map-editor-map-area {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-editor-map-area * {
+  box-sizing: border-box;
+}
+/* Стили для карты в разных режимах */
+.map-editor-map-area {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Стиль курсора для режима рисования */
+.drawing-mode .leaflet-container {
+  cursor: crosshair !important;
+}
+
+/* Отключаем стандартный курсор ручки в Leaflet */
+.leaflet-grab {
+  cursor: crosshair !important;
+}
+
+.leaflet-dragging .leaflet-grab {
+  cursor: move !important;
+}
+
+/* Стиль для временного маркера */
+.temp-stand-marker {
+  cursor: pointer !important;
+}
+
+/* Стиль для обычных маркеров стендов */
+.stand-marker-container {
+  cursor: pointer !important;
+}
+
+/* Убедитесь, что изображение не перехватывает клики */
+.leaflet-image-layer {
+  pointer-events: none !important;
+}
+
+/* Разрешаем клики на маркерах */
+.leaflet-marker-icon {
+  pointer-events: auto !important;
+}

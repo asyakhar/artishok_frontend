@@ -33,50 +33,140 @@ const MapEditor = ({ mode, hallMap, stands, exhibitionId,onUploadHallMap, onCrea
   const [mapScale, setMapScale] = useState(1);
 
   // ========== ИНИЦИАЛИЗАЦИЯ КАРТЫ ==========
-  useEffect(() => {
-    if (!mapRef.current) return;
+  // useEffect(() => {
+  //   if (!mapRef.current) return;
 
-    mapInstance.current = L.map(mapRef.current, {
-      crs: L.CRS.Simple,
-      minZoom: -2,
-      maxZoom: 5,
-      zoomControl: true,
-      attributionControl: false,
-      zoomSnap: 0.1,
-      zoomDelta: 0.1
-    });
+  //   mapInstance.current = L.map(mapRef.current, {
+  //     crs: L.CRS.Simple,
+  //     minZoom: -2,
+  //     maxZoom: 5,
+  //     zoomControl: true,
+  //     attributionControl: false,
+  //     zoomSnap: 0.1,
+  //     zoomDelta: 0.1
+  //   });
 
-    // Добавляем контролы
-    L.control.zoom({ position: 'topright' }).addTo(mapInstance.current);
+  //   // Добавляем контролы
+  //   L.control.zoom({ position: 'topright' }).addTo(mapInstance.current);
     
-    // Центрируем карту
-    mapInstance.current.setView([250, 250], 0);
+  //   // Центрируем карту
+  //   mapInstance.current.setView([250, 250], 0);
 
-    // Рисуем существующие стенды
-    renderStands();
+  //   // Рисуем существующие стенды
+  //   renderStands();
 
-    // Обработчик клика для владельца
-    if (mode === 'owner') {
-      mapInstance.current.on('click', handleMapClick);
+  //   // Обработчик клика для владельца
+  //   if (mode === 'owner') {
+  //     mapInstance.current.on('click', handleMapClick);
+  //   }
+
+  //   // Обработчик изменения масштаба
+  //   mapInstance.current.on('zoom', () => {
+  //     if (mapInstance.current) {
+  //       setMapScale(mapInstance.current.getZoom());
+  //     }
+  //   });
+
+  //   return () => {
+  //     if (mapInstance.current) {
+  //       mapInstance.current.off('click');
+  //       mapInstance.current.off('zoom');
+  //       mapInstance.current.remove();
+  //       mapInstance.current = null;
+  //     }
+  //   };
+  // }, [mode]);
+// ========== ИНИЦИАЛИЗАЦИЯ КАРТЫ ==========
+useEffect(() => {
+  if (!mapRef.current) return;
+
+  // Очищаем предыдущую карту
+  if (mapInstance.current) {
+    mapInstance.current.remove();
+    mapInstance.current = null;
+  }
+
+  // Создаем карту с правильными настройками
+  mapInstance.current = L.map(mapRef.current, {
+    crs: L.CRS.Simple,
+    minZoom: -3,
+    maxZoom: 5,
+    zoomControl: true,
+    attributionControl: false,
+    zoomSnap: 0.1,
+    zoomDelta: 0.1,
+    center: [0, 0],
+    zoom: 0,
+    // Отключаем инерцию и баунс
+    inertia: false,
+    bounceAtZoomLimits: false,
+    // Важно: настройки для кликов
+    dragging: true,
+    doubleClickZoom: true,
+    scrollWheelZoom: true,
+    tap: true,
+    touchZoom: true,
+    boxZoom: false,
+    keyboard: false
+  });
+
+  // Устанавливаем базовые границы
+  const defaultBounds = [[-500, -500], [500, 500]];
+  mapInstance.current.setMaxBounds(defaultBounds);
+  
+  // Добавляем zoom control
+  L.control.zoom({ 
+    position: 'topright' 
+  }).addTo(mapInstance.current);
+
+  // Центрируем карту
+  mapInstance.current.setView([0, 0], 0);
+
+  // Обработчик клика
+  mapInstance.current.on('click', handleMapClick);
+
+  // Обработчик изменения масштаба
+  mapInstance.current.on('zoom', () => {
+    if (mapInstance.current) {
+      setMapScale(mapInstance.current.getZoom());
     }
+  });
 
-    // Обработчик изменения масштаба
-    mapInstance.current.on('zoom', () => {
+  // Стилизуем контейнер карты
+  mapRef.current.style.cursor = 'crosshair';
+
+  return () => {
+    if (mapInstance.current) {
+      mapInstance.current.off('click', handleMapClick);
+      mapInstance.current.off('zoom');
+      mapInstance.current.remove();
+      mapInstance.current = null;
+    }
+  };
+}, [mode]);
+
+// Эффект для изменения курсора при режиме рисования
+useEffect(() => {
+  if (mapRef.current && mode === 'owner') {
+    if (isDrawing) {
+      mapRef.current.style.cursor = 'crosshair';
+      // Включаем возможность кликов
       if (mapInstance.current) {
-        setMapScale(mapInstance.current.getZoom());
+        mapInstance.current.dragging.disable();
+        mapInstance.current.doubleClickZoom.disable();
+        console.log('Режим рисования: перетаскивание отключено');
       }
-    });
-
-    return () => {
+    } else {
+      mapRef.current.style.cursor = 'grab';
+      // Включаем перетаскивание
       if (mapInstance.current) {
-        mapInstance.current.off('click');
-        mapInstance.current.off('zoom');
-        mapInstance.current.remove();
-        mapInstance.current = null;
+        mapInstance.current.dragging.enable();
+        mapInstance.current.doubleClickZoom.enable();
+        console.log('Режим просмотра: перетаскивание включено');
       }
-    };
-  }, [mode]);
-
+    }
+  }
+}, [isDrawing, mode]);
   // Загружаем изображение при изменении hallMap
   useEffect(() => {
     if (hallMap?.mapImageUrl) {
@@ -381,51 +471,54 @@ const MapEditor = ({ mode, hallMap, stands, exhibitionId,onUploadHallMap, onCrea
   //   }, 30000); // 30 секунд
   // };
   const handleMapClick = (e) => {
-    if (mode !== 'owner' || !isDrawing) return;
+    console.log('=== ОБРАБОТКА КЛИКА ===');
+    console.log('mode:', mode);
+    console.log('isDrawing:', isDrawing);
+    console.log('e.type:', e.type);
+    
+    if (mode !== 'owner' || !isDrawing) {
+      console.log('Не подходящие условия для добавления стенда');
+      return;
+    }
+    
+    e.originalEvent.preventDefault();
+    e.originalEvent.stopPropagation();
     
     const { lat, lng } = e.latlng;
-    console.log('Клик по карте (режим владельца):', lat, lng);
+    console.log('Координаты клика:', { lat, lng });
     
-    setPendingStandPosition({ lat, lng });
+    // Проверяем наличие изображения
+    if (!imageOverlayRef.current) {
+      alert('⚠️ Сначала загрузите план зала!');
+      setIsDrawing(false);
+      return;
+    }
+    
+    // Проверяем, попадает ли клик в границы изображения
+    const imageBounds = imageOverlayRef.current.getBounds();
+    if (imageBounds && !imageBounds.contains(e.latlng)) {
+      console.log('Клик вне границ изображения');
+      return;
+    }
+    
+    console.log('Создаем новую точку...');
+    
+    // Создаем позицию для стенда
+    const standPosition = { 
+      lat: Math.round(lat * 100) / 100, // Округляем до 2 знаков
+      lng: Math.round(lng * 100) / 100 
+    };
+    
+    setPendingStandPosition(standPosition);
     setShowStandForm(true);
     
-    // Временная точка
-    const tempMarker = L.marker([lat, lng], {
-      icon: L.divIcon({
-        html: `
-          <div style="
-            width: 24px;
-            height: 24px;
-            background: #dc3545;
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 0 10px rgba(220,53,69,0.5);
-            animation: pulse 1.5s infinite;
-          ">
-            <div style="
-              width: 8px;
-              height: 8px;
-              background: white;
-              border-radius: 50%;
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-            "></div>
-          </div>
-        `,
-        className: 'temp-marker',
-        iconSize: [30, 30]
-      }),
-      zIndexOffset: 1000
-    }).addTo(mapInstance.current);
+    // Очищаем предыдущие временные маркеры
+    clearTempMarkers();
     
-    // Удаляем при закрытии формы
-    setTimeout(() => {
-      if (mapInstance.current && tempMarker && !showStandForm) {
-        mapInstance.current.removeLayer(tempMarker);
-      }
-    }, 30000);
+    // Добавляем временный маркер
+    addTempMarker(standPosition);
+    
+    console.log('Точка установлена:', standPosition);
   };
   // ========== СОЗДАНИЕ СТЕНДА-ТОЧКИ ==========
   const createStandMarker = (stand) => {
@@ -586,7 +679,7 @@ const MapEditor = ({ mode, hallMap, stands, exhibitionId,onUploadHallMap, onCrea
         width: 100,
         height: 100
       });
-      setIsDrawing(false);
+      // setIsDrawing(false);
       
       alert('Стенд успешно добавлен!');
     } catch (err) {
@@ -653,30 +746,82 @@ const MapEditor = ({ mode, hallMap, stands, exhibitionId,onUploadHallMap, onCrea
     const file = e.target.files[0];
     if (!file) return;
     
-    // Простая проверка
     if (!file.type.includes('image')) {
       alert('Выберите картинку!');
       return;
     }
     
-    // Создаем URL для файла
-    const imageUrl = URL.createObjectURL(file);
-    
-    // Показываем на карте
-    if (mapInstance.current) {
-      const bounds = [[0, 0], [500, 500]];
-      if (imageOverlayRef.current) {
-        mapInstance.current.removeLayer(imageOverlayRef.current);
-      }
+    try {
+      // Создаем FileReader для чтения файла
+      const reader = new FileReader();
       
-      imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
-        interactive: true
-      }).addTo(mapInstance.current);
+      reader.onload = async function(event) {
+        const imageUrl = event.target.result;
+        
+        // Создаем изображение для получения размеров
+        const img = new Image();
+        
+        img.onload = function() {
+          const imageWidth = this.width;
+          const imageHeight = this.height;
+          
+          console.log('Размеры изображения:', imageWidth, 'x', imageHeight);
+          
+          // Удаляем старое изображение
+          if (imageOverlayRef.current) {
+            mapInstance.current.removeLayer(imageOverlayRef.current);
+            imageOverlayRef.current = null;
+          }
+          
+          // Определяем границы для изображения
+          // В Leaflet Simple CRS мы можем использовать реальные пиксельные координаты
+          const bounds = [
+            [0, 0],                     // top-left
+            [imageHeight, imageWidth]   // bottom-right (обратите внимание: height = Y, width = X)
+          ];
+          
+          console.log('Bounds:', bounds);
+          
+          // Добавляем изображение
+          imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
+            interactive: false, // Делаем неинтерактивным, чтобы клики шли на карту
+            className: 'hall-map-image'
+          }).addTo(mapInstance.current);
+          
+          // Устанавливаем границы
+          mapInstance.current.fitBounds(bounds);
+          
+          // Устанавливаем центр
+          const centerY = imageHeight / 2;
+          const centerX = imageWidth / 2;
+          mapInstance.current.setView([centerY, centerX], 0);
+          
+          // Устанавливаем максимальные границы
+          mapInstance.current.setMaxBounds(bounds);
+          
+          // Включаем клики по всей карте
+          mapInstance.current.dragging.enable();
+          mapInstance.current.doubleClickZoom.enable();
+          
+          alert('Фотка загружена! Теперь кликайте по карте чтобы ставить точки.');
+          
+          // Создаем тестовые стенды (опционально)
+          // createTestStandsOnImage(imageWidth, imageHeight);
+        };
+        
+        img.src = imageUrl;
+      };
       
-      mapInstance.current.fitBounds(bounds);
+      reader.onerror = function() {
+        alert('Ошибка чтения файла!');
+      };
+      
+      reader.readAsDataURL(file);
+      
+    } catch (err) {
+      console.error('Ошибка загрузки:', err);
+      alert('Ошибка загрузки изображения');
     }
-    
-    alert('Фотка загружена! Теперь кликайте по карте чтобы ставить точки.');
     
     // Сбрасываем input
     e.target.value = '';
@@ -1495,5 +1640,72 @@ const MapEditor = ({ mode, hallMap, stands, exhibitionId,onUploadHallMap, onCrea
     </div>
   );
 };
+// Функция для очистки временных маркеров
+const clearTempMarkers = () => {
+  if (!mapInstance.current) return;
+  
+  mapInstance.current.eachLayer((layer) => {
+    if (layer instanceof L.Marker && layer.options && layer.options.isTemp) {
+      mapInstance.current.removeLayer(layer);
+    }
+  });
+};
 
+// Функция для добавления временного маркера
+const addTempMarker = (position) => {
+  if (!mapInstance.current) return;
+  
+  const tempMarker = L.marker([position.lat, position.lng], {
+    icon: L.divIcon({
+      html: `
+        <div style="
+          width: 30px;
+          height: 30px;
+          background: #ff0000;
+          border-radius: 50%;
+          border: 3px solid white;
+          box-shadow: 0 0 15px rgba(255,0,0,0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        ">
+          <div style="
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+          "></div>
+        </div>
+      `,
+      className: 'temp-stand-marker',
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
+    }),
+    zIndexOffset: 1000,
+    isTemp: true,
+    draggable: false
+  }).addTo(mapInstance.current);
+  
+  // Открываем popup с информацией
+  tempMarker.bindPopup(`
+    <div style="padding: 10px; min-width: 150px;">
+      <strong>📌 Новая точка</strong>
+      <div style="margin-top: 5px; font-size: 12px;">
+        X: ${Math.round(position.lng)}<br>
+        Y: ${Math.round(position.lat)}
+      </div>
+      <div style="margin-top: 8px; font-size: 11px; color: #666;">
+        Заполните форму слева
+      </div>
+    </div>
+  `).openPopup();
+  
+  // Закрываем popup при клике на маркер
+  tempMarker.on('click', (e) => {
+    e.originalEvent.stopPropagation();
+  });
+  
+  return tempMarker;
+};
 export default MapEditor;
