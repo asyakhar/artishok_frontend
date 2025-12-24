@@ -137,7 +137,7 @@ const RegisterPage = () => {
       ...prev,
       role: value,
     }));
-    
+
     // Если выбрана роль владельца галереи, показываем форму для галереи
     if (value === "GALLERY_OWNER") {
       setShowGalleryForm(true);
@@ -170,7 +170,7 @@ const RegisterPage = () => {
       setError("Пароли не совпадают");
       return;
     }
-    
+
     // Валидация телефона для шага phoneNumber
     if (currentStep.field === "phoneNumber" && formData.phoneNumber) {
       const phoneRegex = /^\+?[0-9\s\-\(\)]{10,}$/;
@@ -278,6 +278,8 @@ const RegisterPage = () => {
         throw new Error(userDataResult.error || `Ошибка регистрации пользователя`);
       }
 
+      console.log('Телефон пользователя при регистрации:', galleryData.phoneNumber);
+      console.log('Полные данные пользователя:', userDataResult);
       // Если пользователь зарегистрирован, создаем галерею
       const galleryResponse = await fetch(`${API_BASE_URL}/api/galleries/create`, {
         method: "POST",
@@ -302,7 +304,7 @@ const RegisterPage = () => {
       setSuccess(
         `Регистрация успешна! Галерея "${galleryData.name}" создана. Мы отправили письмо с подтверждением на ${formData.email}`
       );
-      
+
     } catch (err) {
       setError(err.message || "Ошибка регистрации. Проверьте подключение к серверу.");
     } finally {
@@ -544,9 +546,8 @@ const RegisterPage = () => {
                   <button
                     key={option.value}
                     type="button"
-                    className={`option-button ${
-                      formData.role === option.value ? "selected" : ""
-                    }`}
+                    className={`option-button ${formData.role === option.value ? "selected" : ""
+                      }`}
                     onClick={() => handleOptionSelect(option.value)}
                   >
                     <span className="option-emoji">

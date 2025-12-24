@@ -208,14 +208,14 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  <Link // Изменено с <a> на <Link>
+                  <Link
                     to="/login"
                     className="btn btn-outline btn-sm"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <i className="fas fa-sign-in-alt"></i> Войти
                   </Link>
-                  <Link // Изменено с <a> на <Link>
+                  <Link
                     to="/register"
                     className="btn btn-outline btn-sm"
                     onClick={() => setIsMenuOpen(false)}

@@ -492,7 +492,6 @@ const AdminDashboard = () => {
                                             <th>Email</th>
                                             <th>Роль</th>
                                             <th>Статус</th>
-                                            <th>Дата регистрации</th>
                                             <th>Действия</th>
                                         </tr>
                                     </thead>
@@ -511,8 +510,12 @@ const AdminDashboard = () => {
                                                 <td>{user.email}</td>
                                                 <td>
                                                     <span className={getRoleBadgeClass(user.role)}>
-                                                        {user.role === 'ADMIN' ? 'Админ' :
-                                                            user.role === 'GALLERY_OWNER' ? 'Владелец галереи' : 'Художник'}
+                                                        {user.role === 'GALLERY_OWNER' ?
+                                                            <span className="owner-two-lines">
+                                                                <span>Владелец</span>
+                                                                <span>галереи</span>
+                                                            </span> :
+                                                            user.role === 'ADMIN' ? 'Админ' : 'Художник'}
                                                     </span>
                                                 </td>
                                                 <td>
@@ -520,7 +523,7 @@ const AdminDashboard = () => {
                                                         {user.isActive ? 'Активен' : 'Неактивен'}
                                                     </span>
                                                 </td>
-                                                <td>{formatDate(user.createdAt)}</td>
+
                                                 <td>
                                                     <div className="table-actions">
                                                         <button
@@ -539,13 +542,7 @@ const AdminDashboard = () => {
                                                                 <i className="fas fa-user-shield"></i>
                                                             </button>
                                                         )}
-                                                        <button
-                                                            className="btn btn-info btn-sm"
-                                                            onClick={() => handleUserAction(user, 'reset-password')}
-                                                            title="Сбросить пароль"
-                                                        >
-                                                            <i className="fas fa-key"></i>
-                                                        </button>
+
                                                     </div>
                                                 </td>
                                             </tr>
@@ -604,10 +601,9 @@ const AdminDashboard = () => {
                                                 <td>{gallery.address}</td>
                                                 <td>
                                                     {gallery.owner ? (
-                                                        <div>
-                                                            <strong>{gallery.owner.fullName}</strong>
-                                                            <br />
-                                                            <small>{gallery.owner.email}</small>
+                                                        <div className="owner-info">
+                                                            <span className="owner-name">{gallery.owner.fullName}</span>
+                                                            <span className="owner-email">{gallery.owner.email}</span>
                                                         </div>
                                                     ) : 'Не указан'}
                                                 </td>

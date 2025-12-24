@@ -49,7 +49,7 @@ const LoginPage = () => {
       // Сохраняем токен и данные пользователя
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      
+
       if (rememberMe) {
         localStorage.setItem('rememberMe', 'true');
         localStorage.setItem('rememberedEmail', formData.email);
@@ -106,14 +106,9 @@ const LoginPage = () => {
           <p className="login-subtitle">Добро пожаловать обратно</p>
         </div>
 
-        <div className="login-welcome">
-          <h2>Снова здравствуйте!</h2>
-          <p>Войдите в свой аккаунт, чтобы продолжить</p>
-        </div>
-
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="email">Email <span className="required">*</span></label>
+            <label htmlFor="email">Email <span className="required"></span></label>
             <input
               type="email"
               id="email"
@@ -128,7 +123,7 @@ const LoginPage = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Пароль <span className="required">*</span></label>
+            <label htmlFor="password">Пароль <span className="required"></span></label>
             <input
               type="password"
               id="password"
@@ -165,9 +160,9 @@ const LoginPage = () => {
           )}
 
           <div className="login-button-container">
-            <button 
-              type="submit" 
-              className="login-button" 
+            <button
+              type="submit"
+              className="login-button"
               disabled={loading || !formData.email || !formData.password}
             >
               {loading ? (
@@ -184,7 +179,7 @@ const LoginPage = () => {
             </button>
           </div>
 
-          
+
         </form>
 
         {/* Ссылка на регистрацию */}
@@ -199,21 +194,21 @@ const LoginPage = () => {
             Для тестирования:
           </p>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px' }}>
-            <button 
+            <button
               onClick={() => handleTestLogin('artist@test.com', 'password123')}
               className="btn-outline"
               style={{ fontSize: '12px', padding: '5px 10px' }}
             >
               Artist
             </button>
-            <button 
+            <button
               onClick={() => handleTestLogin('gallery@test.com', 'password123')}
               className="btn-outline"
               style={{ fontSize: '12px', padding: '5px 10px' }}
             >
               Gallery Owner
             </button>
-            <button 
+            <button
               onClick={() => handleTestLogin('admin@test.com', 'password123')}
               className="btn-outline"
               style={{ fontSize: '12px', padding: '5px 10px' }}
