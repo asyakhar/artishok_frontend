@@ -45,7 +45,7 @@ const HomePage = ({ events, galleries, loading, error }) => {
         error={error.galleries}
       />
       <CTASection />
-      <Footer />
+    
     </>
   )
 }

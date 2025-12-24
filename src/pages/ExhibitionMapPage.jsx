@@ -227,7 +227,7 @@ const ExhibitionMapPage = () => {
           mode={mode}
           hallMap={selectedMap}
           stands={stands}
-          
+          exhibitionId={exhibitionId} 
           // Обработчики для владельца
           onUploadHallMap={handleUploadHallMap}
           onCreateStand={handleCreateStand}

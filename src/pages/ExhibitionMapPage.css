@@ -1,160 +1,197 @@
 .exhibition-map-page {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background-color: #f8f9fa;
-  }
-  
-  .map-header {
-    background: white;
-    padding: 20px;
-    border-bottom: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-shrink: 0;
-  }
-  
-  .exhibition-info h1 {
-    margin: 0 0 10px 0;
-    color: #2c3e50;
-    font-size: 24px;
-  }
-  
-  .exhibition-info .details {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    color: #6c757d;
-    font-size: 14px;
-  }
-  
-  .dates, .gallery {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .header-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    align-items: flex-end;
-  }
-  
-  .mode-indicator {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .mode-indicator .label {
-    color: #6c757d;
-    font-size: 14px;
-  }
-  
-  .mode-badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-  
-  .mode-badge.owner {
-    background-color: #ffc107;
-    color: #856404;
-  }
-  
-  .mode-badge.artist {
-    background-color: #28a745;
-    color: white;
-  }
-  
-  .mode-badge.viewer {
-    background-color: #6c757d;
-    color: white;
-  }
-  
-  .map-selector {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .map-selector label {
-    color: #6c757d;
-    font-size: 14px;
-  }
-  
-  .map-selector select {
-    padding: 8px 12px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    background: white;
-    color: #495057;
-    min-width: 200px;
-    font-size: 14px;
-  }
-  
-  .map-container {
-    flex: 1;
-    overflow: hidden;
-    position: relative;
-  }
-  
-  /* Loading state */
-  .loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    gap: 20px;
-  }
-  
-  .spinner {
-    width: 50px;
-    height: 50px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #3498db;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  /* Error state */
-  .error {
-    padding: 40px;
-    text-align: center;
-    max-width: 500px;
-    margin: 100px auto;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-  
-  .error h2 {
-    color: #dc3545;
-    margin-bottom: 20px;
-  }
-  
-  .error button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .error button:hover {
-    background: #0056b3;
-  }
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100vh; /* Добавлено */
+  background-color: #f8f9fa;
+  overflow: hidden; /* Убираем скроллинг всей страницы */
+}
+
+.map-header {
+  background: white;
+  padding: 12px 20px; /* Еще уменьшил */
+  border-bottom: 1px solid #dee2e6;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Изменил на center для лучшего выравнивания */
+  flex-shrink: 0;
+  min-height: 60px; /* Уменьшил минимальную высоту */
+}
+
+.exhibition-info {
+  flex: 1;
+}
+
+.exhibition-info h1 {
+  margin: 0 0 4px 0;
+  color: #2c3e50;
+  font-size: 18px; /* Еще уменьшил */
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.exhibition-info .details {
+  display: flex;
+  flex-direction: row; /* Изменил на горизонтальное расположение */
+  gap: 20px; /* Расстояние между элементами */
+  color: #6c757d;
+  font-size: 12px;
+  flex-wrap: wrap; /* Перенос на маленьких экранах */
+}
+
+.dates, .gallery {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap; /* Запрещаем перенос */
+}
+
+.header-controls {
+  display: flex;
+  flex-direction: row; /* Горизонтальное расположение */
+  gap: 20px; /* Расстояние между элементами */
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.mode-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mode-indicator .label {
+  color: #6c757d;
+  font-size: 12px;
+}
+
+.mode-badge {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.mode-badge.owner {
+  background-color: #ffc107;
+  color: #856404;
+}
+
+.mode-badge.artist {
+  background-color: #28a745;
+  color: white;
+}
+
+.mode-badge.viewer {
+  background-color: #6c757d;
+  color: white;
+}
+
+.map-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.map-selector label {
+  color: #6c757d;
+  font-size: 12px;
+}
+
+.map-selector select {
+  padding: 5px 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background: white;
+  color: #495057;
+  min-width: 150px;
+  font-size: 12px;
+  height: 28px; /* Уменьшил высоту */
+}
+
+.map-container {
+  flex: 1;
+  min-height: 0; /* Важно! Устраняет проблему с flex */
+  overflow: hidden; /* Убираем скроллинг контейнера */
+  position: relative;
+  margin: 12px; /* Уменьшил отступы */
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Стили для внутреннего содержимого MapEditor */
+.map-container > div {
+  height: 100%;
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Стили для Leaflet карты */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  border-radius: 6px;
+}
+
+/* Loading state */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 20px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error state */
+.error {
+  padding: 30px;
+  text-align: center;
+  max-width: 500px;
+  margin: 100px auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.error h2 {
+  color: #dc3545;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.error p {
+  font-size: 14px;
+}
+
+.error button {
+  margin-top: 15px;
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.error button:hover {
+  background: #0056b3;
+}

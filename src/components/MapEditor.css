@@ -324,3 +324,20 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+.hall-map-image {
+  pointer-events: auto !important;
+  user-select: auto !important;
+  -webkit-user-select: auto !important;
+}
+
+.leaflet-image-layer {
+  pointer-events: auto !important;
+}
+
+.leaflet-container {
+  cursor: crosshair !important;
+}
+
+.leaflet-interactive {
+  cursor: pointer !important;
+}

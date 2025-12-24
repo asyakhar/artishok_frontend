@@ -37,9 +37,23 @@ api.interceptors.response.use(
 // ========== ВЛАДЕЛЕЦ ГАЛЕРЕИ ==========
 export const ownerApi = {
   // Карты залов
+ 
+      // Загрузка карты зала (изображение)
+  uploadHallMapImage: (exhibitionId, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return axios.post(`${API_BASE_URL}/api/exhibitions/${exhibitionId}/upload-map`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
+      }
+    });
+  },
+  
+  // Создание записи о карте зала (URL изображения)
   uploadHallMap: (exhibitionId, data) =>
     api.post(`/gallery-owner/exhibitions/${exhibitionId}/hall-map`, data),
-
   // Стенды
   getExhibitionStands: (exhibitionId) =>
     api.get(`/gallery-owner/exhibitions/${exhibitionId}/stands`),
@@ -69,13 +83,7 @@ export const ownerApi = {
 
   createExhibition: (exhibitionData) =>
     api.post('/gallery-owner/exhibitions', exhibitionData),
-    // Загрузка карты зала с файлом
-  uploadHallMapImage: (exhibitionId, formData) => 
-  api.post(`/gallery-owner/exhibitions/${exhibitionId}/upload-map`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  }),
+
 
 // Создание стенда с координатами
 createStandWithCoords: (exhibitionId, standData) => 
