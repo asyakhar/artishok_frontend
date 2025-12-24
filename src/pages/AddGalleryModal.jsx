@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './AddGalleryModal.css';
+
 const API_BASE_URL = 'http://localhost:8080';
+
 const AddGalleryModal = ({
     show,
     onClose,
@@ -19,6 +21,12 @@ const AddGalleryModal = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // Состояния для загрузки логотипа
+    const [logoFile, setLogoFile] = useState(null);
+    const [logoPreview, setLogoPreview] = useState('');
+    const [logoUploadError, setLogoUploadError] = useState('');
+    const logoInputRef = useRef(null);
+
     useEffect(() => {
         if (isEditMode && editData) {
             // Заполняем форму данными для редактирования
@@ -30,6 +38,11 @@ const AddGalleryModal = ({
                 contactEmail: editData.contactEmail || '',
                 logoUrl: editData.logoUrl || ''
             });
+
+            // Если есть ссылка на логотип, показываем превью
+            if (editData.logoUrl) {
+                setLogoPreview(editData.logoUrl);
+            }
         } else {
             // Сбрасываем форму для создания
             setGalleryData({
@@ -40,13 +53,47 @@ const AddGalleryModal = ({
                 contactEmail: '',
                 logoUrl: ''
             });
+            setLogoPreview('');
+            setLogoFile(null);
         }
         setError('');
+        setLogoUploadError('');
     }, [isEditMode, editData, show]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setGalleryData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleLogoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Проверяем размер файла (макс. 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                setLogoUploadError('Файл слишком большой (макс. 10MB)');
+                return;
+            }
+
+            // Проверяем тип файла
+            if (!file.type.startsWith('image/')) {
+                setLogoUploadError('Пожалуйста, выберите файл изображения (JPG, PNG)');
+                return;
+            }
+
+            setLogoFile(file);
+            setLogoPreview(URL.createObjectURL(file));
+            setLogoUploadError('');
+            setGalleryData(prev => ({ ...prev, logoUrl: '' })); // Очищаем URL, если выбрали файл
+        }
+    };
+
+    const removeLogo = () => {
+        setLogoFile(null);
+        setLogoPreview('');
+        setGalleryData(prev => ({ ...prev, logoUrl: '' }));
+        if (logoInputRef.current) {
+            logoInputRef.current.value = '';
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -66,54 +113,98 @@ const AddGalleryModal = ({
             return;
         }
 
+        // Валидация email
+        const emailRegex = /\S+@\S+\.\S+/;
+        if (!emailRegex.test(galleryData.contactEmail)) {
+            setError('Введите корректный email адрес');
+            return;
+        }
+
         setLoading(true);
         setError('');
 
         try {
             const token = localStorage.getItem('authToken');
-            let response;
-            let url;
 
-            if (isEditMode && editData && editData.id) {
-                // РЕДАКТИРОВАНИЕ
-                url = `${API_BASE_URL}/gallery-owner/galleries/${editData.id}`;
-                response = await fetch(url, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(galleryData)
-                });
-            } else {
-                // СОЗДАНИЕ
-                url = `${API_BASE_URL}/gallery-owner/create-gallery`;
-                response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(galleryData)
-                });
+            if (!token) {
+                throw new Error('Токен авторизации отсутствует');
             }
 
-            const data = await response.json();
+            // Определяем URL и метод
+            const endpoint = isEditMode && editData && editData.id
+                ? `${API_BASE_URL}/gallery-owner/galleries/${editData.id}`
+                : `${API_BASE_URL}/gallery-owner/create-gallery`;
 
-            if (response.ok && data.success) {
-                const message = isEditMode
-                    ? 'Информация о галерее обновлена и отправлена на модерацию!'
-                    : 'Заявка на создание галереи отправлена на модерацию!';
+            const method = isEditMode ? 'PUT' : 'POST';
 
-                alert(message);
-                onSuccess();
-                onClose();
+            // Проверяем, есть ли файл логотипа для загрузки
+            if (logoFile) {
+                // Для загрузки с файлом используем FormData
+                const formData = new FormData();
+
+                // Добавляем текстовые поля
+                Object.keys(galleryData).forEach(key => {
+                    if (key !== 'logoUrl' || !galleryData[key]) { // Не добавляем logoUrl если он пустой
+                        formData.append(key, galleryData[key] || '');
+                    }
+                });
+
+                // Добавляем файл
+                formData.append('logoFile', logoFile);
+
+                // Отправляем запрос с FormData
+                const response = await fetch(endpoint, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        // НЕ УКАЗЫВАЕМ Content-Type для FormData - браузер сам установит правильный заголовок
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                console.log('Response data with file:', data);
+
+                if (response.ok) {
+                    const message = isEditMode
+                        ? 'Информация о галерее обновлена и отправлена на модерацию!'
+                        : 'Заявка на создание галереи отправлена на модерацию!';
+
+                    alert(message);
+                    onSuccess();
+                    onClose();
+                } else {
+                    setError(data.error || data.message || `Ошибка ${response.status} при сохранении галереи`);
+                }
             } else {
-                setError(data.error || 'Ошибка при сохранении галереи');
+                // Если нет файла, отправляем JSON
+                const response = await fetch(endpoint, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(galleryData)
+                });
+
+                const data = await response.json();
+                console.log('Response data without file:', data);
+
+                if (response.ok) {
+                    const message = isEditMode
+                        ? 'Информация о галерее обновлена и отправлена на модерацию!'
+                        : 'Заявка на создание галереи отправлена на модерацию!';
+
+                    alert(message);
+                    onSuccess();
+                    onClose();
+                } else {
+                    setError(data.error || data.message || `Ошибка ${response.status} при сохранении галереи`);
+                }
             }
         } catch (error) {
-            setError('Ошибка сети: ' + error.message);
             console.error('Ошибка:', error);
+            setError('Ошибка сети: ' + error.message);
         } finally {
             setLoading(false);
         }
@@ -209,15 +300,82 @@ const AddGalleryModal = ({
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="logoUrl">Ссылка на логотип</label>
-                            <input
-                                type="url"
-                                id="logoUrl"
-                                name="logoUrl"
-                                value={galleryData.logoUrl}
-                                onChange={handleInputChange}
-                                placeholder="https://example.com/logo.png"
-                            />
+                            <label>Логотип галереи</label>
+                            <div className="logo-upload-container">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleLogoChange}
+                                    className="file-input"
+                                    ref={logoInputRef}
+                                    style={{ display: 'none' }}
+                                    id="gallery-logo-upload"
+                                />
+
+                                <div className="logo-preview-area">
+                                    {logoPreview ? (
+                                        <div className="logo-preview">
+                                            <img
+                                                src={logoPreview}
+                                                alt="Превью логотипа"
+                                                className="logo-preview-image"
+                                            />
+                                            <button
+                                                type="button"
+                                                className="remove-logo-btn"
+                                                onClick={removeLogo}
+                                                title="Удалить логотип"
+                                            >
+                                                <i className="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="logo-upload-placeholder">
+                                            <i className="fas fa-image"></i>
+                                            <span>Загрузите логотип галереи</span>
+                                            <small>Рекомендуемый размер: 200x200px</small>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="logo-upload-controls">
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline btn-sm"
+                                        onClick={() => logoInputRef.current.click()}
+                                    >
+                                        <i className="fas fa-upload"></i>
+                                        {logoPreview ? 'Изменить логотип' : 'Выбрать файл'}
+                                    </button>
+
+                                    <div className="logo-url-input">
+                                        <label htmlFor="logoUrl">Или укажите ссылку:</label>
+                                        <input
+                                            type="url"
+                                            id="logoUrl"
+                                            name="logoUrl"
+                                            value={galleryData.logoUrl}
+                                            onChange={handleInputChange}
+                                            placeholder="https://example.com/logo.png"
+                                            disabled={!!logoPreview}
+                                        />
+                                    </div>
+                                </div>
+
+                                {logoUploadError && (
+                                    <div className="logo-error-message">
+                                        <i className="fas fa-exclamation-triangle"></i>
+                                        {logoUploadError}
+                                    </div>
+                                )}
+
+                                <div className="logo-upload-hint">
+                                    <small>
+                                        <i className="fas fa-info-circle"></i>
+                                        Вы можете загрузить файл (макс. 10MB) или указать ссылку на изображение
+                                    </small>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>

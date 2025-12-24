@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./RegisterPage.css";
 
@@ -10,14 +10,11 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [showGalleryForm, setShowGalleryForm] = useState(false);
-  const [galleryData, setGalleryData] = useState({
-    name: "",
-    address: "",
-    description: "",
-    phone: "",
-    website: "",
-  });
+
+  // Аватар пользователя
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState("");
+  const avatarFileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -107,12 +104,11 @@ const RegisterPage = () => {
     },
     {
       title: "Аватар",
-      question: "URL вашего аватара (необязательно)",
-      field: "avatarUrl",
-      type: "url",
-      placeholder: "https://example.com/avatar.jpg",
+      question: "Загрузите аватар (необязательно)",
+      field: "avatar",
+      type: "file",
       required: false,
-      description: "Ссылка на ваше фото",
+      description: "Максимальный размер 10MB",
     },
   ];
 
@@ -124,35 +120,52 @@ const RegisterPage = () => {
     }));
   };
 
-  const handleGalleryChange = (e) => {
-    const { name, value } = e.target;
-    setGalleryData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const handleOptionSelect = (value) => {
     setFormData((prev) => ({
       ...prev,
       role: value,
     }));
+  };
 
-    // Если выбрана роль владельца галереи, показываем форму для галереи
-    if (value === "GALLERY_OWNER") {
-      setShowGalleryForm(true);
-    } else {
-      setShowGalleryForm(false);
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Проверяем размер
+      if (file.size > 10 * 1024 * 1024) {
+        setError("Файл слишком большой (макс. 10MB)");
+        return;
+      }
+
+      // Проверяем тип
+      if (!file.type.startsWith('image/')) {
+        setError("Выберите файл изображения (JPG, PNG)");
+        return;
+      }
+
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+
+      setFormData(prev => ({
+        ...prev,
+        avatarUrl: "",
+        hasAvatar: true
+      }));
+
+      setError("");
     }
   };
 
   const nextStep = () => {
     const currentStep = steps[step];
 
-    // Валидация
-    if (currentStep.required && !formData[currentStep.field]?.trim()) {
-      setError(`Пожалуйста, заполните это поле`);
-      return;
+    if (currentStep.required) {
+      // Для файлового поля проверяем avatarFile
+      if (currentStep.type === "file") {
+        // Файл не обязателен, пропускаем проверку
+      } else if (!formData[currentStep.field]?.trim()) {
+        setError(`Пожалуйста, заполните это поле`);
+        return;
+      }
     }
 
     if (currentStep.field === "email" && formData.email) {
@@ -201,22 +214,21 @@ const RegisterPage = () => {
     setError("");
 
     try {
-      const userData = {
-        email: formData.email,
-        password: formData.password,
-        fullName: formData.fullName,
-        role: formData.role,
-        phoneNumber: formData.phoneNumber || "",
-        bio: formData.bio || "",
-        avatarUrl: formData.avatarUrl || "",
-      };
+      const formDataToSend = new FormData();
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("password", formData.password);
+      formDataToSend.append("fullName", formData.fullName);
+      formDataToSend.append("role", formData.role);
+      formDataToSend.append("phoneNumber", formData.phoneNumber || "");
+      formDataToSend.append("bio", formData.bio || "");
 
-      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      if (avatarFile) {
+        formDataToSend.append("avatarFile", avatarFile);
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/register-with-avatar`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
+        body: formDataToSend,
       });
 
       const data = await response.json();
@@ -226,12 +238,15 @@ const RegisterPage = () => {
       }
 
       if (data.success) {
-        // Если пользователь - владелец галереи, показываем форму для создания галереи
+        // Успешная регистрация для всех ролей
+        setStep(steps.length);
+
+        // Разные сообщения для разных ролей
         if (formData.role === "GALLERY_OWNER") {
-          setShowGalleryForm(true);
+          setSuccess(
+            `Регистрация владельца галереи успешна! Мы отправили письмо с подтверждением на ${formData.email}. После подтверждения email вы сможете создать свою галерею в личном кабинете.`
+          );
         } else {
-          // Показываем экран успешной регистрации
-          setStep(steps.length);
           setSuccess(
             `Регистрация успешна! Мы отправили письмо с подтверждением на ${formData.email}`
           );
@@ -239,72 +254,6 @@ const RegisterPage = () => {
       } else {
         throw new Error(data.error || "Ошибка регистрации");
       }
-    } catch (err) {
-      setError(err.message || "Ошибка регистрации. Проверьте подключение к серверу.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGallerySubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      // Сначала регистрируем пользователя
-      const userData = {
-        email: formData.email,
-        password: formData.password,
-        fullName: formData.fullName,
-        role: formData.role,
-        phoneNumber: formData.phoneNumber || "",
-        bio: formData.bio || "",
-        avatarUrl: formData.avatarUrl || "",
-      };
-
-      // Регистрация пользователя
-      const userResponse = await fetch(`${API_BASE_URL}/api/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-
-      const userDataResult = await userResponse.json();
-
-      if (!userResponse.ok) {
-        throw new Error(userDataResult.error || `Ошибка регистрации пользователя`);
-      }
-
-      console.log('Телефон пользователя при регистрации:', galleryData.phoneNumber);
-      console.log('Полные данные пользователя:', userDataResult);
-      // Если пользователь зарегистрирован, создаем галерею
-      const galleryResponse = await fetch(`${API_BASE_URL}/api/galleries/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${userDataResult.token || ''}`
-        },
-        body: JSON.stringify({
-          ...galleryData,
-          ownerId: userDataResult.userId
-        }),
-      });
-
-      const galleryResult = await galleryResponse.json();
-
-      if (!galleryResponse.ok) {
-        throw new Error(galleryResult.error || `Ошибка создания галереи`);
-      }
-
-      // Показываем экран успешной регистрации
-      setStep(steps.length);
-      setSuccess(
-        `Регистрация успешна! Галерея "${galleryData.name}" создана. Мы отправили письмо с подтверждением на ${formData.email}`
-      );
-
     } catch (err) {
       setError(err.message || "Ошибка регистрации. Проверьте подключение к серверу.");
     } finally {
@@ -325,10 +274,42 @@ const RegisterPage = () => {
           </div>
           <h1 className="register-title">Регистрация завершена!</h1>
           <p className="success-message">
-            Мы отправили письмо с подтверждением на адрес:
-            <br />
-            <strong>{formData.email}</strong>
+            {formData.role === "GALLERY_OWNER" ? (
+              <>
+                <strong>Владелец галереи успешно зарегистрирован!</strong>
+                <br /><br />
+                Мы отправили письмо с подтверждением на адрес:
+                <br />
+                <strong>{formData.email}</strong>
+              </>
+            ) : (
+              <>
+                Мы отправили письмо с подтверждением на адрес:
+                <br />
+                <strong>{formData.email}</strong>
+              </>
+            )}
           </p>
+
+          {formData.role === "GALLERY_OWNER" && (
+            <div className="gallery-owner-info">
+              <div className="info-card">
+                <i className="fas fa-info-circle"></i>
+                <div className="info-content">
+                  <h4>Что дальше?</h4>
+                  <p>После подтверждения email:</p>
+                  <ol>
+                    <li>Войдите в свой аккаунт</li>
+                    <li>Перейдите в личный кабинет</li>
+                    <li>Создайте свою первую галерею</li>
+                    <li>Настройте план галереи и места</li>
+                    <li>Начните организовывать выставки</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          )}
+
           <p className="success-description">
             Пожалуйста, проверьте вашу почту и перейдите по ссылке в письме,
             <br />
@@ -355,139 +336,6 @@ const RegisterPage = () => {
               <li>Попробуйте отправить письмо повторно через 5 минут</li>
             </ul>
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Если выбрана роль владельца галереи и показываем форму для галереи
-  if (showGalleryForm && formData.role === "GALLERY_OWNER") {
-    return (
-      <div className="minimal-register-page">
-        <div className="minimal-register-container">
-          <div className="register-header">
-            <button
-              className="back-home"
-              onClick={() => setShowGalleryForm(false)}
-            >
-              <i className="fas fa-arrow-left"></i>
-              <span>Назад к регистрации</span>
-            </button>
-            <h1 className="register-title">Создание галереи</h1>
-            <p className="register-subtitle">
-              Заполните информацию о вашей галерее
-            </p>
-          </div>
-
-          <form onSubmit={handleGallerySubmit} className="gallery-form">
-            <div className="form-group">
-              <label htmlFor="name">Название галереи *</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={galleryData.name}
-                onChange={handleGalleryChange}
-                placeholder="Например: Галерея современного искусства"
-                className="form-input"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="address">Адрес галереи *</label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={galleryData.address}
-                onChange={handleGalleryChange}
-                placeholder="Город, улица, дом"
-                className="form-input"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="description">Описание галереи</label>
-              <textarea
-                id="description"
-                name="description"
-                value={galleryData.description}
-                onChange={handleGalleryChange}
-                placeholder="Расскажите о вашей галерее, концепции, направлении..."
-                className="form-textarea"
-                rows={4}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="phone">Телефон галереи</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={galleryData.phone}
-                onChange={handleGalleryChange}
-                placeholder="+7 (999) 000-00-00"
-                className="form-input"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="website">Веб-сайт</label>
-              <input
-                type="url"
-                id="website"
-                name="website"
-                value={galleryData.website}
-                onChange={handleGalleryChange}
-                placeholder="https://example.com"
-                className="form-input"
-              />
-            </div>
-
-            {error && (
-              <div className="error-message">
-                <i className="fas fa-exclamation-circle"></i>
-                {error}
-              </div>
-            )}
-
-            <div className="form-actions">
-              <button
-                type="button"
-                className="btn btn-outline"
-                onClick={() => setShowGalleryForm(false)}
-                disabled={loading}
-              >
-                <i className="fas fa-arrow-left"></i>
-                Назад
-              </button>
-              <button
-                type="submit"
-                className="btn btn-success"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <span className="spinner"></span>
-                    Создаем галерею...
-                  </>
-                ) : (
-                  <>
-                    Создать галерею
-                    <i className="fas fa-check"></i>
-                  </>
-                )}
-              </button>
-            </div>
-
-            <p className="form-note">
-              * После регистрации вы сможете загрузить план галереи и настроить
-              карту мест в личном кабинете
-            </p>
-          </form>
         </div>
       </div>
     );
@@ -574,6 +422,53 @@ const RegisterPage = () => {
                 className="form-textarea"
                 rows={4}
               />
+            ) : currentStep.type === "file" ? (
+              <div className="file-upload-container">
+                <input
+                  type="file"
+                  name="avatarFile"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="file-input"
+                  ref={avatarFileInputRef}
+                  style={{ display: 'none' }}
+                />
+
+                <div className="avatar-preview-container">
+                  {avatarPreview ? (
+                    <div className="avatar-preview">
+                      <img src={avatarPreview} alt="Preview" />
+                      <button
+                        type="button"
+                        className="remove-avatar"
+                        onClick={() => {
+                          setAvatarFile(null);
+                          setAvatarPreview("");
+                        }}
+                      >
+                        <i className="fas fa-times"></i>
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      className="avatar-placeholder"
+                      onClick={() => avatarFileInputRef.current.click()}
+                    >
+                      <i className="fas fa-user-plus"></i>
+                      <span>Нажмите для загрузки</span>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => avatarFileInputRef.current.click()}
+                >
+                  <i className="fas fa-upload"></i>
+                  Выбрать файл
+                </button>
+              </div>
             ) : (
               <input
                 type={currentStep.type}
@@ -612,19 +507,21 @@ const RegisterPage = () => {
             {step < steps.length - 1 ? (
               <button
                 type="button"
-                className="btn btn-outline"
+                className="btn btn-primary"
                 onClick={nextStep}
                 disabled={
-                  loading || (currentStep.required && !formData[currentStep.field])
+                  loading ||
+                  (currentStep.required && !formData[currentStep.field]?.trim())
                 }
               >
-                Далее
+                {step === steps.length - 2 ? "Перейти к завершению" : "Далее"}
                 <i className="fas fa-arrow-right"></i>
               </button>
             ) : (
               <button
-                type="submit"
+                type="button"
                 className="btn btn-success"
+                onClick={handleSubmit}
                 disabled={loading}
               >
                 {loading ? (

@@ -71,7 +71,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #E63946; /* Красный цвет вместо синего */
+  color: #E63946;
+  /* Красный цвет вместо синего */
   text-decoration: none;
   font-size: 14px;
   transition: color 0.3s;
@@ -82,18 +83,21 @@
 }
 
 .back-home:hover {
-  color: #c1121f; /* Темнее красный */
+  color: #c1121f;
+  /* Темнее красный */
 }
 
 .register-title {
   font-size: 28px;
   font-weight: 700;
-  color: #1D3557; /* Темно-синий из ваших стилей */
+  color: #1D3557;
+  /* Темно-синий из ваших стилей */
   margin: 10px 0 5px;
 }
 
 .register-subtitle {
-  color: #6c757d; /* Серый из ваших стилей */
+  color: #6c757d;
+  /* Серый из ваших стилей */
   font-size: 16px;
 }
 
@@ -104,7 +108,8 @@
 
 .progress-track {
   height: 6px;
-  background: #e9ecef; /* Серый из ваших стилей */
+  background: #e9ecef;
+  /* Серый из ваших стилей */
   border-radius: 3px;
   overflow: hidden;
   margin-bottom: 10px;
@@ -112,7 +117,8 @@
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #E63946, #c1121f); /* Красный градиент */
+  background: linear-gradient(90deg, #E63946, #c1121f);
+  /* Красный градиент */
   transition: width 0.3s ease;
 }
 
@@ -124,7 +130,8 @@
 
 .step-title {
   font-weight: 600;
-  color: #457B9D; /* Вторичный синий */
+  color: #457B9D;
+  /* Вторичный синий */
   font-size: 14px;
 }
 
@@ -135,7 +142,8 @@
 
 .current-step {
   font-weight: 700;
-  color: #E63946; /* Красный */
+  color: #E63946;
+  /* Красный */
 }
 
 /* Карточка вопроса */
@@ -157,7 +165,8 @@
 .question-number {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #E63946, #c1121f); /* Красный градиент */
+  background: linear-gradient(135deg, #E63946, #c1121f);
+  /* Красный градиент */
   color: white;
   border-radius: 50%;
   display: flex;
@@ -170,7 +179,8 @@
 .question-text {
   font-size: 20px;
   font-weight: 600;
-  color: #1D3557; /* Темно-синий */
+  color: #1D3557;
+  /* Темно-синий */
   margin: 0;
 }
 
@@ -181,23 +191,29 @@
 }
 
 /* Поля ввода */
-.form-input, .form-textarea {
+.form-input,
+.form-textarea {
   width: 100%;
   padding: 15px;
-  border: 2px solid #dee2e6; /* Более светлый серый */
+  border: 2px solid #dee2e6;
+  /* Более светлый серый */
   border-radius: 10px;
   font-size: 16px;
   transition: all 0.3s;
   box-sizing: border-box;
   background-color: white;
-  color: #212529; /* Темный текст */
+  color: #212529;
+  /* Темный текст */
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.form-input:focus, .form-textarea:focus {
+.form-input:focus,
+.form-textarea:focus {
   outline: none;
-  border-color: #E63946; /* Красный при фокусе */
-  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1); /* Красная тень */
+  border-color: #E63946;
+  /* Красный при фокусе */
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+  /* Красная тень */
   background-color: white;
 }
 
@@ -229,13 +245,16 @@
 }
 
 .option-button:hover {
-  border-color: #E63946; /* Красный при наведении */
-  background: rgba(230, 57, 70, 0.05); /* Очень светлый красный */
+  border-color: #E63946;
+  /* Красный при наведении */
+  background: rgba(230, 57, 70, 0.05);
+  /* Очень светлый красный */
 }
 
 .option-button.selected {
   border-color: #E63946;
-  background: rgba(230, 57, 70, 0.1); /* Светло-красный */
+  background: rgba(230, 57, 70, 0.1);
+  /* Светло-красный */
 }
 
 .option-emoji {
@@ -250,7 +269,8 @@
 
 .option-title {
   font-weight: 600;
-  color: #1D3557; /* Темно-синий */
+  color: #1D3557;
+  /* Темно-синий */
   font-size: 16px;
 }
 
@@ -261,7 +281,8 @@
 }
 
 .check-icon {
-  color: #E63946; /* Красный */
+  color: #E63946;
+  /* Красный */
   font-size: 18px;
 }
 
@@ -280,7 +301,8 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  border-radius: 8px; /* --radius-md */
+  border-radius: 8px;
+  /* --radius-md */
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
@@ -300,7 +322,8 @@
 
 .btn-outline {
   background-color: transparent;
-  color: #E63946; /* Красный */
+  color: #E63946;
+  /* Красный */
   border-color: #E63946;
 }
 
@@ -308,24 +331,29 @@
   background-color: #E63946;
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* --shadow-md */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* --shadow-md */
 }
 
 .btn-primary {
-  background-color: #E63946; /* Красный */
+  background-color: #E63946;
+  /* Красный */
   color: white;
   border-color: #E63946;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #c1121f; /* Темнее красный */
+  background-color: #c1121f;
+  /* Темнее красный */
   border-color: #c1121f;
   transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* --shadow-md */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* --shadow-md */
 }
 
 .btn-success {
-  background-color: #E63946; /* Красный вместо зеленого */
+  background-color: #E63946;
+  /* Красный вместо зеленого */
   color: white;
   border-color: #E63946;
 }
@@ -349,13 +377,17 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Сообщения */
 .error-message {
-  background: rgba(230, 57, 70, 0.1); /* Светло-красный */
-  color: #E63946; /* Красный */
+  background: rgba(230, 57, 70, 0.1);
+  /* Светло-красный */
+  color: #E63946;
+  /* Красный */
   padding: 12px 15px;
   border-radius: 8px;
   margin-top: 15px;
@@ -367,8 +399,10 @@
 }
 
 .success-message {
-  background: rgba(29, 53, 87, 0.1); /* Светло-синий */
-  color: #1D3557; /* Темно-синий */
+  background: rgba(29, 53, 87, 0.1);
+  /* Светло-синий */
+  color: #1D3557;
+  /* Темно-синий */
   padding: 12px 15px;
   border-radius: 8px;
   margin-top: 15px;
@@ -387,7 +421,8 @@
 }
 
 .login-prompt a {
-  color: #E63946; /* Красный */
+  color: #E63946;
+  /* Красный */
   text-decoration: none;
   font-weight: 600;
 }
@@ -416,9 +451,24 @@
   font-size: 20px;
 }
 
-.paint-tube { background: #E63946; color: white; } /* Красный */
-.brush { background: #457B9D; color: white; } /* Вторичный синий */
-.palette { background: #A8DADC; color: #1D3557; } /* Акцентный цвет */
+.paint-tube {
+  background: #E63946;
+  color: white;
+}
+
+/* Красный */
+.brush {
+  background: #457B9D;
+  color: white;
+}
+
+/* Вторичный синий */
+.palette {
+  background: #A8DADC;
+  color: #1D3557;
+}
+
+/* Акцентный цвет */
 
 /* Экран успеха */
 .success-container {
@@ -428,7 +478,8 @@
 
 .success-icon {
   font-size: 80px;
-  color: #E63946; /* Красный */
+  color: #E63946;
+  /* Красный */
   margin-bottom: 20px;
 }
 
@@ -551,37 +602,37 @@
   .minimal-register-container {
     padding: 25px;
   }
-  
+
   .register-title {
     font-size: 24px;
   }
-  
+
   .question-text {
     font-size: 18px;
   }
-  
+
   .btn {
     padding: 10px 20px;
     font-size: 14px;
   }
-  
+
   .success-actions {
     flex-direction: column;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .form-actions .btn {
     width: 100%;
   }
-  
+
   .navigation-buttons {
     flex-direction: column-reverse;
     gap: 10px;
   }
-  
+
   .navigation-buttons .btn {
     width: 100%;
   }
@@ -592,12 +643,54 @@
     padding: 20px;
     border-radius: 15px;
   }
-  
+
   .question-card {
     padding: 20px;
   }
-  
+
   .progress-container {
     margin-bottom: 20px;
   }
+}
+
+.gallery-owner-info {
+  margin: 20px 0;
+}
+
+.gallery-owner-info .info-card {
+  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.gallery-owner-info .info-card i {
+  font-size: 1.5rem;
+  color: #d46b08;
+  margin-top: 3px;
+}
+
+.gallery-owner-info .info-content h4 {
+  margin: 0 0 10px 0;
+  color: #d46b08;
+  font-size: 1.1rem;
+}
+
+.gallery-owner-info .info-content p {
+  margin: 0 0 10px 0;
+  color: #874d00;
+  font-weight: 500;
+}
+
+.gallery-owner-info .info-content ol {
+  margin: 0;
+  padding-left: 20px;
+  color: #874d00;
+}
+
+.gallery-owner-info .info-content li {
+  margin-bottom: 5px;
+  line-height: 1.4;
 }

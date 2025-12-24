@@ -67,13 +67,11 @@ const Header = () => {
     navigate('/');
   };
 
-  // Функция для тестовой регистрации
   const testRegister = async (role = 'ARTIST') => {
     setError('');
     const testEmail = `test_${Date.now()}@example.com`;
     const testPassword = 'password123';
     const generateRandomPhone = () => {
-      // Генерируем 10 случайных цифр после +7
       let randomDigits = '';
       for (let i = 0; i < 10; i++) {
         randomDigits += Math.floor(Math.random() * 10);

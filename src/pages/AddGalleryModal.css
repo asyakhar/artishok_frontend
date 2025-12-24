@@ -120,3 +120,169 @@
         transform: rotate(360deg);
     }
 }
+
+/* Стили для загрузки логотипа */
+.logo-upload-container {
+    margin-top: 10px;
+}
+
+.logo-preview-area {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 15px;
+    border: 2px dashed #ddd;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: #f8f9fa;
+    position: relative;
+}
+
+.logo-preview {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.logo-preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 10px;
+}
+
+.remove-logo-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: rgba(255, 0, 0, 0.7);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.remove-logo-btn:hover {
+    background-color: rgba(255, 0, 0, 0.9);
+}
+
+.logo-upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #6c757d;
+    padding: 20px;
+}
+
+.logo-upload-placeholder i {
+    font-size: 48px;
+    margin-bottom: 10px;
+    color: #adb5bd;
+}
+
+.logo-upload-placeholder span {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.logo-upload-placeholder small {
+    font-size: 12px;
+    color: #868e96;
+}
+
+.logo-upload-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.logo-url-input {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.logo-url-input label {
+    font-size: 14px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.logo-url-input input {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.logo-url-input input:focus {
+    border-color: #80bdff;
+    outline: none;
+}
+
+.logo-url-input input:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+.logo-error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-error-message i {
+    font-size: 16px;
+}
+
+.logo-upload-hint {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: #e7f5ff;
+    border-radius: 4px;
+    border-left: 4px solid #228be6;
+}
+
+.logo-upload-hint small {
+    color: #1864ab;
+    font-size: 12px;
+}
+
+.logo-upload-hint i {
+    margin-right: 5px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .logo-preview-area {
+        width: 150px;
+        height: 150px;
+    }
+
+    .logo-upload-controls {
+        flex-direction: column;
+    }
+}
