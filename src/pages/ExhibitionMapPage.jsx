@@ -43,49 +43,85 @@ const ExhibitionMapPage = () => {
       const exhibitionData = await commonApi.getExhibitionById(exhibitionId);
       setExhibition(exhibitionData);
       
-      // 2. Загружаем карты залов
+      // 2. Загружаем карты залов С СОСТЯВДАМИ
       const mapsData = await commonApi.getHallMapsByEvent(exhibitionId);
+      console.log('Получены карты залов:', mapsData);
+      
       setHallMaps(mapsData);
       
       if (mapsData.length > 0) {
         const firstMap = mapsData[0];
         setSelectedMap(firstMap);
-        await loadStandsForMap(firstMap.id);
+        
+        // Проверяем, есть ли стенды в данных карты
+        if (firstMap.exhibitionStands && firstMap.exhibitionStands.length > 0) {
+          console.log('Стенды загружены вместе с картой:', firstMap.exhibitionStands.length);
+          setStands(firstMap.exhibitionStands);
+        } else {
+          // Если нет, загружаем отдельно
+          await loadStandsForMap(firstMap.id);
+        }
       } else {
-        // Если нет карт, создаем пустой массив стендов
         setStands([]);
       }
       
     } catch (err) {
+      console.error('Полная ошибка загрузки:', err);
       setError('Ошибка загрузки: ' + (err.response?.data?.error || err.message));
     } finally {
       setLoading(false);
     }
   };
+  
 
   const loadStandsForMap = async (hallMapId) => {
     try {
-      if (mode === 'owner') {
-        // Для владельца загружаем все стенды
-        const ownerStands = await ownerApi.getExhibitionStands(exhibitionId);
-        setStands(ownerStands.stands || ownerStands || []);
-      } else if (mode === 'artist') {
-        // Для художника загружаем доступные стенды
-        const availableStands = await artistApi.getAvailableStands(exhibitionId);
-        const standsData = availableStands.stands || availableStands || [];
-        
-        // Обновляем статусы стендов
-        setStands(standsData.map(stand => ({
-          ...stand,
-          available: true // Все стенды из этого endpoint доступны
-        })));
+      if (!hallMapId) {
+        console.warn('Нет ID карты для загрузки стендов');
+        return;
       }
+      
+      console.log('Загрузка стендов для карты:', hallMapId);
+      
+      const standsData = await ownerApi.getStandsByHallMap(hallMapId);
+      console.log('Получены стенды от API:', standsData);
+      
+      if (Array.isArray(standsData)) {
+        setStands(standsData);
+      } else if (standsData && standsData.stands) {
+        setStands(standsData.stands);
+      } else {
+        console.warn('Неверный формат данных стендов:', standsData);
+        setStands([]);
+      }
+      
     } catch (err) {
       console.error('Ошибка загрузки стендов:', err);
       setStands([]);
     }
   };
-
+  const refreshStands = async () => {
+    if (selectedMap?.id) {
+      await loadStandsForMap(selectedMap.id);
+    }
+  };
+  const handleDeleteStand = async (standId) => {
+    if (!window.confirm('Удалить этот стенд?')) {
+      return;
+    }
+    
+    try {
+      await ownerApi.deleteStand(standId);
+      
+      // Сразу обновляем состояние стендов
+      setStands(prev => prev.filter(stand => stand.id !== standId));
+      
+      alert('✅ Стенд успешно удален');
+    } catch (error) {
+      console.error('Ошибка удаления стенда:', error);
+      alert('❌ Ошибка удаления: ' + (error.response?.data?.error || error.message));
+    }
+  };
   // ========== ОБРАБОТЧИКИ ДЛЯ ВЛАДЕЛЬЦА ==========
   const handleUploadHallMap = async (mapImageUrl, name = 'Карта зала') => {
     try {
@@ -105,12 +141,49 @@ const ExhibitionMapPage = () => {
 
   const handleCreateStand = async (standData) => {
     try {
-      const response = await ownerApi.addExhibitionStand(exhibitionId, standData);
-      // Обновляем стенды
-      await loadStandsForMap(selectedMap.id);
-      return response;
-    } catch (err) {
-      throw new Error(err.response?.data?.error || 'Ошибка создания стенда');
+      // Форматируем данные для нового DTO
+      const dtoData = {
+        exhibitionHallMapId: selectedMap.id, // Берем ID выбранной карты
+        standNumber: standData.standNumber,
+        positionX: standData.positionX,
+        positionY: standData.positionY,
+        width: standData.width,
+        height: standData.height,
+        type: standData.type, // Должно быть 'WALL', 'BOOTH' или 'OPEN_SPACE'
+        status: standData.status || 'AVAILABLE'
+      };
+      
+      console.log('Отправляемые данные:', JSON.stringify(dtoData, null, 2));
+      
+      // Отправляем запрос
+      const newStand = await ownerApi.createStand(dtoData);
+      console.log('Ответ сервера:', newStand);
+      
+      // Добавляем в локальное состояние
+      setStands(prev => [...prev, {
+        id: newStand.id,
+        standNumber: newStand.standNumber,
+        positionX: newStand.positionX,
+        positionY: newStand.positionY,
+        width: newStand.width,
+        height: newStand.height,
+        type: newStand.type,
+        status: newStand.status,
+        exhibitionHallMapId: newStand.exhibitionHallMapId
+      }]);
+      
+      return newStand;
+    } catch (error) {
+      console.error('Полная ошибка создания стенда:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.message || 
+                          error.message;
+      throw new Error('Ошибка создания стенда: ' + errorMessage);
     }
   };
 
@@ -197,14 +270,14 @@ const ExhibitionMapPage = () => {
         </div>
         
         <div className="header-controls">
-          <div className="mode-indicator">
+          {/* <div className="mode-indicator">
             <span className="label">Режим:</span>
             <span className={`mode-badge ${mode}`}>
               {mode === 'owner' ? 'Владелец галереи' : 'Художник'}
             </span>
-          </div>
+          </div> */}
           
-          {hallMaps.length > 0 && (
+          {/* {hallMaps.length > 0 && (
             <div className="map-selector">
               <label>Карта зала:</label>
               <select 
@@ -218,7 +291,7 @@ const ExhibitionMapPage = () => {
                 ))}
               </select>
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -235,7 +308,8 @@ const ExhibitionMapPage = () => {
           
           // Обработчики для художника
           onBookStand={handleBookStand}
-          
+          onDeleteStand={handleDeleteStand} 
+          onRefreshStands={refreshStands} 
           // Общие
           onStandSelect={(stand) => {
             console.log('Выбран стенд:', stand);

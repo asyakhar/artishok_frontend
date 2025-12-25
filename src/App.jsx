@@ -15,6 +15,7 @@ import GalleryOwnerDashboard from './pages/GalleryOwnerDashboard';
 import AdminDashboard from './pages/AdminDashBoard';
 import AllExhibitionsPage from './pages/AllExhibitionsPage';
 import { AuthProvider } from './contexts/AuthContext';
+import MapEditor from './components/MapEditor';
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const user = JSON.parse(localStorage.getItem('user') || 'null')

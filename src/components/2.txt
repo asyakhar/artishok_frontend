@@ -19,9 +19,7 @@ const MapEditor = ({
   onUploadHallMap, 
   onCreateStand, 
   onBookStand,
-  onDeleteStand = () => {},
-  onMapImageUpload,
-  onRefreshStands = () => {} 
+  onMapImageUpload // Новый пропс для обработки загрузки
 }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -60,10 +58,10 @@ const MapEditor = ({
       crs: L.CRS.Simple,
       minZoom: -3,
       maxZoom: 5,
-      zoomControl: false,
+      zoomControl: true,
       attributionControl: false,
-      zoomSnap: 0.5,
-      zoomDelta: 0.5,
+      zoomSnap: 0.1,
+      zoomDelta: 0.1,
       center: [0, 0],
       zoom: 0,
       dragging: true,
@@ -71,8 +69,8 @@ const MapEditor = ({
       scrollWheelZoom: true
     });
 
-    // const defaultBounds = [[-250, -250], [250, 250]];
-    // mapInstance.current.setMaxBounds(defaultBounds);
+    const defaultBounds = [[-500, -500], [500, 500]];
+    mapInstance.current.setMaxBounds(defaultBounds);
     
     L.control.zoom({ position: 'topright' }).addTo(mapInstance.current);
     mapInstance.current.setView([0, 0], 0);
@@ -198,99 +196,6 @@ const MapEditor = ({
   };
 
   // ========== ЗАГРУЗКА ИЗОБРАЖЕНИЯ В КАРТУ ==========
-  // const loadHallMapImage = (imageUrl) => {
-  //   if (!mapInstance.current || !imageUrl) return;
-    
-  //   const img = new Image();
-  //   img.crossOrigin = 'anonymous';
-    
-  //   img.onload = function() {
-  //     const width = this.width;
-  //     const height = this.height;
-  //     const bounds = [[0, 0], [height, width]];
-      
-  //     // Очищаем все слои
-  //     mapInstance.current.eachLayer((layer) => {
-  //       if (!(layer instanceof L.Control)) {
-  //         mapInstance.current.removeLayer(layer);
-  //       }
-  //     });
-      
-  //     // Добавляем изображение
-  //     imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
-  //       interactive: false,
-  //       className: 'hall-map-image'
-  //     }).addTo(mapInstance.current);
-      
-  //     mapInstance.current.fitBounds(bounds);
-  //     const centerY = height / 2;
-  //     const centerX = width / 2;
-  //     mapInstance.current.setView([centerY, centerX], 0);
-      
-  //     setImageError(false);
-  //     setMapImage(imageUrl);
-      
-  //     setTimeout(() => {
-  //       renderStands();
-  //     }, 100);
-  //   };
-    
-  //   img.onerror = function() {
-  //     console.error('Ошибка загрузки изображения');
-  //     setImageError(true);
-  //     showPlaceholder();
-  //   };
-    
-  //   img.src = imageUrl;
-  // };
-  
-
-  // const loadImageToMap = (imageUrl) => {
-  //   return new Promise((resolve, reject) => {
-  //     if (!mapInstance.current || !imageUrl) {
-  //       reject('Нет карты или изображения');
-  //       return;
-  //     }
-
-  //     const img = new Image();
-  //     img.crossOrigin = 'anonymous';
-      
-  //     img.onload = function() {
-  //       const width = this.width;
-  //       const height = this.height;
-  //       const bounds = [[0, 0], [height, width]];
-        
-  //       // Удаляем старое изображение
-  //       if (imageOverlayRef.current) {
-  //         mapInstance.current.removeLayer(imageOverlayRef.current);
-  //         imageOverlayRef.current = null;
-  //       }
-        
-  //       // Добавляем новое изображение
-  //       imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
-  //         interactive: false,
-  //         className: 'hall-map-image'
-  //       }).addTo(mapInstance.current);
-        
-  //       mapInstance.current.fitBounds(bounds);
-  //       const centerY = height / 2;
-  //       const centerX = width / 2;
-  //       mapInstance.current.setView([centerY, centerX], 0);
-        
-  //       setImageError(false);
-  //       setMapImage(imageUrl);
-  //       resolve();
-  //     };
-      
-  //     img.onerror = function() {
-  //       console.error('Ошибка загрузки изображения');
-  //       setImageError(true);
-  //       reject('Ошибка загрузки изображения');
-  //     };
-      
-  //     img.src = imageUrl;
-  //   });
-  // };
   const loadHallMapImage = (imageUrl) => {
     if (!mapInstance.current || !imageUrl) return;
     
@@ -315,24 +220,17 @@ const MapEditor = ({
         className: 'hall-map-image'
       }).addTo(mapInstance.current);
       
-      // Устанавливаем чтобы изображение полностью влезало в контейнер
       mapInstance.current.fitBounds(bounds);
-      
-      // Плавный зум для хорошего вида
-      setTimeout(() => {
-        const currentZoom = mapInstance.current.getZoom();
-        // Если изображение слишком крупное, немного отдалим
-        if (currentZoom > 0) {
-          mapInstance.current.setZoom(currentZoom - 1);
-        }
-      }, 100);
+      const centerY = height / 2;
+      const centerX = width / 2;
+      mapInstance.current.setView([centerY, centerX], 0);
       
       setImageError(false);
       setMapImage(imageUrl);
       
       setTimeout(() => {
         renderStands();
-      }, 200);
+      }, 100);
     };
     
     img.onerror = function() {
@@ -343,15 +241,14 @@ const MapEditor = ({
     
     img.src = imageUrl;
   };
-  
-  // Аналогично обновите loadImageToMap
+
   const loadImageToMap = (imageUrl) => {
     return new Promise((resolve, reject) => {
       if (!mapInstance.current || !imageUrl) {
         reject('Нет карты или изображения');
         return;
       }
-  
+
       const img = new Image();
       img.crossOrigin = 'anonymous';
       
@@ -372,16 +269,10 @@ const MapEditor = ({
           className: 'hall-map-image'
         }).addTo(mapInstance.current);
         
-        // Автоматически подгоняем под размер контейнера
         mapInstance.current.fitBounds(bounds);
-        
-        // Оптимальный зум
-        setTimeout(() => {
-          const currentZoom = mapInstance.current.getZoom();
-          if (currentZoom > 0) {
-            mapInstance.current.setZoom(currentZoom - 1);
-          }
-        }, 100);
+        const centerY = height / 2;
+        const centerX = width / 2;
+        mapInstance.current.setView([centerY, centerX], 0);
         
         setImageError(false);
         setMapImage(imageUrl);
@@ -397,6 +288,7 @@ const MapEditor = ({
       img.src = imageUrl;
     });
   };
+
   const showPlaceholder = () => {
     if (!mapInstance.current) return;
     
@@ -541,7 +433,7 @@ const MapEditor = ({
   const createStandMarker = (stand) => {
     if (!mapInstance.current) return;
     
-    let color = '#28a745'; // свободен
+    let color = '#28a745';
     if (stand.status === 'BOOKED') color = '#dc3545';
     if (stand.status === 'MAINTENANCE') color = '#ffc107';
     
@@ -572,7 +464,6 @@ const MapEditor = ({
       })
     }).addTo(mapInstance.current);
     
-    // ДОБАВИЛИ КНОПКУ УДАЛЕНИЯ ДЛЯ ВЛАДЕЛЬЦА
     const popupContent = `
       <div style="padding: 15px; min-width: 250px;">
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
@@ -589,82 +480,38 @@ const MapEditor = ({
           </p>
           <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${stand.positionX}, Y:${stand.positionY}</p>
         </div>
-        <div style="display: flex; gap: 10px; flex-direction: column;">
-          ${mode === 'artist' && stand.status === 'AVAILABLE' ? 
-            `<button 
-              onclick="window.handleBookStandClick('${stand.id}')" 
-              style="
-                padding: 10px; 
-                background: linear-gradient(135deg, #007bff, #0056b3); 
-                color: white; 
-                border: none; 
-                border-radius: 6px; 
-                cursor: pointer;
-                font-weight: bold;
-                transition: all 0.2s;
-              "
-            >
-              📝 Забронировать
-            </button>` : 
-            ''
-          }
-          ${mode === 'owner' ? 
-            `<button 
-              onclick="window.handleDeleteStandClick('${stand.id}')" 
-              style="
-                padding: 10px; 
-                background: linear-gradient(135deg, #dc3545, #c82333); 
-                color: white; 
-                border: none; 
-                border-radius: 6px; 
-                cursor: pointer;
-                font-weight: bold;
-                transition: all 0.2s;
-              "
-            >
-              🗑️ Удалить стенд
-            </button>` : 
-            ''
-          }
-        </div>
+        ${mode === 'artist' && stand.status === 'AVAILABLE' ? 
+          `<button 
+            onclick="window.handleBookStandClick('${stand.id}')" 
+            style="
+              width: 100%; 
+              padding: 10px; 
+              background: linear-gradient(135deg, #007bff, #0056b3); 
+              color: white; 
+              border: none; 
+              border-radius: 6px; 
+              cursor: pointer;
+              font-weight: bold;
+              transition: all 0.2s;
+            "
+          >
+            📝 Забронировать
+          </button>` : 
+          ''
+        }
       </div>
     `;
     
-    // Обработчик бронирования
     window.handleBookStandClick = async (standId) => {
       try {
-        if (onBookStand) {
-          await onBookStand(standId);
-          alert('Заявка на бронирование отправлена!');
-          marker.closePopup();
-          if (onRefreshStands) {
-            onRefreshStands();
-          }
-        }
+        await onBookStand(standId);
+        alert('Заявка на бронирование отправлена!');
+        marker.closePopup();
+        renderStands();
       } catch (err) {
         alert('Ошибка: ' + err.message);
       }
     };
-    
-    
-window.handleDeleteStandClick = async (standId) => {
-  try {
-    if (onDeleteStand) {
-      await onDeleteStand(standId);
-      // alert('Стенд удален!');
-      marker.closePopup();
-      // Удаляем маркер с карты
-      mapInstance.current.removeLayer(marker);
-      
-      // Вызываем обновление стендов
-      if (onRefreshStands) {
-        onRefreshStands();  // Добавьте эту строку
-      }
-    }
-  } catch (err) {
-    alert('Ошибка: ' + err.message);
-  }
-};
     
     marker.bindPopup(popupContent);
     
@@ -672,8 +519,9 @@ window.handleDeleteStandClick = async (standId) => {
       e.originalEvent.stopPropagation();
       setSelectedStand(stand);
       
-      // Открываем popup при клике
-      marker.openPopup();
+      if (mode === 'artist' && stand.status === 'AVAILABLE') {
+        marker.openPopup();
+      }
     });
     
     marker.standData = stand;
@@ -683,16 +531,14 @@ window.handleDeleteStandClick = async (standId) => {
   const renderStands = () => {
     if (!mapInstance.current) return;
     
-    // Очищаем старые маркеры стендов
     mapInstance.current.eachLayer((layer) => {
       if (layer instanceof L.Marker && layer.standData) {
         mapInstance.current.removeLayer(layer);
       }
     });
     
-    // Рендерим только стенды из пропсов (не из tempStands)
-    console.log('Рендерим стенды из пропсов:', stands?.length || 0);
-    (stands || []).forEach(createStandMarker);
+    const allStands = [...(stands || []), ...tempStands];
+    allStands.forEach(createStandMarker);
   };
 
   const handleSaveStand = async () => {
@@ -700,7 +546,7 @@ window.handleDeleteStandClick = async (standId) => {
       alert('Заполните все обязательные поля');
       return;
     }
-  
+
     try {
       const newStand = {
         standNumber: standFormData.standNumber,
@@ -711,18 +557,13 @@ window.handleDeleteStandClick = async (standId) => {
         type: standFormData.type,
         status: 'AVAILABLE'
       };
-  
-      console.log('Создаем новый стенд:', newStand);
-  
-      // Сохраняем на сервер через родительский компонент
+
       if (onCreateStand) {
         await onCreateStand(newStand);
       }
       
-      // УДАЛИТЬ ЭТУ СТРОКУ - не добавляем локально, ждем ответ от сервера
-      // setTempStands([...tempStands, { ...newStand, id: Date.now() }]);
+      setTempStands([...tempStands, { ...newStand, id: Date.now() }]);
       
-      // Сбрасываем состояние
       setShowStandForm(false);
       setPendingStandPosition(null);
       setStandFormData({
@@ -732,7 +573,6 @@ window.handleDeleteStandClick = async (standId) => {
         height: 100
       });
       
-      // Очищаем временные маркеры
       clearTempMarkers();
       
       alert('✅ Стенд успешно добавлен!');
@@ -752,8 +592,7 @@ window.handleDeleteStandClick = async (standId) => {
   };
 
   const getStats = () => {
-
-    const allStands = stands || [];
+    const allStands = [...(stands || []), ...tempStands];
     return {
       total: allStands.length,
       available: allStands.filter(s => s.status === 'AVAILABLE').length,
@@ -761,6 +600,7 @@ window.handleDeleteStandClick = async (standId) => {
       maintenance: allStands.filter(s => s.status === 'MAINTENANCE').length
     };
   };
+
   const stats = getStats();
 
   const handleSaveAll = async () => {
@@ -777,9 +617,9 @@ window.handleDeleteStandClick = async (standId) => {
   };
 
   const handleBack = () => {
-  
+    if (window.confirm('Все несохраненные изменения будут потеряны. Вернуться в личный кабинет?')) {
       navigate('/gallery/dashboard');
-    
+    }
   };
 
   // ========== RENDER ==========
@@ -824,7 +664,29 @@ window.handleDeleteStandClick = async (standId) => {
           ← Назад в личный кабинет
         </button>
         
-       
+        {mode === 'owner' && (
+          <button
+            onClick={handleSaveAll}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#28a745',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontWeight: '500',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#218838'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#28a745'}
+          >
+            💾 Сохранить все изменения
+          </button>
+        )}
       </div>
 
       {/* ЛЕВАЯ ПАНЕЛЬ - УПРАВЛЕНИЕ */}
@@ -847,7 +709,7 @@ window.handleDeleteStandClick = async (standId) => {
           paddingBottom: '10px',
           fontSize: '24px'
         }}>
-          {mode === 'owner' ? 'Управление выставкой' : 'Бронирование'}
+          {mode === 'owner' ? '🎨 Управление выставкой' : '📅 Бронирование'}
         </h2>
         
         {mode === 'owner' ? (
@@ -960,7 +822,7 @@ window.handleDeleteStandClick = async (standId) => {
                     alignItems: 'center',
                     gap: '10px'
                   }}>
-                    <span style={{ fontSize: '18px' }}></span>
+                    <span style={{ fontSize: '18px' }}>🗺️</span>
                     <span>Карта зала загружена</span>
                   </div>
                 )}
@@ -995,7 +857,7 @@ window.handleDeleteStandClick = async (standId) => {
                   border: '1px solid #ffeaa7'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
-               
+                    <span style={{ fontSize: '16px' }}>ℹ️</span>
                     <strong>Информация</strong>
                   </div>
                   <div style={{ fontSize: '12px', opacity: 0.9 }}>
@@ -1059,7 +921,7 @@ window.handleDeleteStandClick = async (standId) => {
                   border: `2px solid ${isDrawing ? '#c3e6cb' : '#ffeaa7'}`
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    
+                    <span style={{ fontSize: '20px' }}></span>
                     <strong>{isDrawing ? 'Режим добавления активен' : 'Инструкция'}</strong>
                   </div>
                   <p style={{ margin: 0 }}>
@@ -1321,7 +1183,20 @@ window.handleDeleteStandClick = async (standId) => {
                     Занято
                   </div>
                 </div>
-                
+                <div style={{ 
+                  background: 'linear-gradient(135deg, #ffc107, #e0a800)', 
+                  padding: '15px', 
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  color: '#212529'
+                }}>
+                  <div style={{ fontSize: '28px', fontWeight: 'bold' }}>
+                    {stats.maintenance}
+                  </div>
+                  <div style={{ fontSize: '12px', opacity: 0.9 }}>
+                    В ремонте
+                  </div>
+                </div>
               </div>
             </div>
           </>
@@ -1449,7 +1324,7 @@ window.handleDeleteStandClick = async (standId) => {
         }}>
           <div>
             <h3 style={{ margin: 0, color: '#343a40', display: 'flex', alignItems: 'center', gap: '10px' }}>
-             
+              <span style={{ color: '#007bff' }}>🗺️</span>
               Карта выставки
             </h3>
             <p style={{ margin: '5px 0 0 0', color: '#6c757d', fontSize: '14px' }}>
@@ -1469,7 +1344,7 @@ window.handleDeleteStandClick = async (standId) => {
             alignItems: 'center',
             gap: '8px'
           }}>
-            {mode === 'owner' ? 'Владелец галереи' : 'Художник'}
+            {mode === 'owner' ? '👑 Владелец' : '🎨 Художник'}
           </div>
         </div>
         
@@ -1503,7 +1378,10 @@ window.handleDeleteStandClick = async (standId) => {
               <div style={{ width: '12px', height: '12px', backgroundColor: '#dc3545', borderRadius: '50%' }}></div>
               <span>Занято ({stats.booked})</span>
             </div>
-          
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '12px', height: '12px', backgroundColor: '#ffc107', borderRadius: '50%' }}></div>
+              <span>Ремонт ({stats.maintenance})</span>
+            </div>
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
