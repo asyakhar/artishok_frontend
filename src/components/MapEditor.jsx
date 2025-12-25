@@ -32,49 +32,6 @@ const MapEditor = ({ mode, hallMap, stands, exhibitionId, onUploadHallMap, onCre
   const [imageError, setImageError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mapScale, setMapScale] = useState(1);
-  const [contextMenu, setContextMenu] = useState({
-    visible: false,
-    x: 0,
-    y: 0,
-    stand: null
-  });
-  // Функция для обработки правого клика:
-const handleStandRightClick = (stand, event) => {
-  if (mode !== 'owner') return;
-  
-  event.preventDefault();
-  event.stopPropagation();
-  
-  setContextMenu({
-    visible: true,
-    x: event.clientX,
-    y: event.clientY,
-    stand: stand
-  });
-};
-const handleDeleteStand = async (standId) => {
-  if (!window.confirm('Вы уверены, что хотите удалить этот стенд?\nЭто действие нельзя отменить.')) {
-    return;
-  }
-  
-  try {
-    // Используйте API для удаления
-    await ownerApi.deleteStand(standId);
-    
-    alert('Стенд успешно удален');
-    
-    // Закрываем контекстное меню
-    setContextMenu({ visible: false, x: 0, y: 0, stand: null });
-    
-    // Обновляем стенды (если передана функция onDeleteStand)
-    if (onDeleteStand) {
-      await onDeleteStand(standId);
-    }
-    
-  } catch (err) {
-    alert('Ошибка удаления стенда: ' + err.message);
-  }
-};
 
   // ========== ИНИЦИАЛИЗАЦИЯ КАРТЫ ==========
   useEffect(() => {
@@ -427,9 +384,7 @@ const handleDeleteStand = async (standId) => {
         iconSize: [46, 46]
       })
     }).addTo(mapInstance.current);
-    marker.on('contextmenu', (e) => {
-      handleStandRightClick(stand, e.originalEvent);
-    });
+    
     const popupContent = `
       <div style="padding: 15px; min-width: 250px;">
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
@@ -738,7 +693,7 @@ const handleDeleteStand = async (standId) => {
             onMouseOver={(e) => e.target.style.backgroundColor = '#218838'}
             onMouseOut={(e) => e.target.style.backgroundColor = '#28a745'}
           >
-            Сохранить все изменения
+            💾 Сохранить все изменения
           </button>
         )}
       </div>
@@ -763,7 +718,7 @@ const handleDeleteStand = async (standId) => {
           paddingBottom: '10px',
           fontSize: '24px'
         }}>
-          {mode === 'owner' ? 'Управление выставкой' : 'Бронирование'}
+          {mode === 'owner' ? '🎨 Управление выставкой' : '📅 Бронирование'}
         </h2>
         
         {mode === 'owner' ? (
@@ -813,7 +768,7 @@ const handleDeleteStand = async (standId) => {
                   transition: 'all 0.2s',
                   opacity: loading ? 0.7 : 1
                 }}>
-                  {loading ? 'Загрузка...' : 'Загрузить '}
+                  {loading ? '⏳ Загрузка...' : '📁 Загрузить план зала'}
                 </label>
                 
                 {mapImage && !imageError && (
@@ -828,7 +783,7 @@ const handleDeleteStand = async (standId) => {
                     alignItems: 'center',
                     gap: '10px'
                   }}>
-                    <span style={{ fontSize: '18px' }}></span>
+                    <span style={{ fontSize: '18px' }}>✅</span>
                     <span>Карта зала загружена</span>
                   </div>
                 )}
@@ -845,7 +800,7 @@ const handleDeleteStand = async (standId) => {
                     alignItems: 'center',
                     gap: '10px'
                   }}>
-                    <span style={{ fontSize: '18px' }}></span>
+                    <span style={{ fontSize: '18px' }}>❌</span>
                     <span>Ошибка загрузки изображения</span>
                   </div>
                 )}
@@ -893,7 +848,7 @@ const handleDeleteStand = async (standId) => {
                     transition: 'all 0.2s'
                   }}
                 >
-                  {isDrawing ? '❌ Отменить добавление' : '➕ Добавить'}
+                  {isDrawing ? '❌ Отменить добавление' : '➕ Добавить стенд'}
                 </button>
                 
                 <div style={{ 
@@ -1067,7 +1022,7 @@ const handleDeleteStand = async (standId) => {
                       onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
                       onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
                     >
-                      Сохранить стенд
+                      ✅ Сохранить стенд
                     </button>
                     <button
                       onClick={() => {
@@ -1309,7 +1264,7 @@ const handleDeleteStand = async (standId) => {
         }}>
           <div>
             <h3 style={{ margin: 0, color: '#343a40', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ color: '#007bff' }}></span>
+              <span style={{ color: '#007bff' }}>🗺️</span>
               Карта выставки
             </h3>
             <p style={{ margin: '5px 0 0 0', color: '#6c757d', fontSize: '14px' }}>
@@ -1329,7 +1284,7 @@ const handleDeleteStand = async (standId) => {
             alignItems: 'center',
             gap: '8px'
           }}>
-            {mode === 'owner' ? 'Владелец галереи' : 'Художник'}
+            {mode === 'owner' ? '👑 Владелец' : '🎨 Художник'}
           </div>
         </div>
         

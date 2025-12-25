@@ -38,22 +38,70 @@ api.interceptors.response.use(
 export const ownerApi = {
   // Карты залов
  
-      // Загрузка карты зала (изображение)
-  uploadHallMapImage: (exhibitionId, file) => {
+ // === КАРТЫ ЗАЛОВ ===
+  // Получить все карты (для владельца)
+  getAllHallMaps: () => 
+    api.get('/api/maps'),
+
+  // Получить карты по ID события
+  getHallMapsByEvent: (eventId) => 
+    api.get(`/api/maps/event/${eventId}`),
+
+  // Получить конкретную карту
+  getHallMapById: (id) => 
+    api.get(`/api/maps/${id}`),
+
+  // Создать карту с изображением (новый метод)
+  createHallMapWithImage: (data) => {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('name', data.name);
+    formData.append('exhibitionEventId', data.exhibitionEventId);
+    if (data.mapImage) {
+      formData.append('mapImage', data.mapImage);
+    }
     
-    return axios.post(`${API_BASE_URL}/api/exhibitions/${exhibitionId}/upload-map`, formData, {
+    return axios.post(`${API_BASE_URL}/api/maps/create-with-image`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
       }
-    });
+    }).then(res => res.data);
   },
-  
-  // Создание записи о карте зала (URL изображения)
-  uploadHallMap: (exhibitionId, data) =>
-    api.post(`/gallery-owner/exhibitions/${exhibitionId}/hall-map`, data),
+
+  // Загрузить/обновить изображение карты
+  uploadHallMapImage: (mapId, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return axios.post(`${API_BASE_URL}/api/maps/${mapId}/upload-map-image`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
+      }
+    }).then(res => res.data);
+  },
+
+  // Обновить карту с изображением
+  updateHallMapWithImage: (mapId, data) => {
+    const formData = new FormData();
+    if (data.name) formData.append('name', data.name);
+    if (data.file) formData.append('file', data.file);
+    
+    return axios.put(`${API_BASE_URL}/api/maps/${mapId}/with-image`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
+      }
+    }).then(res => res.data);
+  },
+
+  // Удалить карту
+  deleteHallMap: (mapId) => 
+    api.delete(`/api/maps/${mapId}`),
+
+  // Удалить изображение карты
+  deleteHallMapImage: (mapId) => 
+    api.delete(`/api/maps/${mapId}/image`),
   // Стенды
   getExhibitionStands: (exhibitionId) =>
     api.get(`/gallery-owner/exhibitions/${exhibitionId}/stands`),
@@ -83,7 +131,8 @@ export const ownerApi = {
 
   createExhibition: (exhibitionData) =>
     api.post('/gallery-owner/exhibitions', exhibitionData),
-
+ deleteStand: (standId) => 
+    api.delete(`/gallery-owner/stands/${standId}`),
 
 // Создание стенда с координатами
 createStandWithCoords: (exhibitionId, standData) => 
