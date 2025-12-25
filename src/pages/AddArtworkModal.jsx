@@ -1,24 +1,31 @@
-import { useState } from 'react';
-import './ArtistDashboard.css'; // или создайте отдельный CSS
+import { useState, useRef } from 'react';
+import './ArtistDashboard.css';
 
 const API_BASE_URL = 'http://localhost:8080';
 
 const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editData, isEditMode }) => {
     const [formData, setFormData] = useState(
-        editData || { // Если есть данные для редактирования - используем их
+        editData || {
             bookingId: '',
             title: '',
             description: '',
             creationYear: new Date().getFullYear(),
             technique: '',
-            imageUrl: '',
             status: 'DRAFT'
         }
     );
-    const modalTitle = isEditMode ? `Редактировать картину "${editData?.title || ''}"` : 'Добавить новую картину';
+
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState('');
+    const [imageUploadError, setImageUploadError] = useState('');
+    const imageInputRef = useRef(null);
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    const modalTitle = isEditMode ? `Редактировать картину "${editData?.title || ''}"` : 'Добавить новую картину';
+
+    // Сброс состояния при открытии/закрытии
     if (!isOpen) return null;
 
     const handleChange = (e) => {
@@ -29,6 +36,35 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
         }));
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Проверяем размер файла (макс. 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                setImageUploadError('Файл слишком большой (макс. 10MB)');
+                return;
+            }
+
+            // Проверяем тип файла
+            if (!file.type.startsWith('image/')) {
+                setImageUploadError('Пожалуйста, выберите файл изображения (JPG, PNG, GIF)');
+                return;
+            }
+
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+            setImageUploadError('');
+        }
+    };
+
+    const removeImage = () => {
+        setImageFile(null);
+        setImagePreview('');
+        if (imageInputRef.current) {
+            imageInputRef.current.value = '';
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -36,20 +72,59 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
 
         try {
             const token = localStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Токен авторизации отсутствует');
+            }
+
+            let imageUrl = '';
+
+            // 1. Загружаем изображение, если есть файл
+            if (imageFile) {
+                const imageFormData = new FormData();
+                imageFormData.append('file', imageFile);
+                imageFormData.append('category', 'artwork');
+                // Можно передать bookingId или artworkId если редактирование
+                if (isEditMode && editData?.id) {
+                    imageFormData.append('entityId', editData.id);
+                }
+
+                const uploadResponse = await fetch(`${API_BASE_URL}/api/images/upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: imageFormData
+                });
+
+                const uploadData = await uploadResponse.json();
+
+                if (!uploadResponse.ok) {
+                    throw new Error(uploadData.error || 'Ошибка загрузки изображения');
+                }
+
+                imageUrl = uploadData.url;
+            } else if (isEditMode && editData?.imageUrl) {
+                // При редактировании оставляем старое изображение, если не выбрали новое
+                imageUrl = editData.imageUrl;
+            }
+
+            // 2. Подготавливаем данные картины
             const artworkData = {
                 title: formData.title,
                 description: formData.description,
                 creationYear: formData.creationYear ? parseInt(formData.creationYear) : null,
                 technique: formData.technique,
-                imageUrl: formData.imageUrl,
+                imageUrl: imageUrl, // Используем загруженный URL
                 status: formData.status
             };
 
             let response;
+            let url;
 
             if (isEditMode && editData?.id) {
-                // Режим редактирования: PUT-запрос
-                response = await fetch(`${API_BASE_URL}/artworks/${editData.id}`, {
+                // Режим редактирования
+                url = `${API_BASE_URL}/artworks/${editData.id}`;
+                response = await fetch(url, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -58,18 +133,16 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                     body: JSON.stringify(artworkData)
                 });
             } else {
-                // Режим создания: POST-запрос
-                response = await fetch(
-                    `${API_BASE_URL}/artworks?bookingId=${formData.bookingId}`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(artworkData)
-                    }
-                );
+                // Режим создания
+                url = `${API_BASE_URL}/artworks?bookingId=${formData.bookingId}`;
+                response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(artworkData)
+                });
             }
 
             const data = await response.json();
@@ -77,12 +150,13 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
             if (response.ok) {
                 alert(isEditMode ? 'Картина успешно обновлена!' : 'Картина успешно добавлена!');
                 onSuccess(); // Закрываем модалку и обновляем список
+                onClose();
             } else {
                 setError(data.error || (isEditMode ? 'Ошибка при обновлении картины' : 'Ошибка при добавлении картины'));
             }
         } catch (error) {
             console.error('Ошибка:', error);
-            setError('Произошла ошибка при отправке данных');
+            setError('Произошла ошибка при отправке данных: ' + error.message);
         } finally {
             setLoading(false);
         }
@@ -130,6 +204,7 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                                 value={formData.bookingId}
                                 onChange={handleChange}
                                 required
+                                disabled={isEditMode} // При редактировании нельзя менять бронирование
                             >
                                 <option value="">Выберите бронирование</option>
                                 {bookings.map(booking => {
@@ -219,27 +294,81 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                             </div>
                         </div>
 
-                        {/* Ссылка на изображение */}
+                        {/* Загрузка изображения */}
                         <div className="form-group">
-                            <label htmlFor="imageUrl">Ссылка на изображение (URL)</label>
-                            <input
-                                type="url"
-                                id="imageUrl"
-                                name="imageUrl"
-                                value={formData.imageUrl}
-                                onChange={handleChange}
-                                placeholder="https://example.com/image.jpg"
-                            />
-                            {formData.imageUrl && (
-                                <div className="image-preview">
-                                    <small>Предпросмотр:</small>
-                                    <img
-                                        src={formData.imageUrl}
-                                        alt="Предпросмотр"
-                                        onError={(e) => e.target.style.display = 'none'}
-                                    />
+                            <label>Изображение картины *</label>
+                            <div className="image-upload-container">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    className="file-input"
+                                    ref={imageInputRef}
+                                    style={{ display: 'none' }}
+                                    id="artwork-image-upload"
+                                />
+
+                                <div className="image-preview-area">
+                                    {imagePreview ? (
+                                        <div className="image-preview">
+                                            <img
+                                                src={imagePreview}
+                                                alt="Превью картины"
+                                                className="preview-image"
+                                            />
+                                            <button
+                                                type="button"
+                                                className="remove-image-btn"
+                                                onClick={removeImage}
+                                                title="Удалить изображение"
+                                            >
+                                                <i className="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    ) : isEditMode && editData?.imageUrl ? (
+                                        <div className="image-preview">
+                                            <img
+                                                src={editData.imageUrl}
+                                                alt="Текущее изображение"
+                                                className="preview-image"
+                                            />
+                                            <small className="current-image-note">Текущее изображение</small>
+                                        </div>
+                                    ) : (
+                                        <div className="image-upload-placeholder">
+                                            <i className="fas fa-image"></i>
+                                            <span>Загрузите изображение картины</span>
+                                            <small>Рекомендуемый размер: не менее 800x600px</small>
+                                            <small>Форматы: JPG, PNG, GIF (макс. 10MB)</small>
+                                        </div>
+                                    )}
                                 </div>
-                            )}
+
+                                <div className="image-upload-controls">
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline btn-sm"
+                                        onClick={() => imageInputRef.current.click()}
+                                    >
+                                        <i className="fas fa-upload"></i>
+                                        {imagePreview || (isEditMode && editData?.imageUrl) ? 'Изменить изображение' : 'Выбрать файл'}
+                                    </button>
+                                </div>
+
+                                {imageUploadError && (
+                                    <div className="upload-error-message">
+                                        <i className="fas fa-exclamation-triangle"></i>
+                                        {imageUploadError}
+                                    </div>
+                                )}
+
+                                <div className="upload-hint">
+                                    <small>
+                                        <i className="fas fa-info-circle"></i>
+                                        Изображение обязательно для добавления картины. Выберите качественное фото вашей работы.
+                                    </small>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Статус */}
@@ -269,14 +398,15 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                         <button
                             type="submit"
                             className="btn btn-primary"
-                            disabled={loading}
+                            disabled={loading || (!isEditMode && !imageFile)}
                         >
                             {loading ? (
                                 <>
-                                    <i className="fas fa-spinner fa-spin"></i> Добавление...
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                    {isEditMode ? 'Сохранение...' : 'Добавление...'}
                                 </>
                             ) : (
-                                'Добавить картину'
+                                isEditMode ? 'Сохранить изменения' : 'Добавить картину'
                             )}
                         </button>
                     </div>

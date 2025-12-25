@@ -47,7 +47,7 @@ const HomePage = ({ events, galleries, loading, error }) => {
         error={error.galleries}
       />
       <CTASection />
-    
+
     </>
   )
 }
@@ -121,7 +121,9 @@ function App() {
         }
 
         const data = await response.json()
-        setGalleries(data.slice(0, 4))
+        console.log('logo_url значение:', data[0].logo_url);
+        // setGalleries(data.slice(0, 4))
+        setGalleries(data)
         setError(prev => ({ ...prev, galleries: null }))
       } catch (err) {
         console.error('Ошибка загрузки галерей:', err)
@@ -141,101 +143,101 @@ function App() {
 
   return (
     <AuthProvider>
-    <Router>
-      <div className="App">
-        <Routes>
-          {/* Главная страница */}
-          <Route path="/" element={
-            <Layout showFooter={true}>
-              <HomePage
-                events={events}
-                galleries={galleries}
-                loading={loading}
-                error={error}
-              />
-            </Layout>
-          } />
+      <Router>
+        <div className="App">
+          <Routes>
+            {/* Главная страница */}
+            <Route path="/" element={
+              <Layout showFooter={true}>
+                <HomePage
+                  events={events}
+                  galleries={galleries}
+                  loading={loading}
+                  error={error}
+                />
+              </Layout>
+            } />
 
-          {/* Страница входа */}
-          <Route path="/login" element={
-            <Layout showFooter={false}>
-              <LoginPage />
-            </Layout>
-          } />
+            {/* Страница входа */}
+            <Route path="/login" element={
+              <Layout showFooter={false}>
+                <LoginPage />
+              </Layout>
+            } />
 
-          {/* Страница регистрации */}
-          <Route path="/register" element={
-            <Layout showFooter={false}>
-              <RegisterPage />
-            </Layout>
-          } />
+            {/* Страница регистрации */}
+            <Route path="/register" element={
+              <Layout showFooter={false}>
+                <RegisterPage />
+              </Layout>
+            } />
 
-          {/* ========== НОВЫЙ МАРШРУТ ДЛЯ КАРТЫ ========== */}
-          <Route path="/exhibition/:exhibitionId/map" element={
-            <Layout showFooter={false}>
-              <ExhibitionMapPage />
-            </Layout>
-          } />
+            {/* ========== НОВЫЙ МАРШРУТ ДЛЯ КАРТЫ ========== */}
+            <Route path="/exhibition/:exhibitionId/map" element={
+              <Layout showFooter={false}>
+                <ExhibitionMapPage />
+              </Layout>
+            } />
 
-          {/* Альтернативный путь */}
-          <Route path="/map/:exhibitionId" element={
-            <Layout showFooter={false}>
-              <ExhibitionMapPage />
-            </Layout>
-          } />
+            {/* Альтернативный путь */}
+            <Route path="/map/:exhibitionId" element={
+              <Layout showFooter={false}>
+                <ExhibitionMapPage />
+              </Layout>
+            } />
 
-          {/* Личный кабинет художника */}
-          <Route path="/artist/dashboard" element={
-            <Layout showFooter={false}>
-              <ProtectedRoute allowedRoles={['ARTIST']}>
-                <ArtistDashboard />
-              </ProtectedRoute>
-            </Layout>
-          } />
+            {/* Личный кабинет художника */}
+            <Route path="/artist/dashboard" element={
+              <Layout showFooter={false}>
+                <ProtectedRoute allowedRoles={['ARTIST']}>
+                  <ArtistDashboard />
+                </ProtectedRoute>
+              </Layout>
+            } />
 
-          {/* Кабинет владельца галереи */}
-          <Route path="/gallery/dashboard" element={
-            <Layout showFooter={false}>
-              <ProtectedRoute allowedRoles={['GALLERY_OWNER']}>
-                <GalleryOwnerDashboard />
-              </ProtectedRoute>
-            </Layout>
-          } />
+            {/* Кабинет владельца галереи */}
+            <Route path="/gallery/dashboard" element={
+              <Layout showFooter={false}>
+                <ProtectedRoute allowedRoles={['GALLERY_OWNER']}>
+                  <GalleryOwnerDashboard />
+                </ProtectedRoute>
+              </Layout>
+            } />
 
-          {/* Админ-панель */}
-          <Route path="/admin/dashboard" element={
-            <Layout showFooter={false}>
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            </Layout>
-          } />
-<Route path="/exhibition-events" element={
-  <Layout showFooter={true}>
-    <AllExhibitionsPage />
-  </Layout>
-} />
-          {/* Автоматический редирект на дашборд */}
-          <Route path="/dashboard" element={
-            <Layout showFooter={false}>
-              <ProtectedRoute>
-                <DashboardRedirect />
-              </ProtectedRoute>
-            </Layout>
-          } />
+            {/* Админ-панель */}
+            <Route path="/admin/dashboard" element={
+              <Layout showFooter={false}>
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              </Layout>
+            } />
+            <Route path="/exhibition-events" element={
+              <Layout showFooter={true}>
+                <AllExhibitionsPage />
+              </Layout>
+            } />
+            {/* Автоматический редирект на дашборд */}
+            <Route path="/dashboard" element={
+              <Layout showFooter={false}>
+                <ProtectedRoute>
+                  <DashboardRedirect />
+                </ProtectedRoute>
+              </Layout>
+            } />
 
-          {/* 404 страница */}
-          <Route path="*" element={
-            <Layout showFooter={true}>
-              <div style={{ padding: '50px', textAlign: 'center' }}>
-                <h1>404 - Страница не найдена</h1>
-                <p>Запрашиваемая страница не существует.</p>
-              </div>
-            </Layout>
-          } />
-        </Routes>
-      </div>
-    </Router>
+            {/* 404 страница */}
+            <Route path="*" element={
+              <Layout showFooter={true}>
+                <div style={{ padding: '50px', textAlign: 'center' }}>
+                  <h1>404 - Страница не найдена</h1>
+                  <p>Запрашиваемая страница не существует.</p>
+                </div>
+              </Layout>
+            } />
+          </Routes>
+        </div>
+      </Router>
     </AuthProvider>
   )
 }
