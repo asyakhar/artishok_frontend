@@ -123,9 +123,18 @@ const ExhibitionMapPage = () => {
     }
   };
   // ========== ОБРАБОТЧИКИ ДЛЯ ВЛАДЕЛЬЦА ==========
-  const handleUploadHallMap = async (mapImageUrl, name = 'Карта зала') => {
+  const handleUploadHallMap = async (imageFile, name = 'Карта зала') => {
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('exhibitionEventId', exhibitionId); // убедитесь, что exhibitionId доступен
+    if (imageFile) {
+      formData.append('mapImage', imageFile); // ← именно файл, не URL!
+    }
+  
     try {
-      const response = await ownerApi.uploadHallMap(exhibitionId, { mapImageUrl, name });
+      // Предполагается, что ownerApi.uploadHallMapWithImage отправляет FormData
+      const response = await ownerApi.uploadHallMapWithImage(formData);
+  
       // Обновляем данные
       const mapsData = await commonApi.getHallMapsByEvent(exhibitionId);
       setHallMaps(mapsData);
@@ -199,18 +208,98 @@ const ExhibitionMapPage = () => {
       throw new Error(err.response?.data?.error || 'Ошибка изменения статуса');
     }
   };
+  
 
   // ========== ОБРАБОТЧИКИ ДЛЯ ХУДОЖНИКА ==========
   const handleBookStand = async (standId) => {
     try {
       const response = await artistApi.createBooking(standId);
-      // Обновляем стенды - помечаем как недоступные
+      
+      // Обновляем локально: AVAILABLE → PENDING
       setStands(prev => prev.map(stand => 
-        stand.id === standId ? { ...stand, available: false } : stand
+        stand.id === standId ? { ...stand, status: 'PENDING' } : stand
       ));
+      
       return response;
-    } catch (err) {
-      throw new Error(err.response?.data?.error || 'Ошибка бронирования');
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Ошибка бронирования');
+    }
+  };
+  const handleApproveBooking = async (standId) => {
+    try {
+      console.log('Подтверждение бронирования для стенда:', standId);
+      
+      // 1. Получаем бронирования
+      const pendingBookings = await ownerApi.getPendingBookings();
+      console.log('Ожидающие бронирования:', pendingBookings);
+      
+      // 2. Ищем бронирование для этого стенда
+      const booking = pendingBookings.find(b => 
+        b.exhibitionStand?.id === standId || 
+        b.stand?.id === standId ||
+        (b.exhibitionStand && b.exhibitionStand.id === standId)
+      );
+      
+      console.log('Найденное бронирование:', booking);
+      
+      if (!booking) {
+        alert('Бронирование для этого стенда не найдено');
+        return;
+      }
+      
+      // 3. Подтверждаем бронирование
+      const response = await ownerApi.approveBooking(booking.id);
+      console.log('Ответ подтверждения:', response);
+      
+      // 4. Обновляем стенды
+      await refreshStands();
+      
+      alert('✅ Бронирование подтверждено!');
+      
+    } catch (error) {
+      console.error('Ошибка подтверждения:', error);
+      alert(`❌ Ошибка: ${error.response?.data?.error || error.message}`);
+    }
+  };
+  
+  const handleRejectBooking = async (standId) => {
+    try {
+      console.log('Отклонение бронирования для стенда:', standId);
+      
+      // Запрашиваем причину
+      const reason = prompt('Укажите причину отклонения бронирования:');
+      if (!reason || reason.trim() === '') {
+        alert('Причина отклонения обязательна');
+        return;
+      }
+      
+      // 1. Получаем бронирования
+      const pendingBookings = await ownerApi.getPendingBookings();
+      
+      // 2. Ищем бронирование
+      const booking = pendingBookings.find(b => 
+        b.exhibitionStand?.id === standId || 
+        b.stand?.id === standId ||
+        (b.exhibitionStand && b.exhibitionStand.id === standId)
+      );
+      
+      if (!booking) {
+        alert('Бронирование для этого стенда не найдено');
+        return;
+      }
+      
+      // 3. Отклоняем бронирование
+      const response = await ownerApi.rejectBooking(booking.id, reason);
+      console.log('Ответ отклонения:', response);
+      
+      // 4. Обновляем стенды
+      await refreshStands();
+      
+      alert('❌ Бронирование отклонено!');
+      
+    } catch (error) {
+      console.error('Ошибка отклонения:', error);
+      alert(`❌ Ошибка: ${error.response?.data?.error || error.message}`);
     }
   };
 
@@ -310,6 +399,9 @@ const ExhibitionMapPage = () => {
           onBookStand={handleBookStand}
           onDeleteStand={handleDeleteStand} 
           onRefreshStands={refreshStands} 
+
+          onApproveBooking={handleApproveBooking}  
+  onRejectBooking={handleRejectBooking} 
           // Общие
           onStandSelect={(stand) => {
             console.log('Выбран стенд:', stand);

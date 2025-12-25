@@ -21,7 +21,9 @@ const MapEditor = ({
   onBookStand,
   onDeleteStand = () => {},
   onMapImageUpload,
-  onRefreshStands = () => {} 
+  onRefreshStands = () => {} ,
+  onApproveBooking = () => {},    
+  onRejectBooking = () => {} 
 }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -46,7 +48,99 @@ const MapEditor = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   const [hallMapId, setHallMapId] = useState(hallMap?.id || null);
-
+// MapEditor.js - в useEffect добавьте
+useEffect(() => {
+  // Художник: бронирование
+  window.handleBookStand = async (standId, standNumber) => {
+    try {
+      if (onBookStand) {
+        await onBookStand(standId);
+        
+        // Закрываем popup
+        if (mapInstance.current) {
+          mapInstance.current.closePopup();
+        }
+        
+        // Обновляем стенды
+        if (onRefreshStands) {
+          setTimeout(() => onRefreshStands(), 300);
+        }
+      }
+    } catch (err) {
+      console.error('Ошибка бронирования:', err);
+    }
+  };
+  
+  // Владелец: подтвердить бронирование
+  window.handleApproveBooking = async (standId, standNumber) => {
+    try {
+      if (onApproveBooking) {
+        await onApproveBooking(standId);
+        
+        // Закрываем popup
+        if (mapInstance.current) {
+          mapInstance.current.closePopup();
+        }
+        
+        // Обновляем стенды
+        if (onRefreshStands) {
+          setTimeout(() => onRefreshStands(), 300);
+        }
+      }
+    } catch (err) {
+      console.error('Ошибка подтверждения:', err);
+    }
+  };
+  
+  // Владелец: отклонить бронирование
+  window.handleRejectBooking = async (standId, standNumber) => {
+    try {
+      if (onRejectBooking) {
+        await onRejectBooking(standId);
+        
+        // Закрываем popup
+        if (mapInstance.current) {
+          mapInstance.current.closePopup();
+        }
+        
+        // Обновляем стенды
+        if (onRefreshStands) {
+          setTimeout(() => onRefreshStands(), 300);
+        }
+      }
+    } catch (err) {
+      console.error('Ошибка отклонения:', err);
+    }
+  };
+  
+  // Удаление стенда
+  window.handleDeleteStand = async (standId, standNumber) => {
+    try {
+      if (onDeleteStand) {
+        await onDeleteStand(standId);
+        
+        // Закрываем popup
+        if (mapInstance.current) {
+          mapInstance.current.closePopup();
+        }
+        
+        // Обновляем стенды
+        if (onRefreshStands) {
+          setTimeout(() => onRefreshStands(), 300);
+        }
+      }
+    } catch (err) {
+      console.error('Ошибка удаления:', err);
+    }
+  };
+  
+  return () => {
+    delete window.handleBookStand;
+    delete window.handleApproveBooking;
+    delete window.handleRejectBooking;
+    delete window.handleDeleteStand;
+  };
+}, [onBookStand, onApproveBooking, onRejectBooking, onDeleteStand, onRefreshStands]);
   // ========== ИНИЦИАЛИЗАЦИЯ КАРТЫ ==========
   useEffect(() => {
     if (!mapRef.current) return;
@@ -541,9 +635,18 @@ const MapEditor = ({
   const createStandMarker = (stand) => {
     if (!mapInstance.current) return;
     
-    let color = '#28a745'; // свободен
-    if (stand.status === 'BOOKED') color = '#dc3545';
-    if (stand.status === 'MAINTENANCE') color = '#ffc107';
+    let color = '#28a745'; // AVAILABLE - зеленый
+let statusText = 'Свободен';
+
+if (stand.status === 'BOOKED') {
+  color = '#dc3545'; // BOOKED - красный
+  statusText = 'Забронирован';
+} 
+else if (stand.status === 'PENDING') {
+  color = '#ff9800'; // PENDING - оранжевый
+  statusText = 'Ожидает подтверждения';
+}
+
     
     const marker = L.marker([stand.positionY, stand.positionX], {
       icon: L.divIcon({
@@ -573,45 +676,102 @@ const MapEditor = ({
     }).addTo(mapInstance.current);
     
     // ДОБАВИЛИ КНОПКУ УДАЛЕНИЯ ДЛЯ ВЛАДЕЛЬЦА
-    const popupContent = `
-      <div style="padding: 15px; min-width: 250px;">
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <div style="width: 20px; height: 20px; background: ${color}; border-radius: 50%; margin-right: 10px;"></div>
-          <h4 style="margin: 0;">Стенд ${stand.standNumber}</h4>
-        </div>
-        <div style="margin-bottom: 15px;">
-          <p style="margin: 5px 0;"><strong>Тип:</strong> ${getTypeText(stand.type)}</p>
-          <p style="margin: 5px 0;"><strong>Размер:</strong> ${stand.width}×${stand.height} см</p>
-          <p style="margin: 5px 0;"><strong>Статус:</strong> 
-            <span style="color: ${color}; font-weight: bold;">
-              ${stand.status === 'BOOKED' ? 'Занят' : stand.status === 'MAINTENANCE' ? 'В ремонте' : 'Свободен'}
-            </span>
-          </p>
-          <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${stand.positionX}, Y:${stand.positionY}</p>
-        </div>
-        <div style="display: flex; gap: 10px; flex-direction: column;">
-          ${mode === 'artist' && stand.status === 'AVAILABLE' ? 
-            `<button 
-              onclick="window.handleBookStandClick('${stand.id}')" 
+   // MapEditor.js - в popupContent
+const popupContent = `
+<div style="padding: 15px; min-width: 250px;">
+  <div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="width: 20px; height: 20px; background: ${color}; border-radius: 50%; margin-right: 10px;"></div>
+    <h4 style="margin: 0;">Стенд ${stand.standNumber}</h4>
+  </div>
+  <div style="margin-bottom: 15px;">
+    <p style="margin: 5px 0;"><strong>Тип:</strong> ${getTypeText(stand.type)}</p>
+    <p style="margin: 5px 0;"><strong>Размер:</strong> ${stand.width}×${stand.height} см</p>
+    <p style="margin: 5px 0;"><strong>Статус:</strong> 
+      <span style="color: ${color}; font-weight: bold;">
+        ${statusText}
+      </span>
+    </p>
+    <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${stand.positionX}, Y:${stand.positionY}</p>
+  </div>
+  <div style="display: flex; gap: 10px; flex-direction: column;">
+    ${mode === 'artist' && stand.status === 'AVAILABLE' ? 
+      `<button 
+        onclick="if(confirm('Забронировать стенд ${stand.standNumber}?')) { 
+          if(window.handleBookStand) { 
+            window.handleBookStand('${stand.id}', '${stand.standNumber}'); 
+          }
+        }" 
+        style="
+          padding: 10px; 
+          background: linear-gradient(135deg, #007bff, #0056b3); 
+          color: white; 
+          border: none; 
+          border-radius: 6px; 
+          cursor: pointer;
+          font-weight: bold;
+        "
+      >
+        📝 Забронировать
+      </button>` : 
+      ''
+    }
+    ${mode === 'artist' && stand.status === 'PENDING' ? 
+      `<div style="
+        padding: 10px; 
+        background: linear-gradient(135deg, #ff9800, #f57c00); 
+        color: white; 
+        border-radius: 6px; 
+        text-align: center;
+        font-weight: bold;
+      ">
+        ⏳ Ожидает подтверждения
+      </div>` : 
+      ''
+    }
+    ${mode === 'artist' && stand.status === 'BOOKED' ? 
+      `<div style="
+        padding: 10px; 
+        background: linear-gradient(135deg, #dc3545, #c82333); 
+        color: white; 
+        border-radius: 6px; 
+        text-align: center;
+        font-weight: bold;
+      ">
+        ✅ Забронировано
+      </div>` : 
+      ''
+    }
+    ${mode === 'owner' ? 
+      `<div style="display: flex; flex-direction: column; gap: 8px;">
+        ${stand.status === 'PENDING' ? 
+          `<div style="display: flex; gap: 8px;">
+            <button 
+              onclick="if(confirm('Подтвердить бронирование стенда ${stand.standNumber}?')) { 
+                if(window.handleApproveBooking) { 
+                  window.handleApproveBooking('${stand.id}', '${stand.standNumber}'); 
+                }
+              }" 
               style="
+                flex: 1;
                 padding: 10px; 
-                background: linear-gradient(135deg, #007bff, #0056b3); 
+                background: linear-gradient(135deg, #28a745, #218838); 
                 color: white; 
                 border: none; 
                 border-radius: 6px; 
                 cursor: pointer;
                 font-weight: bold;
-                transition: all 0.2s;
               "
             >
-              📝 Забронировать
-            </button>` : 
-            ''
-          }
-          ${mode === 'owner' ? 
-            `<button 
-              onclick="window.handleDeleteStandClick('${stand.id}')" 
+              ✅ Подтвердить
+            </button>
+            <button 
+              onclick="if(confirm('Отклонить бронирование стенда ${stand.standNumber}?')) { 
+                if(window.handleRejectBooking) { 
+                  window.handleRejectBooking('${stand.id}', '${stand.standNumber}'); 
+                }
+              }" 
               style="
+                flex: 1;
                 padding: 10px; 
                 background: linear-gradient(135deg, #dc3545, #c82333); 
                 color: white; 
@@ -619,16 +779,37 @@ const MapEditor = ({
                 border-radius: 6px; 
                 cursor: pointer;
                 font-weight: bold;
-                transition: all 0.2s;
               "
             >
-              🗑️ Удалить стенд
-            </button>` : 
-            ''
-          }
-        </div>
-      </div>
-    `;
+              ❌ Отклонить
+            </button>
+          </div>` : 
+          ''
+        }
+        <button 
+          onclick="if(confirm('Удалить стенд ${stand.standNumber}?')) { 
+            if(window.handleDeleteStand) { 
+              window.handleDeleteStand('${stand.id}', '${stand.standNumber}'); 
+            }
+          }" 
+          style="
+            padding: 10px; 
+            background: linear-gradient(135deg, #6c757d, #5a6268); 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer;
+            font-weight: bold;
+          "
+        >
+          🗑️ Удалить стенд
+        </button>
+      </div>` : 
+      ''
+    }
+  </div>
+</div>
+`;
     
     // Обработчик бронирования
     window.handleBookStandClick = async (standId) => {
@@ -751,18 +932,18 @@ window.handleDeleteStandClick = async (standId) => {
     return types[type] || type;
   };
 
-  const getStats = () => {
 
-    const allStands = stands || [];
-    return {
-      total: allStands.length,
-      available: allStands.filter(s => s.status === 'AVAILABLE').length,
-      booked: allStands.filter(s => s.status === 'BOOKED').length,
-      maintenance: allStands.filter(s => s.status === 'MAINTENANCE').length
-    };
+const getStats = () => {
+  const allStands = stands || [];
+  return {
+    total: allStands.length,
+    available: allStands.filter(s => s.status === 'AVAILABLE').length,
+    pending: allStands.filter(s => s.status === 'PENDING').length,
+    booked: allStands.filter(s => s.status === 'BOOKED').length
   };
-  const stats = getStats();
+};
 
+const stats = getStats();
   const handleSaveAll = async () => {
     try {
       // Здесь можно добавить логику сохранения всех изменений
@@ -776,11 +957,11 @@ window.handleDeleteStandClick = async (standId) => {
     }
   };
 
-  const handleBack = () => {
-  
-      navigate('/gallery/dashboard');
-    
-  };
+ 
+
+const handleBack = () => {
+  navigate('/dashboard');
+};
 
   // ========== RENDER ==========
   return (
@@ -1495,14 +1676,21 @@ window.handleDeleteStandClick = async (standId) => {
           color: '#495057'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '12px', height: '12px', backgroundColor: '#28a745', borderRadius: '50%' }}></div>
-              <span>Свободно ({stats.available})</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '12px', height: '12px', backgroundColor: '#dc3545', borderRadius: '50%' }}></div>
-              <span>Занято ({stats.booked})</span>
-            </div>
+          
+<div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div style={{ width: '12px', height: '12px', backgroundColor: '#28a745', borderRadius: '50%' }}></div>
+    <span>Свободно ({stats.available})</span>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div style={{ width: '12px', height: '12px', backgroundColor: '#ff9800', borderRadius: '50%' }}></div>
+    <span>Ожидает ({stats.pending})</span>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div style={{ width: '12px', height: '12px', backgroundColor: '#dc3545', borderRadius: '50%' }}></div>
+    <span>Забронировано ({stats.booked})</span>
+  </div>
+</div>
           
           </div>
           

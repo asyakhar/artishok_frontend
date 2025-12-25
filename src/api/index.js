@@ -57,6 +57,20 @@ export const imageApi = {
 
 // ========== ВЛАДЕЛЕЦ ГАЛЕРЕИ ==========
 export const ownerApi = {
+  approveBooking: async (bookingId) => {
+    const response = await axios.post(`/gallery-owner/bookings/${bookingId}/confirm`);
+    return response.data;
+  },
+  
+  rejectBooking: async (bookingId) => {
+    const response = await axios.post(`/bookings/${bookingId}/reject`);
+    return response.data;
+  },
+  
+  getPendingBookings: async () => {
+    const response = await axios.get('/api/bookings/pending');
+    return response.data;
+  },
   // === КАРТЫ ЗАЛОВ ===
   getAllHallMaps: () => 
     api.get('/exhibition-hall-maps'),
@@ -66,23 +80,32 @@ export const ownerApi = {
 
   getHallMapById: (id) => 
     api.get(`/exhibition-hall-maps/${id}`),
+    getHallMapWithStands: (id) =>
+    api.get(`/exhibition-hall-maps/${id}/with-stands`),
 
   // Создать карту с изображением
-  createHallMapWithImage: (data) => {
-    const formData = new FormData();
-    formData.append('name', data.name);
-    formData.append('exhibitionEventId', data.exhibitionEventId);
-    if (data.mapImage) {
-      formData.append('mapImage', data.mapImage);
+  // api.js - метод createHallMapWithImage
+createHallMapWithImage: (data) => {
+  const formData = new FormData();
+  formData.append('name', data.name);
+  formData.append('exhibitionEventId', data.exhibitionEventId.toString()); // ← Преобразуйте в строку!
+  if (data.mapImage) {
+    formData.append('mapImage', data.mapImage);
+  }
+  
+  console.log('Отправка FormData:', {
+    name: data.name,
+    exhibitionEventId: data.exhibitionEventId,
+    hasImage: !!data.mapImage
+  });
+  
+  return axios.post(`${API_BASE_URL}/exhibition-hall-maps/create-with-image`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
     }
-    
-    return axios.post(`${API_BASE_URL}/exhibition-hall-maps/create-with-image`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
-      }
-    }).then(res => res.data);
-  },
+  }).then(res => res.data);
+},
 
   // Загрузить изображение для существующей карты
   uploadHallMapImage: (mapId, file) => {
@@ -159,6 +182,7 @@ export const ownerApi = {
 
  deleteStand: (standId) =>
    api.delete(`/exhibition-stands/${standId}`),
+   
 
  changeStandStatus: (standId, status) =>
    api.put(`/exhibition-stands/${standId}/status?status=${status}`),
@@ -192,8 +216,8 @@ export const artistApi = {
   createBooking: (standId) =>
     api.post('/artist/bookings', { exhibitionStandId: standId }),
 
-  getMyBookings: (params = {}) =>
-    api.get('/artist/bookings', { params }),
+  getMyBookings: () =>
+    api.get('/gallery-owner/bookings', { params:'PENDING' }),
 };
 
 // ========== ОБЩИЕ API ==========
