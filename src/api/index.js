@@ -57,20 +57,16 @@ export const imageApi = {
 
 // ========== ВЛАДЕЛЕЦ ГАЛЕРЕИ ==========
 export const ownerApi = {
-  approveBooking: async (bookingId) => {
-    const response = await axios.post(`/gallery-owner/bookings/${bookingId}/confirm`);
-    return response.data;
-  },
+  // ✅ ИСПРАВЛЕНО: PUT вместо POST
+  approveBooking: (bookingId) =>
+    api.put(`/gallery-owner/bookings/${bookingId}/confirm`),
+
+  // ✅ Должен быть PUT
+  rejectBooking: (bookingId, reason) =>
+    api.put(`/gallery-owner/bookings/${bookingId}/reject`, { reason }),
   
-  rejectBooking: async (bookingId) => {
-    const response = await axios.post(`/bookings/${bookingId}/reject`);
-    return response.data;
-  },
-  
-  getPendingBookings: async () => {
-    const response = await axios.get('/api/bookings/pending');
-    return response.data;
-  },
+  getPendingBookings: () => 
+  api.get('/gallery-owner/bookings', { params: { status: 'PENDING' } }),
   // === КАРТЫ ЗАЛОВ ===
   getAllHallMaps: () => 
     api.get('/exhibition-hall-maps'),

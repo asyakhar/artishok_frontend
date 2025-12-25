@@ -228,34 +228,48 @@ const ExhibitionMapPage = () => {
   const handleApproveBooking = async (standId) => {
     try {
       console.log('Подтверждение бронирования для стенда:', standId);
-      
+  
       // 1. Получаем бронирования
-      const pendingBookings = await ownerApi.getPendingBookings();
-      console.log('Ожидающие бронирования:', pendingBookings);
-      
-      // 2. Ищем бронирование для этого стенда
-      const booking = pendingBookings.find(b => 
-        b.exhibitionStand?.id === standId || 
-        b.stand?.id === standId ||
-        (b.exhibitionStand && b.exhibitionStand.id === standId)
-      );
-      
-      console.log('Найденное бронирование:', booking);
-      
-      if (!booking) {
-        alert('Бронирование для этого стенда не найдено');
+      const response = await ownerApi.getPendingBookings();
+      console.log('Ответ от getPendingBookings:', response);
+  
+      // 2. Извлекаем массив bookings
+      const bookingsArray = response.bookings || response;
+  
+      if (!Array.isArray(bookingsArray)) {
+        console.error('bookingsArray не является массивом:', bookingsArray);
+        alert('Ошибка: получены некорректные данные о бронированиях');
         return;
       }
-      
-      // 3. Подтверждаем бронирование
-      const response = await ownerApi.approveBooking(booking.id);
-      console.log('Ответ подтверждения:', response);
-      
-      // 4. Обновляем стенды
+  
+      console.log('Массив бронирований:', bookingsArray);
+  
+      // 3. Ищем бронирование: используем == для сравнения числа и строки
+      const booking = bookingsArray.find(b => {
+        const bookingStandId = b.exhibitionStandId;
+        console.log(`Сравниваем: bookingStandId=${bookingStandId} (тип: ${typeof bookingStandId}), standId=${standId} (тип: ${typeof standId})`);
+        return bookingStandId == standId; // ← ИСПОЛЬЗУЕМ ==, а не ===
+      });
+  
+      console.log('Найденное бронирование:', booking);
+  
+      if (!booking) {
+        alert('Бронирование для этого стенда не найдено.\n\n' +
+              'Убедитесь, что:\n' +
+              '- Вы владелец этой выставки\n' +
+              '- Бронирование ещё не подтверждено или отклонено');
+        return;
+      }
+  
+      // 4. Подтверждаем бронирование
+      await ownerApi.approveBooking(booking.id);
+      console.log('Бронирование подтверждено, ID:', booking.id);
+  
+      // 5. Обновляем стенды
       await refreshStands();
-      
+  
       alert('✅ Бронирование подтверждено!');
-      
+  
     } catch (error) {
       console.error('Ошибка подтверждения:', error);
       alert(`❌ Ошибка: ${error.response?.data?.error || error.message}`);
@@ -265,43 +279,140 @@ const ExhibitionMapPage = () => {
   const handleRejectBooking = async (standId) => {
     try {
       console.log('Отклонение бронирования для стенда:', standId);
-      
-      // Запрашиваем причину
+  
       const reason = prompt('Укажите причину отклонения бронирования:');
       if (!reason || reason.trim() === '') {
         alert('Причина отклонения обязательна');
         return;
       }
-      
+  
       // 1. Получаем бронирования
-      const pendingBookings = await ownerApi.getPendingBookings();
-      
-      // 2. Ищем бронирование
-      const booking = pendingBookings.find(b => 
-        b.exhibitionStand?.id === standId || 
-        b.stand?.id === standId ||
-        (b.exhibitionStand && b.exhibitionStand.id === standId)
-      );
-      
+      const response = await ownerApi.getPendingBookings();
+      const bookingsArray = response.bookings || response;
+  
+      if (!Array.isArray(bookingsArray)) {
+        alert('Ошибка: получены некорректные данные о бронированиях');
+        return;
+      }
+  
+      // 2. Ищем бронирование с ==
+      const booking = bookingsArray.find(b => b.exhibitionStandId == standId);
+  
       if (!booking) {
         alert('Бронирование для этого стенда не найдено');
         return;
       }
-      
-      // 3. Отклоняем бронирование
-      const response = await ownerApi.rejectBooking(booking.id, reason);
-      console.log('Ответ отклонения:', response);
-      
-      // 4. Обновляем стенды
+  
+      // 3. Отклоняем
+      await ownerApi.rejectBooking(booking.id, reason);
       await refreshStands();
-      
+  
       alert('❌ Бронирование отклонено!');
-      
+  
     } catch (error) {
       console.error('Ошибка отклонения:', error);
       alert(`❌ Ошибка: ${error.response?.data?.error || error.message}`);
     }
   };
+  // const handleApproveBooking = async (standId) => {
+  //   try {
+  //     console.log('Подтверждение бронирования для стенда:', standId);
+      
+  //     // 1. Получаем бронирования
+  //     const response = await ownerApi.getPendingBookings();
+  //     console.log('Ответ от getPendingBookings:', response);
+      
+  //     // 2. Извлекаем массив bookings из ответа
+  //     // Ответ имеет структуру: { "bookings": [...] }
+  //     const bookingsArray = response.bookings || response.data?.bookings || response;
+      
+  //     console.log('Массив бронирований:', bookingsArray);
+  //     console.log('Это массив?', Array.isArray(bookingsArray));
+      
+  //     // 3. Проверяем что это массив
+  //     if (!Array.isArray(bookingsArray)) {
+  //       console.error('bookingsArray не является массивом:', bookingsArray);
+  //       alert('Ошибка: получены некорректные данные о бронированиях');
+  //       return;
+  //     }
+      
+  //     // 4. Ищем бронирование для этого стенда
+  //     const booking = bookingsArray.find(b => {
+  //       // Используем exhibitionStandId из структуры ответа
+  //       const bookingStandId = b.exhibitionStandId || b.exhibitionStand?.id || b.stand?.id;
+  //       console.log(`Сравниваем: bookingStandId=${bookingStandId}, standId=${standId}`);
+  //       return bookingStandId === standId;
+  //     });
+      
+  //     console.log('Найденное бронирование:', booking);
+      
+  //     if (!booking) {
+  //       alert('Бронирование для этого стенда не найдено');
+  //       return;
+  //     }
+      
+  //     // 5. Подтверждаем бронирование
+  //     const approveResponse = await ownerApi.approveBooking(booking.id);
+  //     console.log('Ответ подтверждения:', approveResponse);
+      
+  //     // 6. Обновляем стенды
+  //     await refreshStands();
+      
+  //     alert('✅ Бронирование подтверждено!');
+      
+  //   } catch (error) {
+  //     console.error('Ошибка подтверждения:', error);
+  //     alert(`❌ Ошибка: ${error.response?.data?.error || error.message}`);
+  //   }
+  // };
+  
+  // const handleRejectBooking = async (standId) => {
+  //   try {
+  //     console.log('Отклонение бронирования для стенда:', standId);
+      
+  //     // Запрашиваем причину
+  //     const reason = prompt('Укажите причину отклонения бронирования:');
+  //     if (!reason || reason.trim() === '') {
+  //       alert('Причина отклонения обязательна');
+  //       return;
+  //     }
+      
+  //     // 1. Получаем бронирования
+  //     const response = await ownerApi.getPendingBookings();
+      
+  //     // 2. Извлекаем массив bookings из ответа
+  //     const bookingsArray = response.bookings || response.data?.bookings || response;
+      
+  //     if (!Array.isArray(bookingsArray)) {
+  //       alert('Ошибка: получены некорректные данные о бронированиях');
+  //       return;
+  //     }
+      
+  //     // 3. Ищем бронирование
+  //     const booking = bookingsArray.find(b => {
+  //       const bookingStandId = b.exhibitionStandId || b.exhibitionStand?.id || b.stand?.id;
+  //       return bookingStandId === standId;
+  //     });
+      
+  //     if (!booking) {
+  //       alert('Бронирование для этого стенда не найдено');
+  //       return;
+  //     }
+      
+  //     // 4. Отклоняем бронирование
+  //     const rejectResponse = await ownerApi.rejectBooking(booking.id, reason);
+  //     console.log('Ответ отклонения:', rejectResponse);
+      
+  //     // 5. Обновляем стенды
+  //     await refreshStands();
+      
+  //     alert('❌ Бронирование отклонено!');
+      
+  //   } catch (error) {
+  //     console.error('Ошибка отклонения:', error);
+  //     alert(`❌ Ошибка: ${error.response?.data?.error || error.message}`);
+  //   }
+  // };
 
   const handleMapSelect = async (mapId) => {
     const map = hallMaps.find(m => m.id === mapId);
