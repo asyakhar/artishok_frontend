@@ -872,7 +872,7 @@ window.handleDeleteStandClick = async (standId) => {
                   color: 'white',
                   fontSize: '16px'
                 }}>1</span>
-                Загрузка плана зала на сервер
+                Загрузка плана зала
               </h4>
               
               <div style={{ marginBottom: '15px' }}>
@@ -897,7 +897,7 @@ window.handleDeleteStandClick = async (standId) => {
                   transition: 'all 0.2s',
                   opacity: loading ? 0.7 : 1
                 }}>
-                  {loading ? '⏳ Загрузка на сервер...' : '📁 Загрузить план зала'}
+                  {loading ? '⏳ Загрузка на сервер...' : '📁 Загрузить'}
                 </label>
                 
                 {/* Прогресс бар */}

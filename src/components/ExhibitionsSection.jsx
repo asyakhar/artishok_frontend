@@ -26,9 +26,7 @@ const ExhibitionsSection = ({ events, loading }) => {
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">Текущие выставки</h2>
-            <p className="section-subtitle">
-              Откройте для себя искусство в лучших галереях города
-            </p>
+            
           </div>
           <div className="loading-state">
             <div className="spinner">
@@ -46,9 +44,7 @@ const ExhibitionsSection = ({ events, loading }) => {
       <div className="container">
         <div className="section-header">
           <h2 className="section-title">Текущие выставки</h2>
-          <p className="section-subtitle">
-            Откройте для себя искусство в лучших галереях города
-          </p>
+         
           <Link to="/exhibition-events" className="section-link">
   Все выставки <i className="fas fa-arrow-right"></i>
 </Link>
