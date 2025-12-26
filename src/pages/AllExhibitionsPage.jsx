@@ -37,7 +37,7 @@ const AllExhibitionsPage = () => {
 
   // Функция для получения токена
   const getAuthToken = () => {
-    return localStorage.getItem('authToken') || localStorage.getItem('auth_token');
+    return sessionStorage.getItem('authToken') || sessionStorage.getItem('auth_token');
   };
 
   // Загрузка выставок
@@ -55,7 +55,7 @@ const AllExhibitionsPage = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch(`${API_BASE_URL}/exhibition-events`, {
         method: 'GET',
         headers: {
@@ -63,7 +63,7 @@ const AllExhibitionsPage = () => {
           ...(getAuthToken() && { 'Authorization': `Bearer ${getAuthToken()}` })
         }
       });
-      
+
       if (!response.ok) {
         if (response.status === 204) {
           setEvents([]);
@@ -72,10 +72,10 @@ const AllExhibitionsPage = () => {
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       setEvents(data);
-      
+
     } catch (err) {
       console.error('Ошибка при загрузке выставок:', err);
       setError('Не удалось загрузить выставки. Пожалуйста, попробуйте позже.');
@@ -98,7 +98,7 @@ const AllExhibitionsPage = () => {
         const galleryName = event.galleryName || '';
         const location = event.location || '';
         const address = event.address || '';
-        
+
         return (
           title.toLowerCase().includes(query) ||
           description.toLowerCase().includes(query) ||
@@ -146,7 +146,7 @@ const AllExhibitionsPage = () => {
         });
         break;
       case 'featured':
-        filtered = filtered.filter(event => 
+        filtered = filtered.filter(event =>
           event.isFeatured === true || event.featured === true
         );
         break;
@@ -162,24 +162,24 @@ const AllExhibitionsPage = () => {
           const dateA = a.createdAt || a.startDate;
           const dateB = b.createdAt || b.startDate;
           return new Date(dateB || 0) - new Date(dateA || 0);
-        
+
         case 'oldest':
           const dateA2 = a.createdAt || a.startDate;
           const dateB2 = b.createdAt || b.startDate;
           return new Date(dateA2 || 0) - new Date(dateB2 || 0);
-        
+
         case 'name-asc':
           return (a.title || '').localeCompare(b.title || '');
-        
+
         case 'name-desc':
           return (b.title || '').localeCompare(a.title || '');
-        
+
         case 'date-start':
           return new Date(a.startDate || 0) - new Date(b.startDate || 0);
-        
+
         case 'date-end':
           return new Date(a.endDate || 0) - new Date(b.endDate || 0);
-        
+
         default:
           return 0;
       }
@@ -205,7 +205,7 @@ const AllExhibitionsPage = () => {
       const now = new Date();
       const startDate = new Date(event.startDate || now);
       const endDate = new Date(event.endDate || now);
-      
+
       if (startDate > now) return 'upcoming';
       if (endDate < now) return 'past';
       return 'current';
@@ -250,7 +250,7 @@ const AllExhibitionsPage = () => {
 
   return (
     <div className="all-exhibitions-page">
-     
+
 
       <main className="page-content">
         <div className="container">
@@ -270,8 +270,8 @@ const AllExhibitionsPage = () => {
                       className="search-input"
                     />
                     {searchQuery && (
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="clear-search"
                         onClick={() => setSearchQuery('')}
                       >
@@ -321,7 +321,7 @@ const AllExhibitionsPage = () => {
                 </div>
 
                 {(activeFilter !== 'all' || searchQuery || sortBy !== 'newest') && (
-                  <button 
+                  <button
                     className="btn btn-text reset-filters"
                     onClick={handleResetFilters}
                   >
@@ -343,12 +343,12 @@ const AllExhibitionsPage = () => {
                   )}
                 </span>
               </div>
-              
+
               {filteredEvents.length === 0 && events.length > 0 && (
                 <div className="no-filter-results">
                   <i className="fas fa-search"></i>
                   <p>По выбранным фильтрам ничего не найдено</p>
-                  <button 
+                  <button
                     className="btn btn-text"
                     onClick={handleResetFilters}
                   >
@@ -364,12 +364,12 @@ const AllExhibitionsPage = () => {
             <>
               <div className="exhibitions-grid">
                 {filteredEvents.map((event) => (
-                  <div 
-                    key={event.id} 
+                  <div
+                    key={event.id}
                     className="exhibition-item-wrapper"
                     onClick={() => navigate(`/event/${event.id}`)}
                   >
-                    <ExhibitionCard 
+                    <ExhibitionCard
                       event={event}
                       status={getEventStatus(event)}
                     />
@@ -402,7 +402,7 @@ const AllExhibitionsPage = () => {
         </div>
       </main>
 
-      
+
     </div>
   );
 };

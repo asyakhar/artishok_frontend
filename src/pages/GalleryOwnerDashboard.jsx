@@ -29,8 +29,8 @@ const GalleryOwnerDashboard = () => {
   const [editingGallery, setEditingGallery] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const token = sessionStorage.getItem('authToken');
+    const user = JSON.parse(sessionStorage.getItem('user') || 'null');
 
     if (!token || !user) {
       navigate('/login');
@@ -116,7 +116,7 @@ const GalleryOwnerDashboard = () => {
   };
   const handleCreateGallery = async (galleryData) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = sessionStorage.getItem('authToken');
       const response = await fetch(`${API_BASE_URL}/gallery-owner/create-gallery`, {
         method: 'POST',
         headers: {
@@ -143,7 +143,7 @@ const GalleryOwnerDashboard = () => {
   };
   const handleGallerySelect = (gallery) => {
     setSelectedGallery(gallery);
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     fetchGalleryExhibitions(gallery.id, token);
   };
   const handleEditGallery = (gallery) => {
@@ -155,7 +155,7 @@ const GalleryOwnerDashboard = () => {
     if (!editingGallery) return { success: false, error: 'Галерея не выбрана' };
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = sessionStorage.getItem('authToken');
       const response = await fetch(
         `${API_BASE_URL}/gallery-owner/galleries/${editingGallery.id}`,
         {
@@ -184,7 +184,7 @@ const GalleryOwnerDashboard = () => {
   };
 
   const handleGallerySuccess = () => {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     fetchOwnerGalleries(token);
     setShowAddGalleryModal(false);
     setShowEditGalleryModal(false);
@@ -192,7 +192,7 @@ const GalleryOwnerDashboard = () => {
   };
   const handleViewBookings = (exhibition) => {
     setSelectedExhibition(exhibition);
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     fetchExhibitionBookings(exhibition.id, token);
     setShowBookingsModal(true);
   };
@@ -201,7 +201,7 @@ const GalleryOwnerDashboard = () => {
     if (!window.confirm('Подтвердить бронирование?')) return;
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = sessionStorage.getItem('authToken');
       const response = await fetch(`${API_BASE_URL}/gallery-owner/bookings/${bookingId}/confirm`, {
         method: 'PUT',
         headers: {
@@ -232,7 +232,7 @@ const GalleryOwnerDashboard = () => {
     if (!reason) return;
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = sessionStorage.getItem('authToken');
       const response = await fetch(`${API_BASE_URL}/gallery-owner/bookings/${bookingId}/reject`, {
         method: 'PUT',
         headers: {
@@ -673,7 +673,7 @@ const GalleryOwnerDashboard = () => {
           }}
           onSuccess={() => {
             // Обновляем список выставок
-            const token = localStorage.getItem('authToken');
+            const token = sessionStorage.getItem('authToken');
             fetchGalleryExhibitions(selectedGallery.id, token);
           }}
           selectedGallery={selectedGallery}

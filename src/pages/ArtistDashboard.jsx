@@ -25,8 +25,8 @@ const ArtistDashboard = () => {
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const token = sessionStorage.getItem("authToken");
+    const user = JSON.parse(sessionStorage.getItem("user") || "null");
 
     if (!token || !user) {
       navigate("/login");
@@ -54,7 +54,7 @@ const ArtistDashboard = () => {
       if (response.ok) {
         const user = await response.json();
         setUserData(user);
-        localStorage.setItem("user", JSON.stringify(user));
+        sessionStorage.setItem("user", JSON.stringify(user));
       }
     } catch (error) {
       console.error("Ошибка загрузки профиля:", error);
@@ -134,7 +134,7 @@ const ArtistDashboard = () => {
     if (!window.confirm("Вы уверены, что хотите отменить это бронирование?"))
       return;
     try {
-      const token = localStorage.getItem("authToken");
+      const token = sessionStorage.getItem("authToken");
       const response = await fetch(
         `${API_BASE_URL}/bookings/${bookingId}/cancel`,
         {
@@ -147,7 +147,7 @@ const ArtistDashboard = () => {
       );
       if (response.ok) {
         alert("Бронирование успешно отменено!");
-        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const user = JSON.parse(sessionStorage.getItem("user") || "{}");
         fetchBookings(user.id);
       } else {
         const errorData = await response.json();
@@ -161,7 +161,7 @@ const ArtistDashboard = () => {
 
   const handlePublishArtwork = async (artworkId) => {
     try {
-      const token = localStorage.getItem("authToken");
+      const token = sessionStorage.getItem("authToken");
       const response = await fetch(
         `${API_BASE_URL}/artworks/${artworkId}/publish`,
         {
@@ -180,7 +180,7 @@ const ArtistDashboard = () => {
 
   const handleDraftArtwork = async (artworkId) => {
     try {
-      const token = localStorage.getItem("authToken");
+      const token = sessionStorage.getItem("authToken");
       const response = await fetch(
         `${API_BASE_URL}/artworks/${artworkId}/draft`,
         {
@@ -200,7 +200,7 @@ const ArtistDashboard = () => {
   const handleDeleteArtwork = async (artworkId) => {
     if (!window.confirm("Вы уверены, что хотите удалить эту картину?")) return;
     try {
-      const token = localStorage.getItem("authToken");
+      const token = sessionStorage.getItem("authToken");
       const response = await fetch(`${API_BASE_URL}/artworks/${artworkId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -430,17 +430,17 @@ const ArtistDashboard = () => {
                             <div className="table-actions">
                               {(booking.status === "PENDING" ||
                                 booking.status === "CONFIRMED") && (
-                                <button
-                                  className="btn btn-danger btn-sm"
-                                  onClick={() =>
-                                    handleCancelBooking(booking.id)
-                                  }
-                                  title="Отменить"
-                                  style={{ marginLeft: "5px" }}
-                                >
-                                  <i className="fas fa-times"></i>
-                                </button>
-                              )}
+                                  <button
+                                    className="btn btn-danger btn-sm"
+                                    onClick={() =>
+                                      handleCancelBooking(booking.id)
+                                    }
+                                    title="Отменить"
+                                    style={{ marginLeft: "5px" }}
+                                  >
+                                    <i className="fas fa-times"></i>
+                                  </button>
+                                )}
                               {booking.status === "CANCELLED" && (
                                 <span
                                   className="cancelled-text"

@@ -34,8 +34,8 @@ const AdminDashboard = () => {
     const [comment, setComment] = useState('');
 
     useEffect(() => {
-        const token = localStorage.getItem('authToken');
-        const user = JSON.parse(localStorage.getItem('user') || 'null');
+        const token = sessionStorage.getItem('authToken');
+        const user = JSON.parse(sessionStorage.getItem('user') || 'null');
 
         if (!token || !user) {
             navigate('/login');
@@ -163,7 +163,7 @@ const AdminDashboard = () => {
 
     const handleTabChange = (tab) => {
         setActiveTab(tab);
-        const token = localStorage.getItem('authToken');
+        const token = sessionStorage.getItem('authToken');
 
         if (tab === 'galleries') {
             fetchGalleries(token);
@@ -197,7 +197,7 @@ const AdminDashboard = () => {
     const handleConfirmAction = async () => {
         if (!selectedItem) return;
 
-        const token = localStorage.getItem('authToken');
+        const token = sessionStorage.getItem('authToken');
 
         try {
             let response;
@@ -469,7 +469,7 @@ const AdminDashboard = () => {
                             <h3><i className="fas fa-users"></i> Управление пользователями</h3>
                             <button
                                 className="btn btn-outline"
-                                onClick={() => fetchUsers(localStorage.getItem('authToken'))}
+                                onClick={() => fetchUsers(sessionStorage.getItem('authToken'))}
                             >
                                 <i className="fas fa-sync-alt"></i> Обновить
                             </button>
@@ -561,7 +561,7 @@ const AdminDashboard = () => {
                             <h3><i className="fas fa-store"></i> Управление галереями</h3>
                             <button
                                 className="btn btn-outline"
-                                onClick={() => fetchGalleries(localStorage.getItem('authToken'))}
+                                onClick={() => fetchGalleries(sessionStorage.getItem('authToken'))}
                             >
                                 <i className="fas fa-sync-alt"></i> Обновить
                             </button>
@@ -664,7 +664,7 @@ const AdminDashboard = () => {
                             <h3><i className="fas fa-calendar-alt"></i> Управление выставками</h3>
                             <button
                                 className="btn btn-outline"
-                                onClick={() => fetchExhibitions(localStorage.getItem('authToken'))}
+                                onClick={() => fetchExhibitions(sessionStorage.getItem('authToken'))}
                             >
                                 <i className="fas fa-sync-alt"></i> Обновить
                             </button>

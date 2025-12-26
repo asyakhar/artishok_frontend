@@ -16,8 +16,8 @@ const ExhibitionMapPage = () => {
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    // Получаем роль пользователя из localStorage
-    const user = JSON.parse(localStorage.getItem("user") || "null");
+    // Получаем роль пользователя из sessionStorage
+    const user = JSON.parse(sessionStorage.getItem("user") || "null");
     const role = user?.role || user?.authorities?.[0];
 
     if (role === "GALLERY_OWNER" || role === "ADMIN") {
@@ -269,9 +269,9 @@ const ExhibitionMapPage = () => {
       if (!booking) {
         alert(
           "Бронирование для этого стенда не найдено.\n\n" +
-            "Убедитесь, что:\n" +
-            "- Вы владелец этой выставки\n" +
-            "- Бронирование ещё не подтверждено или отклонено"
+          "Убедитесь, что:\n" +
+          "- Вы владелец этой выставки\n" +
+          "- Бронирование ещё не подтверждено или отклонено"
         );
         return;
       }

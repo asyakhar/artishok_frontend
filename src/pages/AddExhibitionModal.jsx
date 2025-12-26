@@ -58,7 +58,7 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
         setError('');
 
         try {
-            const token = localStorage.getItem('authToken');
+            const token = sessionStorage.getItem('authToken');
 
             // Форматируем даты (добавляем секунды если нужно)
             const formatDateForServer = (dateString) => {

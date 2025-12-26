@@ -124,7 +124,7 @@ const AddGalleryModal = ({
         setError('');
 
         try {
-            const token = localStorage.getItem('authToken');
+            const token = sessionStorage.getItem('authToken');
 
             if (!token) {
                 throw new Error('Токен авторизации отсутствует');

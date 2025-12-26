@@ -47,15 +47,15 @@ const LoginPage = () => {
       }
 
       // Сохраняем токен и данные пользователя
-      localStorage.setItem('authToken', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      sessionStorage.setItem('authToken', data.token);
+      sessionStorage.setItem('user', JSON.stringify(data.user));
 
       if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
-        localStorage.setItem('rememberedEmail', formData.email);
+        sessionStorage.setItem('rememberMe', 'true');
+        sessionStorage.setItem('rememberedEmail', formData.email);
       } else {
-        localStorage.removeItem('rememberMe');
-        localStorage.removeItem('rememberedEmail');
+        sessionStorage.removeItem('rememberMe');
+        sessionStorage.removeItem('rememberedEmail');
       }
       window.dispatchEvent(new CustomEvent('authStateChanged', {
         detail: { user: data.user, token: data.token }

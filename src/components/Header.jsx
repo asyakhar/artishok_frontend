@@ -20,7 +20,7 @@ const Header = () => {
   }, []);
 
   const checkAuth = async () => {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     if (!token) {
       setUserData(null);
       return;
@@ -36,7 +36,7 @@ const Header = () => {
       if (response.ok) {
         const user = await response.json();
         setUserData(user);
-        localStorage.setItem('user', JSON.stringify(user));
+        sessionStorage.setItem('user', JSON.stringify(user));
         setError('');
       } else {
         handleLogout();
@@ -52,18 +52,18 @@ const Header = () => {
 
   useEffect(() => {
     const handleAuthStateChanged = () => {
-      checkAuth(); 
+      checkAuth();
     };
 
     window.addEventListener('authStateChanged', handleAuthStateChanged);
-    
+
     return () => {
       window.removeEventListener('authStateChanged', handleAuthStateChanged);
     };
   }, []);
   // ==================================
 
-  
+
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === 'authToken' || e.key === 'user') {
@@ -72,14 +72,14 @@ const Header = () => {
     };
 
     window.addEventListener('storage', handleStorageChange);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
   const handleLogout = async () => {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     if (token) {
       try {
         await fetch(`${API_BASE_URL}/api/auth/logout`, {
@@ -90,14 +90,14 @@ const Header = () => {
         console.error('Ошибка при выходе:', error);
       }
     }
-    
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    
-    
-    
+
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('user');
+
+
+
     window.dispatchEvent(new CustomEvent('authStateChanged'));
-   
+
     setUserData(null);
     navigate('/');
   };
@@ -137,8 +137,8 @@ const Header = () => {
       console.log('Ответ сервера:', data);
 
       if (response.ok) {
-        localStorage.setItem('authToken', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        sessionStorage.setItem('authToken', data.token);
+        sessionStorage.setItem('user', JSON.stringify(data.user));
         setUserData(data.user);
         alert(`✅ Регистрация успешна! Роль: ${role}`);
       } else {
@@ -150,7 +150,7 @@ const Header = () => {
     }
   };
 
-  
+
   const getDashboardPath = () => {
     if (!userData) return '/login';
 

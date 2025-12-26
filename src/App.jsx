@@ -18,8 +18,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import MapEditor from './components/MapEditor';
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-  const user = JSON.parse(localStorage.getItem('user') || 'null')
-  const token = localStorage.getItem('authToken')
+  const user = JSON.parse(sessionStorage.getItem('user') || 'null')
+  const token = sessionStorage.getItem('authToken')
 
   if (!token || !user) {
     return <Navigate to="/login" replace />
@@ -245,7 +245,7 @@ function App() {
 
 // Компонент для редиректа на правильный дашборд
 function DashboardRedirect() {
-  const user = JSON.parse(localStorage.getItem('user') || 'null')
+  const user = JSON.parse(sessionStorage.getItem('user') || 'null')
 
   if (!user) {
     return <Navigate to="/login" replace />
