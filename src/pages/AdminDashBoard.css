@@ -34,6 +34,7 @@
 
 .dashboard-header {
     margin-bottom: 30px;
+    width: 100%;
 }
 
 .profile-card {
@@ -44,6 +45,8 @@
     border-radius: 15px;
     color: white;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 .profile-avatar {

@@ -177,26 +177,26 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
     };
 
     return (
-        <div className="modal-overlay">
-            <div className="modal-content">
-                <div className="modal-header">
+        <div className="artist-modal-overlay">
+            <div className="artist-modal-content">
+                <div className="artist-modal-header">
                     <h2>{modalTitle}</h2>
-                    <button className="modal-close" onClick={onClose}>
+                    <button className="artist-modal-close" onClick={onClose}>
                         <i className="fas fa-times"></i>
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="modal-body">
+                    <div className="artist-modal-body">
                         {error && (
-                            <div className="alert alert-error">
+                            <div className="artist-alert artist-alert-error">
                                 <i className="fas fa-exclamation-circle"></i>
                                 {error}
                             </div>
                         )}
 
                         {/* Выбор бронирования */}
-                        <div className="form-group">
+                        <div className="artist-form-group">
                             <label htmlFor="bookingId">Выберите бронирование *</label>
                             <select
                                 id="bookingId"
@@ -204,7 +204,7 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                                 value={formData.bookingId}
                                 onChange={handleChange}
                                 required
-                                disabled={isEditMode} // При редактировании нельзя менять бронирование
+                                disabled={isEditMode}
                             >
                                 <option value="">Выберите бронирование</option>
                                 {bookings.map(booking => {
@@ -219,7 +219,7 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                             </select>
 
                             {formData.bookingId && (
-                                <div className="booking-info">
+                                <div className="artist-booking-info">
                                     <small>
                                         <strong>Информация о бронировании:</strong><br />
                                         {(() => {
@@ -238,7 +238,7 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                         </div>
 
                         {/* Название */}
-                        <div className="form-group">
+                        <div className="artist-form-group">
                             <label htmlFor="title">Название картины *</label>
                             <input
                                 type="text"
@@ -252,7 +252,7 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                         </div>
 
                         {/* Описание */}
-                        <div className="form-group">
+                        <div className="artist-form-group">
                             <label htmlFor="description">Описание</label>
                             <textarea
                                 id="description"
@@ -264,9 +264,9 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                             />
                         </div>
 
-                        <div className="form-row">
+                        <div className="artist-form-row">
                             {/* Год создания */}
-                            <div className="form-group">
+                            <div className="artist-form-group">
                                 <label htmlFor="creationYear">Год создания</label>
                                 <input
                                     type="number"
@@ -281,7 +281,7 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                             </div>
 
                             {/* Техника исполнения */}
-                            <div className="form-group">
+                            <div className="artist-form-group">
                                 <label htmlFor="technique">Техника исполнения</label>
                                 <input
                                     type="text"
@@ -295,30 +295,30 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                         </div>
 
                         {/* Загрузка изображения */}
-                        <div className="form-group">
+                        <div className="artist-form-group">
                             <label>Изображение картины *</label>
-                            <div className="image-upload-container">
+                            <div className="artist-image-upload-container">
                                 <input
                                     type="file"
                                     accept="image/*"
                                     onChange={handleImageChange}
-                                    className="file-input"
+                                    className="artist-file-input"
                                     ref={imageInputRef}
                                     style={{ display: 'none' }}
                                     id="artwork-image-upload"
                                 />
 
-                                <div className="image-preview-area">
+                                <div className="artist-image-preview-area">
                                     {imagePreview ? (
-                                        <div className="image-preview">
+                                        <div className="artist-image-preview">
                                             <img
                                                 src={imagePreview}
                                                 alt="Превью картины"
-                                                className="preview-image"
+                                                className="artist-preview-image"
                                             />
                                             <button
                                                 type="button"
-                                                className="remove-image-btn"
+                                                className="artist-remove-image-btn"
                                                 onClick={removeImage}
                                                 title="Удалить изображение"
                                             >
@@ -326,16 +326,16 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                                             </button>
                                         </div>
                                     ) : isEditMode && editData?.imageUrl ? (
-                                        <div className="image-preview">
+                                        <div className="artist-image-preview">
                                             <img
                                                 src={editData.imageUrl}
                                                 alt="Текущее изображение"
-                                                className="preview-image"
+                                                className="artist-preview-image"
                                             />
-                                            <small className="current-image-note">Текущее изображение</small>
+                                            <small className="artist-current-image-note">Текущее изображение</small>
                                         </div>
                                     ) : (
-                                        <div className="image-upload-placeholder">
+                                        <div className="artist-image-upload-placeholder">
                                             <i className="fas fa-image"></i>
                                             <span>Загрузите изображение картины</span>
                                             <small>Рекомендуемый размер: не менее 800x600px</small>
@@ -344,10 +344,10 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                                     )}
                                 </div>
 
-                                <div className="image-upload-controls">
+                                <div className="artist-image-upload-controls">
                                     <button
                                         type="button"
-                                        className="btn btn-outline btn-sm"
+                                        className="artist-btn artist-btn-outline artist-btn-sm"
                                         onClick={() => imageInputRef.current.click()}
                                     >
                                         <i className="fas fa-upload"></i>
@@ -356,13 +356,13 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                                 </div>
 
                                 {imageUploadError && (
-                                    <div className="upload-error-message">
+                                    <div className="artist-upload-error-message">
                                         <i className="fas fa-exclamation-triangle"></i>
                                         {imageUploadError}
                                     </div>
                                 )}
 
-                                <div className="upload-hint">
+                                <div className="artist-upload-hint">
                                     <small>
                                         <i className="fas fa-info-circle"></i>
                                         Изображение обязательно для добавления картины. Выберите качественное фото вашей работы.
@@ -372,7 +372,7 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                         </div>
 
                         {/* Статус */}
-                        <div className="form-group">
+                        <div className="artist-form-group">
                             <label htmlFor="status">Статус</label>
                             <select
                                 id="status"
@@ -386,10 +386,10 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                         </div>
                     </div>
 
-                    <div className="modal-footer">
+                    <div className="artist-modal-footer">
                         <button
                             type="button"
-                            className="btn btn-outline"
+                            className="artist-btn artist-btn-outline"
                             onClick={onClose}
                             disabled={loading}
                         >
@@ -397,7 +397,7 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                         </button>
                         <button
                             type="submit"
-                            className="btn btn-primary"
+                            className="artist-btn artist-btn-primary"
                             disabled={loading || (!isEditMode && !imageFile)}
                         >
                             {loading ? (

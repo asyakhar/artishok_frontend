@@ -41,7 +41,7 @@ const ArtistDashboard = () => {
     setUserData(user);
     fetchBookings(user.id);
     fetchArtworks(user.id);
-    fetchExhibitions(); // ← новая загрузка
+    fetchExhibitions();
     fetchUserProfile(token);
   }, [navigate]);
 
@@ -68,7 +68,6 @@ const ArtistDashboard = () => {
       const response = await fetch(
         `${API_BASE_URL}/bookings/artist/${artistId}`
       );
-      // ↑ ОШИБКА: должно быть /bookings/, но оставлю как в оригинале
       if (response.ok) {
         const data = await response.json();
         setBookings(data);
@@ -98,7 +97,6 @@ const ArtistDashboard = () => {
     }
   };
 
-  // 🔹 НОВАЯ ФУНКЦИЯ: загрузка всех выставок
   const fetchExhibitions = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/exhibition-events`);
@@ -232,24 +230,24 @@ const ArtistDashboard = () => {
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case "CONFIRMED":
-        return "status-badge confirmed";
+        return "artist-status-badge artist-confirmed";
       case "PENDING":
-        return "status-badge pending";
+        return "artist-status-badge artist-pending";
       case "CANCELLED":
-        return "status-badge cancelled";
+        return "artist-status-badge artist-cancelled";
       default:
-        return "status-badge";
+        return "artist-status-badge";
     }
   };
 
   const getArtworkStatusBadgeClass = (status) => {
     switch (status) {
       case "PUBLISHED":
-        return "status-badge published";
+        return "artist-status-badge artist-published";
       case "DRAFT":
-        return "status-badge draft";
+        return "artist-status-badge artist-draft";
       default:
-        return "status-badge";
+        return "artist-status-badge";
     }
   };
 
@@ -267,8 +265,8 @@ const ArtistDashboard = () => {
 
   if (loading.profile) {
     return (
-      <div className="dashboard-loading">
-        <div className="spinner"></div>
+      <div className="artist-dashboard-loading">
+        <div className="artist-spinner"></div>
         <p>Загрузка личного кабинета...</p>
       </div>
     );
@@ -277,91 +275,90 @@ const ArtistDashboard = () => {
   return (
     <div className="artist-dashboard">
       {/* Шапка профиля */}
-      <div className="dashboard-header">
-        <div className="profile-card">
-          <div className="profile-avatar">
+      <div className="artist-dashboard-header">
+        <div className="artist-profile-card">
+          <div className="artist-profile-avatar">
             {userData?.avatarUrl ? (
               <img
                 src={userData.avatarUrl}
                 alt="Аватар"
-                className="avatar-image"
+                className="artist-avatar-image"
               />
             ) : (
-              <div className="avatar-placeholder">
+              <div className="artist-avatar-placeholder">
                 <i className="fas fa-palette"></i>
               </div>
             )}
           </div>
-          <div className="profile-info">
-            <h1 className="profile-name">{userData?.fullName || "Художник"}</h1>
-            <div className="profile-details">
-              <div className="detail-item">
+          <div className="artist-profile-info">
+            <h1 className="artist-profile-name">{userData?.fullName || "Художник"}</h1>
+            <div className="artist-profile-details">
+              <div className="artist-detail-item">
                 <i className="fas fa-envelope"></i>
                 <span>{userData?.email || "Email не указан"}</span>
               </div>
-              <div className="detail-item">
+              <div className="artist-detail-item">
                 <i className="fas fa-user-tag"></i>
-                <span className="role-badge artist">Художник</span>
+                <span className="artist-role-badge artist-role-artist">Художник</span>
               </div>
               {userData?.phoneNumber && (
-                <div className="detail-item">
+                <div className="artist-detail-item">
                   <i className="fas fa-phone"></i>
                   <span>{userData.phoneNumber}</span>
                 </div>
               )}
             </div>
-            {userData?.bio && <p className="profile-bio">{userData.bio}</p>}
+            {userData?.bio && <p className="artist-profile-bio">{userData.bio}</p>}
           </div>
         </div>
       </div>
 
       {/* Навигация по вкладкам */}
-      <div className="dashboard-tabs">
+      <div className="artist-dashboard-tabs">
         <button
-          className={`tab-btn ${activeTab === "bookings" ? "active" : ""}`}
+          className={`artist-tab-btn ${activeTab === "bookings" ? "artist-active" : ""}`}
           onClick={() => setActiveTab("bookings")}
         >
           <i className="fas fa-calendar-check"></i>
           Мои бронирования
-          <span className="tab-badge">{bookings.length}</span>
+          <span className="artist-tab-badge">{bookings.length}</span>
         </button>
         <button
-          className={`tab-btn ${activeTab === "artworks" ? "active" : ""}`}
+          className={`artist-tab-btn ${activeTab === "artworks" ? "artist-active" : ""}`}
           onClick={() => setActiveTab("artworks")}
         >
           <i className="fas fa-paint-brush"></i>
           Мои картины
-          <span className="tab-badge">{artworks.length}</span>
+          <span className="artist-tab-badge">{artworks.length}</span>
         </button>
-        {/* 🔹 НОВАЯ ВКЛАДКА */}
         <button
-          className={`tab-btn ${activeTab === "exhibitions" ? "active" : ""}`}
+          className={`artist-tab-btn ${activeTab === "exhibitions" ? "artist-active" : ""}`}
           onClick={() => setActiveTab("exhibitions")}
         >
           <i className="fas fa-calendar"></i>
           Все выставки
-          <span className="tab-badge">{exhibitions.length}</span>
+          <span className="artist-tab-badge">{exhibitions.length}</span>
         </button>
       </div>
 
       {error && (
-        <div className="error-message">
+        <div className="artist-error-message">
           <i className="fas fa-exclamation-circle"></i>
           {error}
         </div>
       )}
 
-      <div className="dashboard-content">
+      <div className="artist-dashboard-content">
         {activeTab === "bookings" && (
-          <div className="bookings-section">
-            <div className="section-header">
+          <div className="artist-bookings-section">
+            <div className="artist-section-header">
               <h2>
-                <i className="fas fa-calendar-alt"></i> Мои бронирования
+                Мои бронирования
               </h2>
-              {/* 🔸 ИЗМЕНЕНО: теперь ведёт на все выставки */}
+
               <button
-                className="btn btn-primary btn-sm"
-                onClick={() => setActiveTab("exhibitions")} // ← Изменили здесь
+                className="artist-btn artist-btn-primary artist-btn-sm"
+                onClick={() => setActiveTab("exhibitions")}
                 style={{
                   marginLeft: "15px",
                   display: "flex",
@@ -369,23 +366,23 @@ const ArtistDashboard = () => {
                   gap: "8px",
                 }}
               >
-                <i className="fas fa-map"></i>
+
                 Перейти к бронированию
               </button>
             </div>
 
             {loading.bookings ? (
-              <div className="loading-placeholder">
+              <div className="artist-loading-placeholder">
                 Загрузка бронирований...
               </div>
             ) : bookings.length === 0 ? (
-              <div className="empty-state">
+              <div className="artist-empty-state">
                 <i className="fas fa-calendar-times"></i>
                 <p>У вас пока нет бронирований</p>
               </div>
             ) : (
-              <div className="bookings-table-container">
-                <table className="bookings-table">
+              <div className="artist-bookings-table-container">
+                <table className="artist-bookings-table">
                   <thead>
                     <tr>
                       <th>ID</th>
@@ -427,11 +424,11 @@ const ArtistDashboard = () => {
                               : "—"}
                           </td>
                           <td>
-                            <div className="table-actions">
+                            <div className="artist-table-actions">
                               {(booking.status === "PENDING" ||
                                 booking.status === "CONFIRMED") && (
                                   <button
-                                    className="btn btn-danger btn-sm"
+                                    className="artist-btn artist-btn-danger artist-btn-sm"
                                     onClick={() =>
                                       handleCancelBooking(booking.id)
                                     }
@@ -443,7 +440,7 @@ const ArtistDashboard = () => {
                                 )}
                               {booking.status === "CANCELLED" && (
                                 <span
-                                  className="cancelled-text"
+                                  className="artist-cancelled-text"
                                   style={{ color: "#dc3545", fontSize: "12px" }}
                                 >
                                   Отменено
@@ -462,48 +459,48 @@ const ArtistDashboard = () => {
         )}
 
         {activeTab === "artworks" && (
-          <div className="artworks-section">
-            <div className="section-header">
+          <div className="artist-artworks-section">
+            <div className="artist-section-header">
               <h2>
-                <i className="fas fa-paint-brush"></i> Мои картины
+                Мои картины
               </h2>
               <button
-                className="btn btn-primary btn-sm"
+                className="artist-btn artist-btn-primary artist-btn-sm"
                 onClick={() => setShowAddModal(true)}
               >
-                <i className="fas fa-plus"></i> Новая картина
+                Добавить новую картину
               </button>
             </div>
 
             {loading.artworks ? (
-              <div className="loading-placeholder">Загрузка картин...</div>
+              <div className="artist-loading-placeholder">Загрузка картин...</div>
             ) : artworks.length === 0 ? (
-              <div className="empty-state">
+              <div className="artist-empty-state">
                 <i className="fas fa-palette"></i>
                 <p>У вас пока нет картин</p>
                 <button
-                  className="btn btn-outline"
+                  className="artist-btn artist-btn-outline"
                   onClick={() => setShowAddModal(true)}
                 >
                   Добавить первую картину
                 </button>
               </div>
             ) : (
-              <div className="artworks-grid">
+              <div className="artist-artworks-grid">
                 {artworks.map((artwork) => (
-                  <div key={artwork.id} className="artwork-card">
-                    <div className="artwork-image">
+                  <div key={artwork.id} className="artist-artwork-card">
+                    <div className="artist-artwork-image">
                       {artwork.imageUrl ? (
                         <img src={artwork.imageUrl} alt={artwork.title} />
                       ) : (
-                        <div className="image-placeholder">
+                        <div className="artist-image-placeholder">
                           <i className="fas fa-image"></i>
                           <span>Нет изображения</span>
                         </div>
                       )}
                     </div>
-                    <div className="artwork-content">
-                      <div className="artwork-header">
+                    <div className="artist-artwork-content">
+                      <div className="artist-artwork-header">
                         <h3>{artwork.title || "Без названия"}</h3>
                         <span
                           className={getArtworkStatusBadgeClass(artwork.status)}
@@ -512,65 +509,65 @@ const ArtistDashboard = () => {
                           {artwork.status === "DRAFT" && "Черновик"}
                         </span>
                       </div>
-                      <div className="artwork-details">
+                      <div className="artist-artwork-details">
                         {artwork.description && (
-                          <p className="artwork-description">
+                          <p className="artist-artwork-description">
                             {artwork.description.length > 100
                               ? `${artwork.description.substring(0, 100)}...`
                               : artwork.description}
                           </p>
                         )}
-                        <div className="detail-grid">
+                        <div className="artist-detail-grid">
                           {artwork.technique && (
-                            <div className="detail-item">
-                              <i className="fas fa-brush"></i>
+                            <div className="artist-detail-item">
+                              <b>Техника:</b>
                               <span>{artwork.technique}</span>
                             </div>
                           )}
                           {artwork.year && (
-                            <div className="detail-item">
+                            <div className="artist-detail-item">
                               <i className="fas fa-calendar"></i>
                               <span>{artwork.year} год</span>
                             </div>
                           )}
                           {artwork.dimensions && (
-                            <div className="detail-item">
+                            <div className="artist-detail-item">
                               <i className="fas fa-expand-alt"></i>
                               <span>{artwork.dimensions}</span>
                             </div>
                           )}
                           {artwork.price && (
-                            <div className="detail-item">
+                            <div className="artist-detail-item">
                               <i className="fas fa-tag"></i>
                               <span>{artwork.price} руб.</span>
                             </div>
                           )}
                         </div>
                       </div>
-                      <div className="artwork-actions">
+                      <div className="artist-artwork-actions">
                         <button
-                          className="btn btn-outline btn-sm"
+                          className="artist-btn artist-btn-outline artist-btn-sm"
                           onClick={() => handleEditArtwork(artwork)}
                         >
                           <i className="fas fa-edit"></i> Редактировать
                         </button>
                         {artwork.status === "DRAFT" ? (
                           <button
-                            className="btn btn-success btn-sm"
+                            className="artist-btn artist-btn-success artist-btn-sm"
                             onClick={() => handlePublishArtwork(artwork.id)}
                           >
                             <i className="fas fa-upload"></i> Опубликовать
                           </button>
                         ) : (
                           <button
-                            className="btn btn-warning btn-sm"
+                            className="artist-btn artist-btn-warning artist-btn-sm"
                             onClick={() => handleDraftArtwork(artwork.id)}
                           >
                             <i className="fas fa-save"></i> В черновик
                           </button>
                         )}
                         <button
-                          className="btn btn-danger btn-sm"
+                          className="artist-btn artist-btn-danger artist-btn-sm"
                           onClick={() => handleDeleteArtwork(artwork.id)}
                         >
                           <i className="fas fa-trash"></i> Удалить
@@ -584,27 +581,26 @@ const ArtistDashboard = () => {
           </div>
         )}
 
-        {/* 🔹 НОВАЯ ВКЛАДКА: Все выставки */}
         {activeTab === "exhibitions" && (
-          <div className="exhibitions-section">
-            <div className="section-header">
+          <div className="artist-exhibitions-section">
+            <div className="artist-section-header">
               <h2>
-                <i className="fas fa-calendar"></i> Все выставки
+                Все выставки
               </h2>
             </div>
 
             {loading.exhibitions ? (
-              <div className="loading-placeholder">Загрузка выставок...</div>
+              <div className="artist-loading-placeholder">Загрузка выставок...</div>
             ) : exhibitions.length === 0 ? (
-              <div className="empty-state">
+              <div className="artist-empty-state">
                 <i className="fas fa-calendar-times"></i>
                 <p>Нет доступных выставок</p>
               </div>
             ) : (
-              <div className="exhibitions-list">
+              <div className="artist-exhibitions-list">
                 {exhibitions.map((event) => (
-                  <div key={event.id} className="exhibition-item">
-                    <div className="exhibition-info">
+                  <div key={event.id} className="artist-exhibition-item">
+                    <div className="artist-exhibition-info">
                       <h3>{event.title || "Без названия"}</h3>
                       <p>
                         <strong>Галерея:</strong> {event.gallery?.name || "—"}
@@ -620,10 +616,10 @@ const ArtistDashboard = () => {
                       )}
                     </div>
                     <button
-                      className="btn btn-primary btn-sm"
+                      className="artist-btn artist-btn-primary artist-btn-sm"
                       onClick={() => navigate(`/map/${event.id}`)}
                     >
-                      <i className="fas fa-map-marked-alt"></i> Перейти к
+                      Перейти к
                       бронированию
                     </button>
                   </div>
@@ -634,30 +630,30 @@ const ArtistDashboard = () => {
         )}
       </div>
 
-      <div className="dashboard-stats">
-        <div className="stat-card">
-          <div className="stat-icon booking">
+      <div className="artist-dashboard-stats">
+        <div className="artist-stat-card">
+          <div className="artist-stat-icon artist-booking">
             <i className="fas fa-calendar-check"></i>
           </div>
-          <div className="stat-content">
+          <div className="artist-stat-content">
             <h3>{bookings.length}</h3>
             <p>Бронирований</p>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon artwork">
+        <div className="artist-stat-card">
+          <div className="artist-stat-icon artist-artwork">
             <i className="fas fa-paint-brush"></i>
           </div>
-          <div className="stat-content">
+          <div className="artist-stat-content">
             <h3>{artworks.length}</h3>
             <p>Картин</p>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon confirmed">
+        <div className="artist-stat-card">
+          <div className="artist-stat-icon artist-confirmed">
             <i className="fas fa-check-circle"></i>
           </div>
-          <div className="stat-content">
+          <div className="artist-stat-content">
             <h3>{bookings.filter((b) => b.status === "CONFIRMED").length}</h3>
             <p>Подтверждено</p>
           </div>
