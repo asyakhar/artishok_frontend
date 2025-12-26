@@ -15,6 +15,7 @@ const ExhibitionMapPage = () => {
   const [mode, setMode] = useState(null); // 'owner' | 'artist'
   const [userRole, setUserRole] = useState(null);
   const [bookings, setBookings] = useState([]);
+  const [manualRefreshKey, setManualRefreshKey] = useState(0);
 
   useEffect(() => {
     // Получаем роль пользователя из sessionStorage
@@ -36,6 +37,21 @@ const ExhibitionMapPage = () => {
     loadExhibitionData();
     loadBookings();
   }, [exhibitionId]);
+
+  const handleManualRefresh = () => {
+    console.log("🔄 Ручное обновление");
+    setManualRefreshKey((prev) => prev + 1);
+  };
+
+  useEffect(() => {
+    if (selectedMap?.id) {
+      loadStandsForMap(selectedMap.id);
+      if (userRole === "GALLERY_OWNER") {
+        loadBookings();
+      }
+    }
+  }, [manualRefreshKey, selectedMap?.id, userRole]);
+
   const loadBookings = async () => {
     try {
       if (userRole === "GALLERY_OWNER") {
@@ -289,9 +305,9 @@ const ExhibitionMapPage = () => {
       if (!booking) {
         alert(
           "Бронирование для этого стенда не найдено.\n\n" +
-          "Убедитесь, что:\n" +
-          "- Вы владелец этой выставки\n" +
-          "- Бронирование ещё не подтверждено или отклонено"
+            "Убедитесь, что:\n" +
+            "- Вы владелец этой выставки\n" +
+            "- Бронирование ещё не подтверждено или отклонено"
         );
         return;
       }
@@ -457,6 +473,23 @@ const ExhibitionMapPage = () => {
         </div>
 
         <div className="header-controls">
+          <button
+            onClick={handleManualRefresh}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#007bff",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              marginLeft: "10px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            Обновить
+          </button>
           {/* <div className="mode-indicator">
             <span className="label">Режим:</span>
             <span className={`mode-badge ${mode}`}>

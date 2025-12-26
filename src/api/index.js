@@ -12,7 +12,7 @@ const api = axios.create({
 
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('authToken') || localStorage.getItem('auth_token');
+  const token = sessionStorage.getItem('authToken') || sessionStorage.getItem('auth_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -24,9 +24,9 @@ api.interceptors.response.use(
   response => response.data,
   error => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('authToken');
+      sessionStorage.removeItem('auth_token');
+      sessionStorage.removeItem('user');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -45,7 +45,7 @@ export const imageApi = {
     return axios.post(`${API_BASE_URL}/api/images/upload`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
+        'Authorization': `Bearer ${sessionStorage.getItem('authToken') || sessionStorage.getItem('auth_token')}`
       }
     }).then(res => res.data);
   },
@@ -98,7 +98,7 @@ createHallMapWithImage: (data) => {
   return axios.post(`${API_BASE_URL}/exhibition-hall-maps/create-with-image`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
-      'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
+      'Authorization': `Bearer ${sessionStorage.getItem('authToken') || sessionStorage.getItem('auth_token')}`
     }
   }).then(res => res.data);
 },
@@ -111,7 +111,7 @@ createHallMapWithImage: (data) => {
     return axios.post(`${API_BASE_URL}/exhibition-hall-maps/${mapId}/upload-map-image`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
+        'Authorization': `Bearer ${sessionStorage.getItem('authToken') || sessionStorage.getItem('auth_token')}`
       }
     }).then(res => res.data);
   },
@@ -124,7 +124,7 @@ createHallMapWithImage: (data) => {
     return axios.post(`${API_BASE_URL}/api/images/upload`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
+        'Authorization': `Bearer ${sessionStorage.getItem('authToken') || sessionStorage.getItem('auth_token')}`
       }
     }).then(res => res.data);
   },
