@@ -533,16 +533,248 @@ const MapEditor = ({
     }
   };
 
+  //   const createStandMarker = (stand) => {
+  //     if (!mapInstance.current) return;
+
+  //     let color = "#28a745";
+  //     let statusText = "Свободен";
+
+  //     if (stand.status === "BOOKED") {
+  //       color = "#dc3545";
+  //       statusText = "Забронирован";
+  //     } else if (stand.status === "PENDING") {
+  //       color = "#ff9800";
+  //       statusText = "Ожидает подтверждения";
+  //     }
+
+  //     const marker = L.marker([stand.positionY, stand.positionX], {
+  //       icon: L.divIcon({
+  //         html: `
+  //           <div style="
+  //             width: 40px;
+  //             height: 40px;
+  //             background: ${color};
+  //             border-radius: 50%;
+  //             border: 3px solid white;
+  //             display: flex;
+  //             align-items: center;
+  //             justify-content: center;
+  //             color: white;
+  //             font-weight: bold;
+  //             font-size: 14px;
+  //             box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  //             cursor: pointer;
+  //             transition: all 0.2s;
+  //           ">
+  //             ${stand.standNumber}
+  //           </div>
+  //         `,
+  //         className: "stand-marker-container",
+  //         iconSize: [46, 46],
+  //       }),
+  //     }).addTo(mapInstance.current);
+
+  //     const popupContent = `
+  // <div style="padding: 15px; min-width: 250px;">
+  //   <div style="display: flex; align-items: center; margin-bottom: 10px;">
+  //     <div style="width: 20px; height: 20px; background: ${color}; border-radius: 50%; margin-right: 10px;"></div>
+  //     <h4 style="margin: 0;">Стенд ${stand.standNumber}</h4>
+  //   </div>
+  //   <div style="margin-bottom: 15px;">
+  //     <p style="margin: 5px 0;"><strong>Тип:</strong> ${getTypeText(
+  //       stand.type
+  //     )}</p>
+  //     <p style="margin: 5px 0;"><strong>Размер:</strong> ${stand.width}×${
+  //       stand.height
+  //     } см</p>
+  //     <p style="margin: 5px 0;"><strong>Статус:</strong>
+  //       <span style="color: ${color}; font-weight: bold;">
+  //         ${statusText}
+  //       </span>
+  //     </p>
+  //     <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${
+  //       stand.positionX
+  //     }, Y:${stand.positionY}</p>
+  //   </div>
+  //   <div style="display: flex; gap: 10px; flex-direction: column;">
+  //     ${
+  //       mode === "artist" && stand.status === "AVAILABLE"
+  //         ? `<button
+  //         onclick="if(confirm('Забронировать стенд ${stand.standNumber}?')) {
+  //           if(window.handleBookStand) {
+  //             window.handleBookStand('${stand.id}', '${stand.standNumber}');
+  //           }
+  //         }"
+  //         style="
+  //           padding: 10px;
+  //           background: linear-gradient(135deg, #007bff, #0056b3);
+  //           color: white;
+  //           border: none;
+  //           border-radius: 6px;
+  //           cursor: pointer;
+  //           font-weight: bold;
+  //         "
+  //       >
+  //         📝 Забронировать
+  //       </button>`
+  //         : ""
+  //     }
+  //     ${
+  //       mode === "artist" && stand.status === "PENDING"
+  //         ? `<div style="
+  //         padding: 10px;
+  //         background: linear-gradient(135deg, #ff9800, #f57c00);
+  //         color: white;
+  //         border-radius: 6px;
+  //         text-align: center;
+  //         font-weight: bold;
+  //       ">
+  //         ⏳ Ожидает подтверждения
+  //       </div>`
+  //         : ""
+  //     }
+  //     ${
+  //       mode === "artist" && stand.status === "BOOKED"
+  //         ? `<div style="
+  //         padding: 10px;
+  //         background: linear-gradient(135deg, #dc3545, #c82333);
+  //         color: white;
+  //         border-radius: 6px;
+  //         text-align: center;
+  //         font-weight: bold;
+  //       ">
+  //         ✅ Забронировано
+  //       </div>`
+  //         : ""
+  //     }
+  //     ${
+  //       mode === "owner"
+  //         ? `<div style="display: flex; flex-direction: column; gap: 8px;">
+  //         ${
+  //           stand.status === "PENDING"
+  //             ? `<div style="display: flex; gap: 8px;">
+  //             <button
+  //               onclick="if(confirm('Подтвердить бронирование стенда ${stand.standNumber}?')) {
+  //                 if(window.handleApproveBooking) {
+  //                   window.handleApproveBooking('${stand.id}', '${stand.standNumber}');
+  //                 }
+  //               }"
+  //               style="
+  //                 flex: 1;
+  //                 padding: 10px;
+  //                 background: linear-gradient(135deg, #28a745, #218838);
+  //                 color: white;
+  //                 border: none;
+  //                 border-radius: 6px;
+  //                 cursor: pointer;
+  //                 font-weight: bold;
+  //               "
+  //             >
+  //               ✅ Подтвердить
+  //             </button>
+  //             <button
+  //               onclick="if(confirm('Отклонить бронирование стенда ${stand.standNumber}?')) {
+  //                 if(window.handleRejectBooking) {
+  //                   window.handleRejectBooking('${stand.id}', '${stand.standNumber}');
+  //                 }
+  //               }"
+  //               style="
+  //                 flex: 1;
+  //                 padding: 10px;
+  //                 background: linear-gradient(135deg, #dc3545, #c82333);
+  //                 color: white;
+  //                 border: none;
+  //                 border-radius: 6px;
+  //                 cursor: pointer;
+  //                 font-weight: bold;
+  //               "
+  //             >
+  //               ❌ Отклонить
+  //             </button>
+  //           </div>`
+  //             : ""
+  //         }
+  //         <button
+  //           onclick="if(confirm('Удалить стенд ${stand.standNumber}?')) {
+  //             if(window.handleDeleteStand) {
+  //               window.handleDeleteStand('${stand.id}', '${stand.standNumber}');
+  //             }
+  //           }"
+  //           style="
+  //             padding: 10px;
+  //             background: linear-gradient(135deg, #6c757d, #5a6268);
+  //             color: white;
+  //             border: none;
+  //             border-radius: 6px;
+  //             cursor: pointer;
+  //             font-weight: bold;
+  //           "
+  //         >
+  //           🗑️ Удалить стенд
+  //         </button>
+  //       </div>`
+  //         : ""
+  //     }
+  //   </div>
+  // </div>
+  // `;
+
+  //     window.handleBookStandClick = async (standId) => {
+  //       try {
+  //         if (onBookStand) {
+  //           await onBookStand(standId);
+  //           alert("Заявка на бронирование отправлена!");
+  //           marker.closePopup();
+  //           if (onRefreshStands) {
+  //             onRefreshStands();
+  //           }
+  //         }
+  //       } catch (err) {
+  //         alert("Ошибка: " + err.message);
+  //       }
+  //     };
+
+  //     window.handleDeleteStandClick = async (standId) => {
+  //       try {
+  //         if (onDeleteStand) {
+  //           await onDeleteStand(standId);
+  //           // alert('Стенд удален!');
+  //           marker.closePopup();
+
+  //           mapInstance.current.removeLayer(marker);
+
+  //           if (onRefreshStands) {
+  //             onRefreshStands();
+  //           }
+  //         }
+  //       } catch (err) {
+  //         alert("Ошибка: " + err.message);
+  //       }
+  //     };
+
+  //     marker.bindPopup(popupContent);
+
+  //     marker.on("click", (e) => {
+  //       e.originalEvent.stopPropagation();
+  //       setSelectedStand(stand);
+
+  //       marker.openPopup();
+  //     });
+
+  //     marker.standData = stand;
+  //     return marker;
+  //   };
   const createStandMarker = (stand) => {
     if (!mapInstance.current) return;
 
+    // Определяем цвет по статусу
     let color = "#28a745";
     let statusText = "Свободен";
 
-    if (stand.status === "BOOKED") {
+    if (stand.status === "BOOKED" || stand.standStatus === "BOOKED") {
       color = "#dc3545";
       statusText = "Забронирован";
-    } else if (stand.status === "PENDING") {
+    } else if (stand.status === "PENDING" || stand.standStatus === "PENDING") {
       color = "#ff9800";
       statusText = "Ожидает подтверждения";
     }
@@ -550,119 +782,207 @@ const MapEditor = ({
     const marker = L.marker([stand.positionY, stand.positionX], {
       icon: L.divIcon({
         html: `
-          <div style="
-            width: 40px;
-            height: 40px;
-            background: ${color};
-            border-radius: 50%;
-            border: 3px solid white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-            cursor: pointer;
-            transition: all 0.2s;
-          ">
-            ${stand.standNumber}
-          </div>
-        `,
+        <div style="
+          width: 40px;
+          height: 40px;
+          background: ${color};
+          border-radius: 50%;
+          border: 3px solid white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: bold;
+          font-size: 14px;
+          box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+          cursor: pointer;
+          transition: all 0.2s;
+        ">
+          ${stand.standNumber}
+        </div>
+      `,
         className: "stand-marker-container",
         iconSize: [46, 46],
       }),
     }).addTo(mapInstance.current);
 
+    // Полный popupContent с информацией о художнике
     const popupContent = `
-<div style="padding: 15px; min-width: 250px;">
-  <div style="display: flex; align-items: center; margin-bottom: 10px;">
-    <div style="width: 20px; height: 20px; background: ${color}; border-radius: 50%; margin-right: 10px;"></div>
-    <h4 style="margin: 0;">Стенд ${stand.standNumber}</h4>
-  </div>
-  <div style="margin-bottom: 15px;">
-    <p style="margin: 5px 0;"><strong>Тип:</strong> ${getTypeText(
-      stand.type
-    )}</p>
-    <p style="margin: 5px 0;"><strong>Размер:</strong> ${stand.width}×${
+    <div style="padding: 15px; min-width: 300px;">
+      <div style="display: flex; align-items: center; margin-bottom: 10px;">
+        <div style="width: 20px; height: 20px; background: ${color}; border-radius: 50%; margin-right: 10px;"></div>
+        <h4 style="margin: 0;">Стенд ${stand.standNumber}</h4>
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <p style="margin: 5px 0;"><strong>Тип:</strong> ${getTypeText(
+          stand.type || stand.standType
+        )}</p>
+        <p style="margin: 5px 0;"><strong>Размер:</strong> ${stand.width}×${
       stand.height
     } см</p>
-    <p style="margin: 5px 0;"><strong>Статус:</strong> 
-      <span style="color: ${color}; font-weight: bold;">
-        ${statusText}
-      </span>
-    </p>
-    <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${
-      stand.positionX
-    }, Y:${stand.positionY}</p>
-  </div>
-  <div style="display: flex; gap: 10px; flex-direction: column;">
-    ${
-      mode === "artist" && stand.status === "AVAILABLE"
-        ? `<button 
-        onclick="if(confirm('Забронировать стенд ${stand.standNumber}?')) { 
-          if(window.handleBookStand) { 
-            window.handleBookStand('${stand.id}', '${stand.standNumber}'); 
-          }
-        }" 
-        style="
-          padding: 10px; 
-          background: linear-gradient(135deg, #007bff, #0056b3); 
-          color: white; 
-          border: none; 
-          border-radius: 6px; 
-          cursor: pointer;
-          font-weight: bold;
-        "
-      >
-        📝 Забронировать
-      </button>`
-        : ""
-    }
-    ${
-      mode === "artist" && stand.status === "PENDING"
-        ? `<div style="
-        padding: 10px; 
-        background: linear-gradient(135deg, #ff9800, #f57c00); 
-        color: white; 
-        border-radius: 6px; 
-        text-align: center;
-        font-weight: bold;
-      ">
-        ⏳ Ожидает подтверждения
-      </div>`
-        : ""
-    }
-    ${
-      mode === "artist" && stand.status === "BOOKED"
-        ? `<div style="
-        padding: 10px; 
-        background: linear-gradient(135deg, #dc3545, #c82333); 
-        color: white; 
-        border-radius: 6px; 
-        text-align: center;
-        font-weight: bold;
-      ">
-        ✅ Забронировано
-      </div>`
-        : ""
-    }
-    ${
-      mode === "owner"
-        ? `<div style="display: flex; flex-direction: column; gap: 8px;">
+        <p style="margin: 5px 0;"><strong>Статус:</strong> 
+          <span style="color: ${color}; font-weight: bold;">
+            ${statusText}
+          </span>
+        </p>
+        <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${
+          stand.positionX
+        }, Y:${stand.positionY}</p>
+        
         ${
-          stand.status === "PENDING"
-            ? `<div style="display: flex; gap: 8px;">
+          (stand.status === "PENDING" || stand.standStatus === "PENDING") &&
+          stand.artistName
+            ? `
+          <div style="
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+          ">
+            <h5 style="margin: 0 0 8px 0; color: #856404; font-size: 14px;">
+              🎨 Запрос на бронирование
+            </h5>
+            <p style="margin: 5px 0; font-size: 13px;">
+              <strong>Художник:</strong> ${stand.artistName}
+            </p>
+            <p style="margin: 5px 0; font-size: 13px;">
+              <strong>Email:</strong> ${stand.artistEmail}
+            </p>
+            ${
+              stand.bookingDate
+                ? `
+              <p style="margin: 5px 0; font-size: 12px; color: #6c757d;">
+                <strong>Дата запроса:</strong> ${formatDate(stand.bookingDate)}
+              </p>
+            `
+                : ""
+            }
+            ${
+              stand.exhibitionTitle
+                ? `
+              <p style="margin: 5px 0; font-size: 12px;">
+                <strong>Выставка:</strong> ${stand.exhibitionTitle}
+              </p>
+            `
+                : ""
+            }
+          </div>
+        `
+            : ""
+        }
+        
+        ${
+          (stand.status === "BOOKED" || stand.standStatus === "BOOKED") &&
+          stand.artistName
+            ? `
+          <div style="
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+          ">
+            <h5 style="margin: 0 0 8px 0; color: #155724; font-size: 14px;">
+              ✅ Забронирован
+            </h5>
+            <p style="margin: 5px 0; font-size: 13px;">
+              <strong>Художник:</strong> ${stand.artistName}
+            </p>
+            ${
+              stand.artistEmail
+                ? `
+              <p style="margin: 5px 0; font-size: 13px;">
+                <strong>Email:</strong> ${stand.artistEmail}
+              </p>
+            `
+                : ""
+            }
+            ${
+              stand.exhibitionTitle
+                ? `
+              <p style="margin: 5px 0; font-size: 12px;">
+                <strong>Выставка:</strong> ${stand.exhibitionTitle}
+              </p>
+            `
+                : ""
+            }
+          </div>
+        `
+            : ""
+        }
+      </div>
+      
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        ${
+          mode === "owner"
+            ? `<div style="display: flex; flex-direction: column; gap: 8px;">
+            ${
+              stand.status === "PENDING" || stand.standStatus === "PENDING"
+                ? `<div style="display: flex; gap: 8px;">
+                <button 
+                  onclick="if(confirm('Подтвердить бронирование стенда ${
+                    stand.standNumber
+                  } для художника ${stand.artistName} (${
+                    stand.artistEmail
+                  })?')) { 
+                    if(window.handleApproveBooking) { 
+                      window.handleApproveBooking('${
+                        stand.exhibitionStandId || stand.id
+                      }', '${stand.standNumber}'); 
+                    }
+                  }" 
+                  style="
+                    flex: 1;
+                    padding: 10px; 
+                    background: linear-gradient(135deg, #28a745, #218838); 
+                    color: white; 
+                    border: none; 
+                    border-radius: 6px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                  "
+                >
+                  ✅ Подтвердить
+                </button>
+                <button 
+                  onclick="if(confirm('Отклонить бронирование стенда ${
+                    stand.standNumber
+                  } от художника ${stand.artistName}?')) { 
+                    if(window.handleRejectBooking) { 
+                      window.handleRejectBooking('${
+                        stand.exhibitionStandId || stand.id
+                      }', '${stand.standNumber}'); 
+                    }
+                  }" 
+                  style="
+                    flex: 1;
+                    padding: 10px; 
+                    background: linear-gradient(135deg, #dc3545, #c82333); 
+                    color: white; 
+                    border: none; 
+                    border-radius: 6px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                  "
+                >
+                  ❌ Отклонить
+                </button>
+              </div>`
+                : ""
+            }
             <button 
-              onclick="if(confirm('Подтвердить бронирование стенда ${stand.standNumber}?')) { 
-                if(window.handleApproveBooking) { 
-                  window.handleApproveBooking('${stand.id}', '${stand.standNumber}'); 
+              onclick="if(confirm('Удалить стенд ${stand.standNumber}?')) { 
+                if(window.handleDeleteStand) { 
+                  window.handleDeleteStand('${
+                    stand.exhibitionStandId || stand.id
+                  }', '${stand.standNumber}'); 
                 }
               }" 
               style="
-                flex: 1;
                 padding: 10px; 
-                background: linear-gradient(135deg, #28a745, #218838); 
+                background: linear-gradient(135deg, #6c757d, #5a6268); 
                 color: white; 
                 border: none; 
                 border-radius: 6px; 
@@ -670,101 +990,81 @@ const MapEditor = ({
                 font-weight: bold;
               "
             >
-              ✅ Подтвердить
-            </button>
-            <button 
-              onclick="if(confirm('Отклонить бронирование стенда ${stand.standNumber}?')) { 
-                if(window.handleRejectBooking) { 
-                  window.handleRejectBooking('${stand.id}', '${stand.standNumber}'); 
-                }
-              }" 
-              style="
-                flex: 1;
-                padding: 10px; 
-                background: linear-gradient(135deg, #dc3545, #c82333); 
-                color: white; 
-                border: none; 
-                border-radius: 6px; 
-                cursor: pointer;
-                font-weight: bold;
-              "
-            >
-              ❌ Отклонить
+              🗑️ Удалить стенд
             </button>
           </div>`
             : ""
         }
-        <button 
-          onclick="if(confirm('Удалить стенд ${stand.standNumber}?')) { 
-            if(window.handleDeleteStand) { 
-              window.handleDeleteStand('${stand.id}', '${stand.standNumber}'); 
-            }
-          }" 
-          style="
+        ${
+          mode === "artist" &&
+          (stand.status === "AVAILABLE" || stand.standStatus === "AVAILABLE")
+            ? `<button 
+            onclick="if(confirm('Забронировать стенд ${stand.standNumber}?')) { 
+              if(window.handleBookStand) { 
+                window.handleBookStand('${
+                  stand.exhibitionStandId || stand.id
+                }', '${stand.standNumber}'); 
+              }
+            }" 
+            style="
+              padding: 10px; 
+              background: linear-gradient(135deg, #007bff, #0056b3); 
+              color: white; 
+              border: none; 
+              border-radius: 6px; 
+              cursor: pointer;
+              font-weight: bold;
+            "
+          >
+            📝 Забронировать
+          </button>`
+            : ""
+        }
+        ${
+          mode === "artist" &&
+          (stand.status === "PENDING" || stand.standStatus === "PENDING")
+            ? `<div style="
             padding: 10px; 
-            background: linear-gradient(135deg, #6c757d, #5a6268); 
+            background: linear-gradient(135deg, #ff9800, #f57c00); 
             color: white; 
-            border: none; 
             border-radius: 6px; 
-            cursor: pointer;
+            text-align: center;
             font-weight: bold;
-          "
-        >
-          🗑️ Удалить стенд
-        </button>
-      </div>`
-        : ""
-    }
-  </div>
-</div>
-`;
-
-    window.handleBookStandClick = async (standId) => {
-      try {
-        if (onBookStand) {
-          await onBookStand(standId);
-          alert("Заявка на бронирование отправлена!");
-          marker.closePopup();
-          if (onRefreshStands) {
-            onRefreshStands();
-          }
+          ">
+            ⏳ Ожидает подтверждения
+          </div>`
+            : ""
         }
-      } catch (err) {
-        alert("Ошибка: " + err.message);
-      }
-    };
-
-    window.handleDeleteStandClick = async (standId) => {
-      try {
-        if (onDeleteStand) {
-          await onDeleteStand(standId);
-          // alert('Стенд удален!');
-          marker.closePopup();
-
-          mapInstance.current.removeLayer(marker);
-
-          if (onRefreshStands) {
-            onRefreshStands();
-          }
+        ${
+          mode === "artist" &&
+          (stand.status === "BOOKED" || stand.standStatus === "BOOKED")
+            ? `<div style="
+            padding: 10px; 
+            background: linear-gradient(135deg, #dc3545, #c82333); 
+            color: white; 
+            border-radius: 6px; 
+            text-align: center;
+            font-weight: bold;
+          ">
+            ✅ Забронировано
+          </div>`
+            : ""
         }
-      } catch (err) {
-        alert("Ошибка: " + err.message);
-      }
-    };
+      </div>
+    </div>
+  `;
 
     marker.bindPopup(popupContent);
 
     marker.on("click", (e) => {
       e.originalEvent.stopPropagation();
       setSelectedStand(stand);
-
       marker.openPopup();
     });
 
     marker.standData = stand;
     return marker;
   };
-
   const renderStands = () => {
     if (!mapInstance.current) return;
 
@@ -828,7 +1128,21 @@ const MapEditor = ({
     };
     return types[type] || type;
   };
-
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("ru-RU", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (e) {
+      return dateString;
+    }
+  };
   const getStats = () => {
     const allStands = stands || [];
     return {
@@ -1597,6 +1911,269 @@ const MapEditor = ({
                 </div>
               </div>
             </div>
+            {/* СЕКЦИЯ ОЖИДАЮЩИХ ПОДТВЕРЖДЕНИЯ */}
+            {mode === "owner" && stats.pending > 0 && (
+              <div
+                style={{
+                  backgroundColor: "#fff3cd",
+                  padding: "20px",
+                  borderRadius: "10px",
+                  marginBottom: "20px",
+                  border: "2px solid #ffc107",
+                }}
+              >
+                <h4
+                  style={{
+                    marginTop: 0,
+                    color: "#856404",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "30px",
+                      height: "30px",
+                      background: "#ff9800",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "white",
+                      fontSize: "16px",
+                    }}
+                  >
+                    !
+                  </span>
+                  Ожидают подтверждения: {stats.pending}
+                </h4>
+
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: "#856404",
+                    margin: "0 0 15px 0",
+                  }}
+                >
+                  Новые запросы на бронирование:
+                </p>
+
+                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                  {stands
+                    .filter(
+                      (s) =>
+                        (s.status === "PENDING" ||
+                          s.standStatus === "PENDING") &&
+                        s.artistName
+                    )
+                    .map((stand) => (
+                      <div
+                        key={stand.exhibitionStandId || stand.id}
+                        style={{
+                          backgroundColor: "white",
+                          padding: "15px",
+                          borderRadius: "8px",
+                          marginBottom: "12px",
+                          border: "2px solid #ffeaa7",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                        }}
+                        onMouseOver={(e) =>
+                          (e.target.style.boxShadow =
+                            "0 4px 12px rgba(255,193,7,0.2)")
+                        }
+                        onMouseOut={(e) => (e.target.style.boxShadow = "none")}
+                        onClick={() => {
+                          if (
+                            mapInstance.current &&
+                            stand.positionY &&
+                            stand.positionX
+                          ) {
+                            mapInstance.current.setView(
+                              [stand.positionY, stand.positionX],
+                              Math.max(mapInstance.current.getZoom(), 2)
+                            );
+                          }
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                            marginBottom: "10px",
+                          }}
+                        >
+                          <div style={{ flex: 1 }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                marginBottom: "5px",
+                              }}
+                            >
+                              <strong
+                                style={{ fontSize: "16px", color: "#343a40" }}
+                              >
+                                Стенд {stand.standNumber}
+                              </strong>
+                              <span
+                                style={{
+                                  fontSize: "12px",
+                                  padding: "2px 8px",
+                                  backgroundColor:
+                                    (stand.type || stand.standType) === "WALL"
+                                      ? "#007bff"
+                                      : (stand.type || stand.standType) ===
+                                        "BOOTH"
+                                      ? "#6f42c1"
+                                      : "#17a2b8",
+                                  color: "white",
+                                  borderRadius: "12px",
+                                }}
+                              >
+                                {(stand.type || stand.standType) === "WALL"
+                                  ? "🎨 Стена"
+                                  : (stand.type || stand.standType) === "BOOTH"
+                                  ? "🗿 Будка"
+                                  : "📷 Открытое"}
+                              </span>
+                            </div>
+
+                            <div
+                              style={{
+                                fontSize: "14px",
+                                color: "#495057",
+                                marginBottom: "8px",
+                              }}
+                            >
+                              <strong>Художник:</strong> {stand.artistName}
+                            </div>
+
+                            <div style={{ fontSize: "13px", color: "#6c757d" }}>
+                              <strong>Email:</strong> {stand.artistEmail}
+                            </div>
+
+                            {stand.exhibitionTitle && (
+                              <div
+                                style={{
+                                  fontSize: "13px",
+                                  color: "#6c757d",
+                                  marginTop: "5px",
+                                }}
+                              >
+                                <strong>Выставка:</strong>{" "}
+                                {stand.exhibitionTitle}
+                              </div>
+                            )}
+
+                            {stand.bookingDate && (
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  color: "#adb5bd",
+                                  marginTop: "8px",
+                                }}
+                              >
+                                📅 {formatDate(stand.bookingDate)}
+                              </div>
+                            )}
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "8px",
+                              marginLeft: "10px",
+                            }}
+                          >
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (
+                                  confirm(
+                                    `Подтвердить бронирование для ${stand.artistName}?`
+                                  )
+                                ) {
+                                  if (window.handleApproveBooking) {
+                                    window.handleApproveBooking(
+                                      stand.exhibitionStandId || stand.id,
+                                      stand.standNumber
+                                    );
+                                  }
+                                }
+                              }}
+                              style={{
+                                padding: "8px 12px",
+                                background:
+                                  "linear-gradient(135deg, #28a745, #218838)",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                fontSize: "13px",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              ✅
+                            </button>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (
+                                  confirm(
+                                    `Отклонить запрос от ${stand.artistName}?`
+                                  )
+                                ) {
+                                  if (window.handleRejectBooking) {
+                                    window.handleRejectBooking(
+                                      stand.exhibitionStandId || stand.id,
+                                      stand.standNumber
+                                    );
+                                  }
+                                }
+                              }}
+                              style={{
+                                padding: "8px 12px",
+                                background:
+                                  "linear-gradient(135deg, #dc3545, #c82333)",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                fontSize: "13px",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              ❌
+                            </button>
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            color: "#6c757d",
+                            padding: "8px",
+                            backgroundColor: "#f8f9fa",
+                            borderRadius: "4px",
+                            marginTop: "10px",
+                          }}
+                        >
+                          <strong>Размер:</strong> {stand.width}×{stand.height}{" "}
+                          см
+                          {stand.hallMapName &&
+                            ` • <strong>Зал:</strong> ${stand.hallMapName}`}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
           </>
         ) : (
           /* ИНТЕРФЕЙС ХУДОЖНИКА */

@@ -14,6 +14,7 @@ const ExhibitionMapPage = () => {
   const [stands, setStands] = useState([]);
   const [mode, setMode] = useState(null); // 'owner' | 'artist'
   const [userRole, setUserRole] = useState(null);
+  const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
     // Получаем роль пользователя из sessionStorage
@@ -33,7 +34,25 @@ const ExhibitionMapPage = () => {
     }
 
     loadExhibitionData();
+    loadBookings();
   }, [exhibitionId]);
+  const loadBookings = async () => {
+    try {
+      if (userRole === "GALLERY_OWNER") {
+        const response = await ownerApi.getPendingBookings();
+        console.log("Загружены бронирования:", response);
+
+        if (response.bookings && Array.isArray(response.bookings)) {
+          setBookings(response.bookings);
+        } else {
+          setBookings([]);
+        }
+      }
+    } catch (error) {
+      console.error("Ошибка загрузки бронирований:", error);
+      setBookings([]);
+    }
+  };
 
   const loadExhibitionData = async () => {
     try {
@@ -107,6 +126,7 @@ const ExhibitionMapPage = () => {
       await loadStandsForMap(selectedMap.id);
     }
   };
+
   const handleDeleteStand = async (standId) => {
     if (!window.confirm("Удалить этот стенд?")) {
       return;
@@ -282,6 +302,7 @@ const ExhibitionMapPage = () => {
 
       // 5. Обновляем стенды
       await refreshStands();
+      await loadBookings();
 
       alert("✅ Бронирование подтверждено!");
     } catch (error) {
@@ -320,7 +341,7 @@ const ExhibitionMapPage = () => {
       // 3. Отклоняем
       await ownerApi.rejectBooking(booking.id, reason);
       await refreshStands();
-
+      await loadBookings();
       alert("❌ Бронирование отклонено!");
     } catch (error) {
       console.error("Ошибка отклонения:", error);
@@ -335,7 +356,57 @@ const ExhibitionMapPage = () => {
       await loadStandsForMap(map.id);
     }
   };
+  const combineStandsWithBookings = (standsData, bookingsData) => {
+    if (!standsData || !Array.isArray(standsData)) return standsData || [];
+    if (!bookingsData || !Array.isArray(bookingsData)) return standsData;
 
+    console.log("Объединяем стенды и бронирования:", {
+      стендов: standsData.length,
+      бронирований: bookingsData.length,
+    });
+
+    return standsData.map((stand) => {
+      // Ищем бронирование для этого стенда
+      const booking = bookingsData.find((b) => b.exhibitionStandId == stand.id);
+
+      if (booking) {
+        console.log(`✅ Найден художник для стенда ${stand.standNumber}:`, {
+          художник: booking.artistName,
+          email: booking.artistEmail,
+        });
+
+        return {
+          ...stand,
+          artistName: booking.artistName,
+          artistEmail: booking.artistEmail,
+          bookingDate: booking.bookingDate,
+          exhibitionTitle: booking.exhibitionTitle,
+          hallMapName: booking.hallMapName,
+          status: booking.status === "PENDING" ? "PENDING" : stand.status,
+        };
+      }
+
+      return stand;
+    });
+  };
+
+  // Создаем объединенные данные стендов
+  const combinedStands = combineStandsWithBookings(stands, bookings);
+
+  // Для отладки - выводим в консоль
+  useEffect(() => {
+    console.log("Объединенные стенды для MapEditor:", combinedStands);
+    console.log(
+      "Стенды с художниками:",
+      combinedStands
+        .filter((s) => s.artistName)
+        .map((s) => ({
+          стенд: s.standNumber,
+          художник: s.artistName,
+          email: s.artistEmail,
+        }))
+    );
+  }, [combinedStands]);
   if (loading) {
     return (
       <div className="exhibition-map-page loading">
@@ -415,7 +486,7 @@ const ExhibitionMapPage = () => {
         <MapEditor
           mode={mode}
           hallMap={selectedMap}
-          stands={stands}
+          stands={combinedStands}
           exhibitionId={exhibitionId}
           // Обработчики для владельца
           onUploadHallMap={handleUploadHallMap}
