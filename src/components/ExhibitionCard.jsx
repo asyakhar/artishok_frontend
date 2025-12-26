@@ -19,7 +19,7 @@ const ExhibitionCard = ({ event }) => {
       4: "http://127.0.0.1:9001/api/v1/download-shared-object/aHR0cDovLzEyNy4wLjAuMTo5MDAwL2FydGlzaG9rLWltYWdlcy9leGhpYml0aW9uLzYuanBnP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9STI5UzUzWFpISVE1WkdQNDhJSTAlMkYyMDI1MTIyNSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNTEyMjVUMTUwOTQ2WiZYLUFtei1FeHBpcmVzPTQzMjAwJlgtQW16LVNlY3VyaXR5LVRva2VuPWV5SmhiR2NpT2lKSVV6VXhNaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpoWTJObGMzTkxaWGtpT2lKSk1qbFROVE5ZV2toSlVUVmFSMUEwT0VsSk1DSXNJbVY0Y0NJNk1UYzJOamN4TkRVeE15d2ljR0Z5Wlc1MElqb2liV2x1YVc5aFpHMXBiaUo5LmZGQ1hoX1BSNVVJUzZOM3FUczloWWVlQ25OcWdIQTZqMmYzSVdobWZzMEtLN1k4NkdINUM2ckNoR09abXJYQmV5OVBjbk9VN1ktdVZ4cTlGeDNnWWVRJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZ2ZXJzaW9uSWQ9bnVsbCZYLUFtei1TaWduYXR1cmU9NDg0M2FlYjNkOWNlOWIzMzQ4MjgxMzQ2ZTBkZjA2MDIwYTFiOTU0YjdlZTU0NjhlNmY4OWYyZmJkMDhhYTAxZg"
     };
 
-    // Возвращаем изображение по ID или первое, если ID нет в списке
+    
     return defaultImages[galleryId] || defaultImages[6];
   };
 
@@ -33,7 +33,7 @@ const ExhibitionCard = ({ event }) => {
       6: ""
     };
 
-    // Возвращаем изображение по ID или первое, если ID нет в списке
+    
     return defaultStatus[galleryId] || defaultStatus[6];
   };
 

@@ -1,7 +1,7 @@
 import './GalleryCard.css';
 
 const GalleryCard = ({ gallery }) => {
-  // Функция для получения цвета статуса
+  
   const getStatusColor = (status) => {
     switch (status) {
       case 'APPROVED': return 'var(--status-approved, #10b981)';
@@ -11,7 +11,7 @@ const GalleryCard = ({ gallery }) => {
     }
   };
 
-  // Функция для получения текста статуса на русском
+  
   const getStatusText = (status) => {
     switch (status) {
       case 'APPROVED': return 'Одобрена';
@@ -21,7 +21,7 @@ const GalleryCard = ({ gallery }) => {
     }
   };
 
-  // Функция для форматирования телефона
+  
   const formatPhoneNumber = (phone) => {
     if (!phone) return '';
     return phone.replace(/^(\+\d)(\d{3})(\d{3})(\d{2})(\d{2})$/, '$1 ($2) $3-$4-$5');

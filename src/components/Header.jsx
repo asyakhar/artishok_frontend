@@ -52,7 +52,7 @@ const Header = () => {
 
   useEffect(() => {
     const handleAuthStateChanged = () => {
-      checkAuth(); // Перепроверяем авторизацию при событии
+      checkAuth(); 
     };
 
     window.addEventListener('authStateChanged', handleAuthStateChanged);
@@ -63,7 +63,7 @@ const Header = () => {
   }, []);
   // ==================================
 
-  // Также добавьте слушатель изменений localStorage (на всякий случай)
+  
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === 'authToken' || e.key === 'user') {
@@ -94,11 +94,10 @@ const Header = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     
-    // ========== ДОБАВЬТЕ ЭТО ==========
-    // Отправляем событие при выходе
-    window.dispatchEvent(new CustomEvent('authStateChanged'));
-    // ==================================
     
+    
+    window.dispatchEvent(new CustomEvent('authStateChanged'));
+   
     setUserData(null);
     navigate('/');
   };
@@ -151,7 +150,7 @@ const Header = () => {
     }
   };
 
-  // Функции для определения пути и названия кабинета
+  
   const getDashboardPath = () => {
     if (!userData) return '/login';
 

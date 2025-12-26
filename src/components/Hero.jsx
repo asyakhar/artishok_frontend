@@ -8,7 +8,7 @@ const Hero = () => {
   const [imagesLoaded, setImagesLoaded] = useState({});
   const slidesRef = useRef([]);
 
-  // Массив локальных изображений из public/images/hero/
+  
   const slides = [
     {
       id: 1,
@@ -32,7 +32,7 @@ const Hero = () => {
     }
   ];
 
-  // Предзагрузка всех изображений
+  
   useEffect(() => {
     const loadImages = async () => {
       const promises = slides.map((slide, index) => {
@@ -58,7 +58,7 @@ const Hero = () => {
     loadImages();
   }, []);
 
-  // Автопрокрутка карусели
+  
   useEffect(() => {
     const interval = setInterval(() => {
       handleNextSlide();
@@ -74,20 +74,20 @@ const Hero = () => {
     const nextIndex = (currentSlide + 1) % slides.length;
     setNextSlide(nextIndex);
     
-    // Начинаем переход
+    
     slidesRef.current[nextIndex]?.classList.add('next');
     
     setTimeout(() => {
       setCurrentSlide(nextIndex);
       setIsTransitioning(false);
       
-      // Убираем класс next с предыдущего слайда
+      
       slidesRef.current.forEach((slide, index) => {
         if (slide) {
           slide.classList.remove('next');
         }
       });
-    }, 1500); // Длительность анимации
+    }, 1500); 
   };
 
   const handlePrevSlide = () => {
@@ -156,7 +156,7 @@ const Hero = () => {
                 <div className="slide-overlay"></div>
               </>
             ) : (
-              // Плейсхолдер пока изображение грузится
+              
               <div style={{
                 width: '100%',
                 height: '100%',

@@ -1409,3 +1409,192 @@ const MapEditor = ({
 };
 
 export default MapEditor;
+
+  // const loadHallMapImage = (imageUrl) => {
+  //   if (!mapInstance.current || !imageUrl) return;
+
+  //   const img = new Image();
+  //   img.crossOrigin = 'anonymous';
+
+  //   img.onload = function() {
+  //     const width = this.width;
+  //     const height = this.height;
+  //     const bounds = [[0, 0], [height, width]];
+
+  //     mapInstance.current.eachLayer((layer) => {
+  //       if (!(layer instanceof L.Control)) {
+  //         mapInstance.current.removeLayer(layer);
+  //       }
+  //     });
+
+  //     imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
+  //       interactive: false,
+  //       className: 'hall-map-image'
+  //     }).addTo(mapInstance.current);
+
+  //     mapInstance.current.fitBounds(bounds);
+  //     const centerY = height / 2;
+  //     const centerX = width / 2;
+  //     mapInstance.current.setView([centerY, centerX], 0);
+
+  //     setImageError(false);
+  //     setMapImage(imageUrl);
+
+  //     setTimeout(() => {
+  //       renderStands();
+  //     }, 100);
+  //   };
+
+  //   img.onerror = function() {
+  //     console.error('Ошибка загрузки изображения');
+  //     setImageError(true);
+  //     showPlaceholder();
+  //   };
+
+  //   img.src = imageUrl;
+  // };
+
+  // const loadImageToMap = (imageUrl) => {
+  //   return new Promise((resolve, reject) => {
+  //     if (!mapInstance.current || !imageUrl) {
+  //       reject('Нет карты или изображения');
+  //       return;
+  //     }
+
+  //     const img = new Image();
+  //     img.crossOrigin = 'anonymous';
+
+  //     img.onload = function() {
+  //       const width = this.width;
+  //       const height = this.height;
+  //       const bounds = [[0, 0], [height, width]];
+
+  //       if (imageOverlayRef.current) {
+  //         mapInstance.current.removeLayer(imageOverlayRef.current);
+  //         imageOverlayRef.current = null;
+  //       }
+
+  //       imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
+  //         interactive: false,
+  //         className: 'hall-map-image'
+  //       }).addTo(mapInstance.current);
+
+  //       mapInstance.current.fitBounds(bounds);
+  //       const centerY = height / 2;
+  //       const centerX = width / 2;
+  //       mapInstance.current.setView([centerY, centerX], 0);
+
+  //       setImageError(false);
+  //       setMapImage(imageUrl);
+  //       resolve();
+  //     };
+
+  //     img.onerror = function() {
+  //       console.error('Ошибка загрузки изображения');
+  //       setImageError(true);
+  //       reject('Ошибка загрузки изображения');
+  //     };
+
+  //     img.src = imageUrl;
+  //   });
+  // };
+
+    // const handleApproveBooking = async (standId) => {
+  //   try {
+  //     console.log('Подтверждение бронирования для стенда:', standId);
+      
+  //     // 1. Получаем бронирования
+  //     const response = await ownerApi.getPendingBookings();
+  //     console.log('Ответ от getPendingBookings:', response);
+      
+  //     // 2. Извлекаем массив bookings из ответа
+  //     // Ответ имеет структуру: { "bookings": [...] }
+  //     const bookingsArray = response.bookings || response.data?.bookings || response;
+      
+  //     console.log('Массив бронирований:', bookingsArray);
+  //     console.log('Это массив?', Array.isArray(bookingsArray));
+      
+  //     // 3. Проверяем что это массив
+  //     if (!Array.isArray(bookingsArray)) {
+  //       console.error('bookingsArray не является массивом:', bookingsArray);
+  //       alert('Ошибка: получены некорректные данные о бронированиях');
+  //       return;
+  //     }
+      
+  //     // 4. Ищем бронирование для этого стенда
+  //     const booking = bookingsArray.find(b => {
+  //       // Используем exhibitionStandId из структуры ответа
+  //       const bookingStandId = b.exhibitionStandId || b.exhibitionStand?.id || b.stand?.id;
+  //       console.log(`Сравниваем: bookingStandId=${bookingStandId}, standId=${standId}`);
+  //       return bookingStandId === standId;
+  //     });
+      
+  //     console.log('Найденное бронирование:', booking);
+      
+  //     if (!booking) {
+  //       alert('Бронирование для этого стенда не найдено');
+  //       return;
+  //     }
+      
+  //     // 5. Подтверждаем бронирование
+  //     const approveResponse = await ownerApi.approveBooking(booking.id);
+  //     console.log('Ответ подтверждения:', approveResponse);
+      
+  //     // 6. Обновляем стенды
+  //     await refreshStands();
+      
+  //     alert('✅ Бронирование подтверждено!');
+      
+  //   } catch (error) {
+  //     console.error('Ошибка подтверждения:', error);
+  //     alert(`❌ Ошибка: ${error.response?.data?.error || error.message}`);
+  //   }
+  // };
+  
+  // const handleRejectBooking = async (standId) => {
+  //   try {
+  //     console.log('Отклонение бронирования для стенда:', standId);
+      
+  //     // Запрашиваем причину
+  //     const reason = prompt('Укажите причину отклонения бронирования:');
+  //     if (!reason || reason.trim() === '') {
+  //       alert('Причина отклонения обязательна');
+  //       return;
+  //     }
+      
+  //     // 1. Получаем бронирования
+  //     const response = await ownerApi.getPendingBookings();
+      
+  //     // 2. Извлекаем массив bookings из ответа
+  //     const bookingsArray = response.bookings || response.data?.bookings || response;
+      
+  //     if (!Array.isArray(bookingsArray)) {
+  //       alert('Ошибка: получены некорректные данные о бронированиях');
+  //       return;
+  //     }
+      
+  //     // 3. Ищем бронирование
+  //     const booking = bookingsArray.find(b => {
+  //       const bookingStandId = b.exhibitionStandId || b.exhibitionStand?.id || b.stand?.id;
+  //       return bookingStandId === standId;
+  //     });
+      
+  //     if (!booking) {
+  //       alert('Бронирование для этого стенда не найдено');
+  //       return;
+  //     }
+      
+  //     // 4. Отклоняем бронирование
+  //     const rejectResponse = await ownerApi.rejectBooking(booking.id, reason);
+  //     console.log('Ответ отклонения:', rejectResponse);
+      
+  //     // 5. Обновляем стенды
+  //     await refreshStands();
+      
+  //     alert('❌ Бронирование отклонено!');
+      
+  //   } catch (error) {
+  //     console.error('Ошибка отклонения:', error);
+  //     alert(`❌ Ошибка: ${error.response?.data?.error || error.message}`);
+  //   }
+  // };

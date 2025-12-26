@@ -1,29 +1,32 @@
-import React, { useState, useRef, useEffect } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { useNavigate } from 'react-router-dom';
-import { ownerApi, imageApi } from '../api'; // Импортируем imageApi
+import React, { useState, useRef, useEffect } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { useNavigate } from "react-router-dom";
+import { ownerApi, imageApi } from "../api";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-const MapEditor = ({ 
-  mode, 
-  hallMap, 
-  stands, 
-  exhibitionId, 
-  onUploadHallMap, 
-  onCreateStand, 
+const MapEditor = ({
+  mode,
+  hallMap,
+  stands,
+  exhibitionId,
+  onUploadHallMap,
+  onCreateStand,
   onBookStand,
   onDeleteStand = () => {},
   onMapImageUpload,
-  onRefreshStands = () => {} ,
-  onApproveBooking = () => {},    
-  onRejectBooking = () => {} 
+  onRefreshStands = () => {},
+  onApproveBooking = () => {},
+  onRejectBooking = () => {},
 }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -36,10 +39,10 @@ const MapEditor = ({
   const [tempStands, setTempStands] = useState([]);
   const [showStandForm, setShowStandForm] = useState(false);
   const [standFormData, setStandFormData] = useState({
-    standNumber: '',
-    type: 'WALL',
+    standNumber: "",
+    type: "WALL",
     width: 100,
-    height: 100
+    height: 100,
   });
   const [pendingStandPosition, setPendingStandPosition] = useState(null);
   const [imageError, setImageError] = useState(false);
@@ -48,100 +51,94 @@ const MapEditor = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   const [hallMapId, setHallMapId] = useState(hallMap?.id || null);
-// MapEditor.js - в useEffect добавьте
-useEffect(() => {
-  // Художник: бронирование
-  window.handleBookStand = async (standId, standNumber) => {
-    try {
-      if (onBookStand) {
-        await onBookStand(standId);
-        
-        // Закрываем popup
-        if (mapInstance.current) {
-          mapInstance.current.closePopup();
+
+  useEffect(() => {
+    window.handleBookStand = async (standId, standNumber) => {
+      try {
+        if (onBookStand) {
+          await onBookStand(standId);
+
+          if (mapInstance.current) {
+            mapInstance.current.closePopup();
+          }
+
+          if (onRefreshStands) {
+            setTimeout(() => onRefreshStands(), 300);
+          }
         }
-        
-        // Обновляем стенды
-        if (onRefreshStands) {
-          setTimeout(() => onRefreshStands(), 300);
-        }
+      } catch (err) {
+        console.error("Ошибка бронирования:", err);
       }
-    } catch (err) {
-      console.error('Ошибка бронирования:', err);
-    }
-  };
-  
-  // Владелец: подтвердить бронирование
-  window.handleApproveBooking = async (standId, standNumber) => {
-    try {
-      if (onApproveBooking) {
-        await onApproveBooking(standId);
-        
-        // Закрываем popup
-        if (mapInstance.current) {
-          mapInstance.current.closePopup();
+    };
+
+    window.handleApproveBooking = async (standId, standNumber) => {
+      try {
+        if (onApproveBooking) {
+          await onApproveBooking(standId);
+
+          if (mapInstance.current) {
+            mapInstance.current.closePopup();
+          }
+
+          if (onRefreshStands) {
+            setTimeout(() => onRefreshStands(), 300);
+          }
         }
-        
-        // Обновляем стенды
-        if (onRefreshStands) {
-          setTimeout(() => onRefreshStands(), 300);
-        }
+      } catch (err) {
+        console.error("Ошибка подтверждения:", err);
       }
-    } catch (err) {
-      console.error('Ошибка подтверждения:', err);
-    }
-  };
-  
-  // Владелец: отклонить бронирование
-  window.handleRejectBooking = async (standId, standNumber) => {
-    try {
-      if (onRejectBooking) {
-        await onRejectBooking(standId);
-        
-        // Закрываем popup
-        if (mapInstance.current) {
-          mapInstance.current.closePopup();
+    };
+
+    window.handleRejectBooking = async (standId, standNumber) => {
+      try {
+        if (onRejectBooking) {
+          await onRejectBooking(standId);
+
+          if (mapInstance.current) {
+            mapInstance.current.closePopup();
+          }
+
+          if (onRefreshStands) {
+            setTimeout(() => onRefreshStands(), 300);
+          }
         }
-        
-        // Обновляем стенды
-        if (onRefreshStands) {
-          setTimeout(() => onRefreshStands(), 300);
-        }
+      } catch (err) {
+        console.error("Ошибка отклонения:", err);
       }
-    } catch (err) {
-      console.error('Ошибка отклонения:', err);
-    }
-  };
-  
-  // Удаление стенда
-  window.handleDeleteStand = async (standId, standNumber) => {
-    try {
-      if (onDeleteStand) {
-        await onDeleteStand(standId);
-        
-        // Закрываем popup
-        if (mapInstance.current) {
-          mapInstance.current.closePopup();
+    };
+
+    window.handleDeleteStand = async (standId, standNumber) => {
+      try {
+        if (onDeleteStand) {
+          await onDeleteStand(standId);
+
+          if (mapInstance.current) {
+            mapInstance.current.closePopup();
+          }
+
+          if (onRefreshStands) {
+            setTimeout(() => onRefreshStands(), 300);
+          }
         }
-        
-        // Обновляем стенды
-        if (onRefreshStands) {
-          setTimeout(() => onRefreshStands(), 300);
-        }
+      } catch (err) {
+        console.error("Ошибка удаления:", err);
       }
-    } catch (err) {
-      console.error('Ошибка удаления:', err);
-    }
-  };
-  
-  return () => {
-    delete window.handleBookStand;
-    delete window.handleApproveBooking;
-    delete window.handleRejectBooking;
-    delete window.handleDeleteStand;
-  };
-}, [onBookStand, onApproveBooking, onRejectBooking, onDeleteStand, onRefreshStands]);
-  // ========== ИНИЦИАЛИЗАЦИЯ КАРТЫ ==========
+    };
+
+    return () => {
+      delete window.handleBookStand;
+      delete window.handleApproveBooking;
+      delete window.handleRejectBooking;
+      delete window.handleDeleteStand;
+    };
+  }, [
+    onBookStand,
+    onApproveBooking,
+    onRejectBooking,
+    onDeleteStand,
+    onRefreshStands,
+  ]);
+
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -162,16 +159,16 @@ useEffect(() => {
       zoom: 0,
       dragging: true,
       doubleClickZoom: true,
-      scrollWheelZoom: true
+      scrollWheelZoom: true,
     });
 
     // const defaultBounds = [[-250, -250], [250, 250]];
     // mapInstance.current.setMaxBounds(defaultBounds);
-    
-    L.control.zoom({ position: 'topright' }).addTo(mapInstance.current);
+
+    L.control.zoom({ position: "topright" }).addTo(mapInstance.current);
     mapInstance.current.setView([0, 0], 0);
-    mapInstance.current.on('click', handleMapClick);
-    mapInstance.current.on('zoom', () => {
+    mapInstance.current.on("click", handleMapClick);
+    mapInstance.current.on("zoom", () => {
       if (mapInstance.current) {
         setMapScale(mapInstance.current.getZoom());
       }
@@ -179,8 +176,8 @@ useEffect(() => {
 
     return () => {
       if (mapInstance.current) {
-        mapInstance.current.off('click', handleMapClick);
-        mapInstance.current.off('zoom');
+        mapInstance.current.off("click", handleMapClick);
+        mapInstance.current.off("zoom");
         mapInstance.current.remove();
         mapInstance.current = null;
       }
@@ -192,14 +189,14 @@ useEffect(() => {
   }, [isDrawing]);
 
   useEffect(() => {
-    if (!mapInstance.current || mode !== 'owner') return;
+    if (!mapInstance.current || mode !== "owner") return;
 
     if (isDrawing) {
       mapInstance.current.dragging.disable();
-      mapRef.current.style.cursor = 'crosshair';
+      mapRef.current.style.cursor = "crosshair";
     } else {
       mapInstance.current.dragging.enable();
-      mapRef.current.style.cursor = 'grab';
+      mapRef.current.style.cursor = "grab";
     }
   }, [isDrawing, mode]);
 
@@ -214,295 +211,196 @@ useEffect(() => {
     renderStands();
   }, [stands, tempStands]);
 
-  // ========== ЗАГРУЗКА ИЗОБРАЖЕНИЯ НА СЕРВЕР ==========
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
-    if (!file.type.includes('image')) {
-      alert('Выберите картинку!');
+
+    if (!file.type.includes("image")) {
+      alert("Выберите картинку!");
       return;
     }
-    
+
     try {
       setLoading(true);
       setUploadProgress(10);
-      
+
       let uploadedUrl = null;
       let mapId = hallMapId;
-      
-      // Проверяем размер файла (ограничиваем 10MB)
+
       if (file.size > 10 * 1024 * 1024) {
-        alert('Файл слишком большой! Максимальный размер 10MB.');
+        alert("Файл слишком большой! Максимальный размер 10MB.");
         setLoading(false);
         return;
       }
-      
+
       if (hallMapId) {
-        // Если карта уже существует, загружаем изображение для нее
         setUploadProgress(30);
         const result = await ownerApi.uploadHallMapImage(hallMapId, file);
         uploadedUrl = result.mapImageUrl;
         setUploadProgress(70);
-        
-        // Обновляем hallMap с новым URL
+
         if (onMapImageUpload) {
           await onMapImageUpload(hallMapId, uploadedUrl);
         }
       } else {
-        // Создаем новую карту с изображением
         setUploadProgress(30);
         const mapData = {
           name: `План зала ${new Date().toLocaleDateString()}`,
           exhibitionEventId: exhibitionId,
-          mapImage: file
+          mapImage: file,
         };
-        
+
         const result = await ownerApi.createHallMapWithImage(mapData);
         uploadedUrl = result.mapImageUrl;
         mapId = result.id;
         setHallMapId(result.id);
         setUploadProgress(70);
-        
+
         if (onUploadHallMap) {
           await onUploadHallMap(result);
         }
       }
-      
-      // Отображаем загруженное изображение
+
       if (uploadedUrl) {
         setUploadedImageUrl(uploadedUrl);
         await loadImageToMap(uploadedUrl);
         setUploadProgress(100);
-        
+
         setTimeout(() => {
           setUploadProgress(0);
-          alert('✅ Изображение успешно загружено на сервер!');
+          alert("✅ Изображение успешно загружено на сервер!");
         }, 500);
       }
-      
     } catch (error) {
-      console.error('Ошибка загрузки:', error);
-      alert(`❌ Ошибка загрузки: ${error.response?.data?.error || error.message}`);
+      console.error("Ошибка загрузки:", error);
+      alert(
+        `❌ Ошибка загрузки: ${error.response?.data?.error || error.message}`
+      );
       setImageError(true);
     } finally {
       setLoading(false);
-      e.target.value = '';
+      e.target.value = "";
     }
   };
 
-  // ========== ЗАГРУЗКА ИЗОБРАЖЕНИЯ В КАРТУ ==========
-  // const loadHallMapImage = (imageUrl) => {
-  //   if (!mapInstance.current || !imageUrl) return;
-    
-  //   const img = new Image();
-  //   img.crossOrigin = 'anonymous';
-    
-  //   img.onload = function() {
-  //     const width = this.width;
-  //     const height = this.height;
-  //     const bounds = [[0, 0], [height, width]];
-      
-  //     // Очищаем все слои
-  //     mapInstance.current.eachLayer((layer) => {
-  //       if (!(layer instanceof L.Control)) {
-  //         mapInstance.current.removeLayer(layer);
-  //       }
-  //     });
-      
-  //     // Добавляем изображение
-  //     imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
-  //       interactive: false,
-  //       className: 'hall-map-image'
-  //     }).addTo(mapInstance.current);
-      
-  //     mapInstance.current.fitBounds(bounds);
-  //     const centerY = height / 2;
-  //     const centerX = width / 2;
-  //     mapInstance.current.setView([centerY, centerX], 0);
-      
-  //     setImageError(false);
-  //     setMapImage(imageUrl);
-      
-  //     setTimeout(() => {
-  //       renderStands();
-  //     }, 100);
-  //   };
-    
-  //   img.onerror = function() {
-  //     console.error('Ошибка загрузки изображения');
-  //     setImageError(true);
-  //     showPlaceholder();
-  //   };
-    
-  //   img.src = imageUrl;
-  // };
-  
-
-  // const loadImageToMap = (imageUrl) => {
-  //   return new Promise((resolve, reject) => {
-  //     if (!mapInstance.current || !imageUrl) {
-  //       reject('Нет карты или изображения');
-  //       return;
-  //     }
-
-  //     const img = new Image();
-  //     img.crossOrigin = 'anonymous';
-      
-  //     img.onload = function() {
-  //       const width = this.width;
-  //       const height = this.height;
-  //       const bounds = [[0, 0], [height, width]];
-        
-  //       // Удаляем старое изображение
-  //       if (imageOverlayRef.current) {
-  //         mapInstance.current.removeLayer(imageOverlayRef.current);
-  //         imageOverlayRef.current = null;
-  //       }
-        
-  //       // Добавляем новое изображение
-  //       imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
-  //         interactive: false,
-  //         className: 'hall-map-image'
-  //       }).addTo(mapInstance.current);
-        
-  //       mapInstance.current.fitBounds(bounds);
-  //       const centerY = height / 2;
-  //       const centerX = width / 2;
-  //       mapInstance.current.setView([centerY, centerX], 0);
-        
-  //       setImageError(false);
-  //       setMapImage(imageUrl);
-  //       resolve();
-  //     };
-      
-  //     img.onerror = function() {
-  //       console.error('Ошибка загрузки изображения');
-  //       setImageError(true);
-  //       reject('Ошибка загрузки изображения');
-  //     };
-      
-  //     img.src = imageUrl;
-  //   });
-  // };
   const loadHallMapImage = (imageUrl) => {
     if (!mapInstance.current || !imageUrl) return;
-    
+
     const img = new Image();
-    img.crossOrigin = 'anonymous';
-    
-    img.onload = function() {
+    img.crossOrigin = "anonymous";
+
+    img.onload = function () {
       const width = this.width;
       const height = this.height;
-      const bounds = [[0, 0], [height, width]];
-      
-      // Очищаем все слои
+      const bounds = [
+        [0, 0],
+        [height, width],
+      ];
+
       mapInstance.current.eachLayer((layer) => {
         if (!(layer instanceof L.Control)) {
           mapInstance.current.removeLayer(layer);
         }
       });
-      
-      // Добавляем изображение
+
       imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
         interactive: false,
-        className: 'hall-map-image'
+        className: "hall-map-image",
       }).addTo(mapInstance.current);
-      
-      // Устанавливаем чтобы изображение полностью влезало в контейнер
+
       mapInstance.current.fitBounds(bounds);
-      
-      // Плавный зум для хорошего вида
+
       setTimeout(() => {
         const currentZoom = mapInstance.current.getZoom();
-        // Если изображение слишком крупное, немного отдалим
+
         if (currentZoom > 0) {
           mapInstance.current.setZoom(currentZoom - 1);
         }
       }, 100);
-      
+
       setImageError(false);
       setMapImage(imageUrl);
-      
+
       setTimeout(() => {
         renderStands();
       }, 200);
     };
-    
-    img.onerror = function() {
-      console.error('Ошибка загрузки изображения');
+
+    img.onerror = function () {
+      console.error("Ошибка загрузки изображения");
       setImageError(true);
       showPlaceholder();
     };
-    
+
     img.src = imageUrl;
   };
-  
-  // Аналогично обновите loadImageToMap
+
   const loadImageToMap = (imageUrl) => {
     return new Promise((resolve, reject) => {
       if (!mapInstance.current || !imageUrl) {
-        reject('Нет карты или изображения');
+        reject("Нет карты или изображения");
         return;
       }
-  
+
       const img = new Image();
-      img.crossOrigin = 'anonymous';
-      
-      img.onload = function() {
+      img.crossOrigin = "anonymous";
+
+      img.onload = function () {
         const width = this.width;
         const height = this.height;
-        const bounds = [[0, 0], [height, width]];
-        
-        // Удаляем старое изображение
+        const bounds = [
+          [0, 0],
+          [height, width],
+        ];
+
         if (imageOverlayRef.current) {
           mapInstance.current.removeLayer(imageOverlayRef.current);
           imageOverlayRef.current = null;
         }
-        
-        // Добавляем новое изображение
+
         imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
           interactive: false,
-          className: 'hall-map-image'
+          className: "hall-map-image",
         }).addTo(mapInstance.current);
-        
-        // Автоматически подгоняем под размер контейнера
+
         mapInstance.current.fitBounds(bounds);
-        
-        // Оптимальный зум
+
         setTimeout(() => {
           const currentZoom = mapInstance.current.getZoom();
           if (currentZoom > 0) {
             mapInstance.current.setZoom(currentZoom - 1);
           }
         }, 100);
-        
+
         setImageError(false);
         setMapImage(imageUrl);
         resolve();
       };
-      
-      img.onerror = function() {
-        console.error('Ошибка загрузки изображения');
+
+      img.onerror = function () {
+        console.error("Ошибка загрузки изображения");
         setImageError(true);
-        reject('Ошибка загрузки изображения');
+        reject("Ошибка загрузки изображения");
       };
-      
+
       img.src = imageUrl;
     });
   };
   const showPlaceholder = () => {
     if (!mapInstance.current) return;
-    
-    const bounds = [[0, 0], [500, 500]];
-    
+
+    const bounds = [
+      [0, 0],
+      [500, 500],
+    ];
+
     L.rectangle(bounds, {
-      color: '#e9ecef',
-      fillColor: '#e9ecef',
+      color: "#e9ecef",
+      fillColor: "#e9ecef",
       fillOpacity: 0.8,
-      interactive: false
+      interactive: false,
     }).addTo(mapInstance.current);
-    
+
     L.marker([250, 250], {
       icon: L.divIcon({
         html: `
@@ -519,33 +417,32 @@ useEffect(() => {
             <p style="margin: 0; color: #6c757d; font-size: 14px;">Используйте левую панель для загрузки</p>
           </div>
         `,
-        className: 'placeholder-text',
-        iconSize: [250, 150]
-      })
+        className: "placeholder-text",
+        iconSize: [250, 150],
+      }),
     }).addTo(mapInstance.current);
-    
+
     mapInstance.current.fitBounds(bounds);
   };
 
-  // ========== ОСТАЛЬНЫЕ ФУНКЦИИ (без изменений) ==========
   const handleMapClick = (e) => {
-    if (mode !== 'owner' || !isDrawingRef.current) {
+    if (mode !== "owner" || !isDrawingRef.current) {
       return;
     }
-    
+
     const { lat, lng } = e.latlng;
-    
+
     if (!imageOverlayRef.current) {
-      alert('⚠️ Сначала загрузите план зала!');
+      alert("⚠️ Сначала загрузите план зала!");
       setIsDrawing(false);
       return;
     }
-    
-    const standPosition = { 
+
+    const standPosition = {
       lat: Math.round(lat * 100) / 100,
-      lng: Math.round(lng * 100) / 100 
+      lng: Math.round(lng * 100) / 100,
     };
-    
+
     setPendingStandPosition(standPosition);
     setShowStandForm(true);
     clearTempMarkers();
@@ -554,7 +451,7 @@ useEffect(() => {
 
   const clearTempMarkers = () => {
     if (!mapInstance.current) return;
-    
+
     mapInstance.current.eachLayer((layer) => {
       if (layer instanceof L.Marker && layer.options && layer.options.isTemp) {
         mapInstance.current.removeLayer(layer);
@@ -564,7 +461,7 @@ useEffect(() => {
 
   const addTempMarker = (position) => {
     if (!mapInstance.current) return;
-    
+
     const tempMarker = L.marker([position.lat, position.lng], {
       icon: L.divIcon({
         html: `
@@ -588,16 +485,18 @@ useEffect(() => {
             "></div>
           </div>
         `,
-        className: 'temp-stand-marker',
+        className: "temp-stand-marker",
         iconSize: [36, 36],
-        iconAnchor: [18, 18]
+        iconAnchor: [18, 18],
       }),
       zIndexOffset: 1000,
       isTemp: true,
-      draggable: false
+      draggable: false,
     }).addTo(mapInstance.current);
-    
-    tempMarker.bindPopup(`
+
+    tempMarker
+      .bindPopup(
+        `
       <div style="padding: 10px; min-width: 150px;">
         <strong>📌 Новая точка</strong>
         <div style="margin-top: 5px; font-size: 12px;">
@@ -608,25 +507,27 @@ useEffect(() => {
           Заполните форму слева
         </div>
       </div>
-    `).openPopup();
-    
+    `
+      )
+      .openPopup();
+
     return tempMarker;
   };
 
   const handleToggleDrawing = () => {
-    if (mode !== 'owner') {
-      alert('Эта функция доступна только владельцам выставки');
+    if (mode !== "owner") {
+      alert("Эта функция доступна только владельцам выставки");
       return;
     }
-    
+
     if (!imageOverlayRef.current && !isDrawing) {
-      alert('⚠️ Сначала загрузите план зала!');
+      alert("⚠️ Сначала загрузите план зала!");
       return;
     }
-    
+
     const newState = !isDrawing;
     setIsDrawing(newState);
-    
+
     if (!newState) {
       clearTempMarkers();
     }
@@ -634,20 +535,18 @@ useEffect(() => {
 
   const createStandMarker = (stand) => {
     if (!mapInstance.current) return;
-    
-    let color = '#28a745'; // AVAILABLE - зеленый
-let statusText = 'Свободен';
 
-if (stand.status === 'BOOKED') {
-  color = '#dc3545'; // BOOKED - красный
-  statusText = 'Забронирован';
-} 
-else if (stand.status === 'PENDING') {
-  color = '#ff9800'; // PENDING - оранжевый
-  statusText = 'Ожидает подтверждения';
-}
+    let color = "#28a745";
+    let statusText = "Свободен";
 
-    
+    if (stand.status === "BOOKED") {
+      color = "#dc3545";
+      statusText = "Забронирован";
+    } else if (stand.status === "PENDING") {
+      color = "#ff9800";
+      statusText = "Ожидает подтверждения";
+    }
+
     const marker = L.marker([stand.positionY, stand.positionX], {
       icon: L.divIcon({
         html: `
@@ -670,32 +569,37 @@ else if (stand.status === 'PENDING') {
             ${stand.standNumber}
           </div>
         `,
-        className: 'stand-marker-container',
-        iconSize: [46, 46]
-      })
+        className: "stand-marker-container",
+        iconSize: [46, 46],
+      }),
     }).addTo(mapInstance.current);
-    
-    // ДОБАВИЛИ КНОПКУ УДАЛЕНИЯ ДЛЯ ВЛАДЕЛЬЦА
-   // MapEditor.js - в popupContent
-const popupContent = `
+
+    const popupContent = `
 <div style="padding: 15px; min-width: 250px;">
   <div style="display: flex; align-items: center; margin-bottom: 10px;">
     <div style="width: 20px; height: 20px; background: ${color}; border-radius: 50%; margin-right: 10px;"></div>
     <h4 style="margin: 0;">Стенд ${stand.standNumber}</h4>
   </div>
   <div style="margin-bottom: 15px;">
-    <p style="margin: 5px 0;"><strong>Тип:</strong> ${getTypeText(stand.type)}</p>
-    <p style="margin: 5px 0;"><strong>Размер:</strong> ${stand.width}×${stand.height} см</p>
+    <p style="margin: 5px 0;"><strong>Тип:</strong> ${getTypeText(
+      stand.type
+    )}</p>
+    <p style="margin: 5px 0;"><strong>Размер:</strong> ${stand.width}×${
+      stand.height
+    } см</p>
     <p style="margin: 5px 0;"><strong>Статус:</strong> 
       <span style="color: ${color}; font-weight: bold;">
         ${statusText}
       </span>
     </p>
-    <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${stand.positionX}, Y:${stand.positionY}</p>
+    <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${
+      stand.positionX
+    }, Y:${stand.positionY}</p>
   </div>
   <div style="display: flex; gap: 10px; flex-direction: column;">
-    ${mode === 'artist' && stand.status === 'AVAILABLE' ? 
-      `<button 
+    ${
+      mode === "artist" && stand.status === "AVAILABLE"
+        ? `<button 
         onclick="if(confirm('Забронировать стенд ${stand.standNumber}?')) { 
           if(window.handleBookStand) { 
             window.handleBookStand('${stand.id}', '${stand.standNumber}'); 
@@ -712,11 +616,12 @@ const popupContent = `
         "
       >
         📝 Забронировать
-      </button>` : 
-      ''
+      </button>`
+        : ""
     }
-    ${mode === 'artist' && stand.status === 'PENDING' ? 
-      `<div style="
+    ${
+      mode === "artist" && stand.status === "PENDING"
+        ? `<div style="
         padding: 10px; 
         background: linear-gradient(135deg, #ff9800, #f57c00); 
         color: white; 
@@ -725,11 +630,12 @@ const popupContent = `
         font-weight: bold;
       ">
         ⏳ Ожидает подтверждения
-      </div>` : 
-      ''
+      </div>`
+        : ""
     }
-    ${mode === 'artist' && stand.status === 'BOOKED' ? 
-      `<div style="
+    ${
+      mode === "artist" && stand.status === "BOOKED"
+        ? `<div style="
         padding: 10px; 
         background: linear-gradient(135deg, #dc3545, #c82333); 
         color: white; 
@@ -738,13 +644,15 @@ const popupContent = `
         font-weight: bold;
       ">
         ✅ Забронировано
-      </div>` : 
-      ''
+      </div>`
+        : ""
     }
-    ${mode === 'owner' ? 
-      `<div style="display: flex; flex-direction: column; gap: 8px;">
-        ${stand.status === 'PENDING' ? 
-          `<div style="display: flex; gap: 8px;">
+    ${
+      mode === "owner"
+        ? `<div style="display: flex; flex-direction: column; gap: 8px;">
+        ${
+          stand.status === "PENDING"
+            ? `<div style="display: flex; gap: 8px;">
             <button 
               onclick="if(confirm('Подтвердить бронирование стенда ${stand.standNumber}?')) { 
                 if(window.handleApproveBooking) { 
@@ -783,8 +691,8 @@ const popupContent = `
             >
               ❌ Отклонить
             </button>
-          </div>` : 
-          ''
+          </div>`
+            : ""
         }
         <button 
           onclick="if(confirm('Удалить стенд ${stand.standNumber}?')) { 
@@ -804,84 +712,78 @@ const popupContent = `
         >
           🗑️ Удалить стенд
         </button>
-      </div>` : 
-      ''
+      </div>`
+        : ""
     }
   </div>
 </div>
 `;
-    
-    // Обработчик бронирования
+
     window.handleBookStandClick = async (standId) => {
       try {
         if (onBookStand) {
           await onBookStand(standId);
-          alert('Заявка на бронирование отправлена!');
+          alert("Заявка на бронирование отправлена!");
           marker.closePopup();
           if (onRefreshStands) {
             onRefreshStands();
           }
         }
       } catch (err) {
-        alert('Ошибка: ' + err.message);
+        alert("Ошибка: " + err.message);
       }
     };
-    
-    
-window.handleDeleteStandClick = async (standId) => {
-  try {
-    if (onDeleteStand) {
-      await onDeleteStand(standId);
-      // alert('Стенд удален!');
-      marker.closePopup();
-      // Удаляем маркер с карты
-      mapInstance.current.removeLayer(marker);
-      
-      // Вызываем обновление стендов
-      if (onRefreshStands) {
-        onRefreshStands();  // Добавьте эту строку
+
+    window.handleDeleteStandClick = async (standId) => {
+      try {
+        if (onDeleteStand) {
+          await onDeleteStand(standId);
+          // alert('Стенд удален!');
+          marker.closePopup();
+
+          mapInstance.current.removeLayer(marker);
+
+          if (onRefreshStands) {
+            onRefreshStands();
+          }
+        }
+      } catch (err) {
+        alert("Ошибка: " + err.message);
       }
-    }
-  } catch (err) {
-    alert('Ошибка: ' + err.message);
-  }
-};
-    
+    };
+
     marker.bindPopup(popupContent);
-    
-    marker.on('click', (e) => {
+
+    marker.on("click", (e) => {
       e.originalEvent.stopPropagation();
       setSelectedStand(stand);
-      
-      // Открываем popup при клике
+
       marker.openPopup();
     });
-    
+
     marker.standData = stand;
     return marker;
   };
 
   const renderStands = () => {
     if (!mapInstance.current) return;
-    
-    // Очищаем старые маркеры стендов
+
     mapInstance.current.eachLayer((layer) => {
       if (layer instanceof L.Marker && layer.standData) {
         mapInstance.current.removeLayer(layer);
       }
     });
-    
-    // Рендерим только стенды из пропсов (не из tempStands)
-    console.log('Рендерим стенды из пропсов:', stands?.length || 0);
+
+    console.log("Рендерим стенды из пропсов:", stands?.length || 0);
     (stands || []).forEach(createStandMarker);
   };
 
   const handleSaveStand = async () => {
     if (!pendingStandPosition || !standFormData.standNumber) {
-      alert('Заполните все обязательные поля');
+      alert("Заполните все обязательные поля");
       return;
     }
-  
+
     try {
       const newStand = {
         standNumber: standFormData.standNumber,
@@ -890,455 +792,582 @@ window.handleDeleteStandClick = async (standId) => {
         width: standFormData.width,
         height: standFormData.height,
         type: standFormData.type,
-        status: 'AVAILABLE'
+        status: "AVAILABLE",
       };
-  
-      console.log('Создаем новый стенд:', newStand);
-  
-      // Сохраняем на сервер через родительский компонент
+
+      console.log("Создаем новый стенд:", newStand);
+
       if (onCreateStand) {
         await onCreateStand(newStand);
       }
-      
-      // УДАЛИТЬ ЭТУ СТРОКУ - не добавляем локально, ждем ответ от сервера
+
       // setTempStands([...tempStands, { ...newStand, id: Date.now() }]);
-      
-      // Сбрасываем состояние
+
       setShowStandForm(false);
       setPendingStandPosition(null);
       setStandFormData({
-        standNumber: '',
-        type: 'WALL',
+        standNumber: "",
+        type: "WALL",
         width: 100,
-        height: 100
+        height: 100,
       });
-      
-      // Очищаем временные маркеры
+
       clearTempMarkers();
-      
-      alert('✅ Стенд успешно добавлен!');
-      
+
+      alert("✅ Стенд успешно добавлен!");
     } catch (err) {
-      alert('❌ Ошибка сохранения: ' + err.message);
+      alert("❌ Ошибка сохранения: " + err.message);
     }
   };
 
   const getTypeText = (type) => {
     const types = {
-      'WALL': '🎨 Стена для живописи',
-      'BOOTH': '🗿 Будка для скульптур',
-      'OPEN_SPACE': '📷 Открытое пространство'
+      WALL: "🎨 Стена для живописи",
+      BOOTH: "🗿 Будка для скульптур",
+      OPEN_SPACE: "📷 Открытое пространство",
     };
     return types[type] || type;
   };
 
-
-const getStats = () => {
-  const allStands = stands || [];
-  return {
-    total: allStands.length,
-    available: allStands.filter(s => s.status === 'AVAILABLE').length,
-    pending: allStands.filter(s => s.status === 'PENDING').length,
-    booked: allStands.filter(s => s.status === 'BOOKED').length
+  const getStats = () => {
+    const allStands = stands || [];
+    return {
+      total: allStands.length,
+      available: allStands.filter((s) => s.status === "AVAILABLE").length,
+      pending: allStands.filter((s) => s.status === "PENDING").length,
+      booked: allStands.filter((s) => s.status === "BOOKED").length,
+    };
   };
-};
 
-const stats = getStats();
+  const stats = getStats();
   const handleSaveAll = async () => {
     try {
-      // Здесь можно добавить логику сохранения всех изменений
       if (tempStands.length > 0) {
         alert(`✅ Сохранено ${tempStands.length} стендов!`);
       } else {
-        alert('✅ Все изменения сохранены!');
+        alert("✅ Все изменения сохранены!");
       }
     } catch (error) {
-      alert('❌ Ошибка сохранения: ' + error.message);
+      alert("❌ Ошибка сохранения: " + error.message);
     }
   };
 
- 
-
-const handleBack = () => {
-  navigate('/dashboard');
-};
+  const handleBack = () => {
+    navigate("/dashboard");
+  };
 
   // ========== RENDER ==========
   return (
-    <div style={{
-      display: 'flex',
-      height: 'calc(100vh - 80px)',
-      backgroundColor: '#f8f9fa',
-      padding: '20px',
-      paddingBottom: '80px'
-    }}>
+    <div
+      style={{
+        display: "flex",
+        height: "calc(100vh - 80px)",
+        backgroundColor: "#f8f9fa",
+        padding: "20px",
+        paddingBottom: "80px",
+      }}
+    >
       {/* ШАПКА С КНОПКАМИ */}
-      <div style={{
-        position: 'absolute',
-        top: '20px',
-        left: '20px',
-        right: '20px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        zIndex: 1000
-      }}>
+      <div
+        style={{
+          position: "absolute",
+          top: "20px",
+          left: "20px",
+          right: "20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          zIndex: 1000,
+        }}
+      >
         <button
           onClick={handleBack}
           style={{
-            padding: '10px 20px',
-            backgroundColor: '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontWeight: '500',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-            transition: 'all 0.2s'
+            padding: "10px 20px",
+            backgroundColor: "#6c757d",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            fontWeight: "500",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+            transition: "all 0.2s",
           }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#5a6268'}
-          onMouseOut={(e) => e.target.style.backgroundColor = '#6c757d'}
+          onMouseOver={(e) => (e.target.style.backgroundColor = "#5a6268")}
+          onMouseOut={(e) => (e.target.style.backgroundColor = "#6c757d")}
         >
           ← Назад в личный кабинет
         </button>
-        
-       
       </div>
 
       {/* ЛЕВАЯ ПАНЕЛЬ - УПРАВЛЕНИЕ */}
-      <div style={{
-        width: '320px',
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRadius: '12px',
-        marginRight: '20px',
-        marginTop: '60px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-        overflowY: 'auto',
-        border: '1px solid #dee2e6'
-      }}>
-        <h2 style={{ 
-          marginTop: 0, 
-          marginBottom: '20px', 
-          color: '#343a40',
-          borderBottom: '2px solid #007bff',
-          paddingBottom: '10px',
-          fontSize: '24px'
-        }}>
-          {mode === 'owner' ? 'Управление выставкой' : 'Бронирование'}
+      <div
+        style={{
+          width: "320px",
+          backgroundColor: "white",
+          padding: "20px",
+          borderRadius: "12px",
+          marginRight: "20px",
+          marginTop: "60px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+          overflowY: "auto",
+          border: "1px solid #dee2e6",
+        }}
+      >
+        <h2
+          style={{
+            marginTop: 0,
+            marginBottom: "20px",
+            color: "#343a40",
+            borderBottom: "2px solid #007bff",
+            paddingBottom: "10px",
+            fontSize: "24px",
+          }}
+        >
+          {mode === "owner" ? "Управление выставкой" : "Бронирование"}
         </h2>
-        
-        {mode === 'owner' ? (
+
+        {mode === "owner" ? (
           <>
             {/* СЕКЦИЯ ЗАГРУЗКИ КАРТЫ НА СЕРВЕР */}
-            <div style={{ 
-              backgroundColor: '#f8f9fa', 
-              padding: '20px', 
-              borderRadius: '10px',
-              marginBottom: '20px',
-              border: '2px dashed #dee2e6'
-            }}>
-              <h4 style={{ marginTop: 0, color: '#495057', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ 
-                  width: '30px', 
-                  height: '30px', 
-                  background: '#007bff', 
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '16px'
-                }}>1</span>
+            <div
+              style={{
+                backgroundColor: "#f8f9fa",
+                padding: "20px",
+                borderRadius: "10px",
+                marginBottom: "20px",
+                border: "2px dashed #dee2e6",
+              }}
+            >
+              <h4
+                style={{
+                  marginTop: 0,
+                  color: "#495057",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                <span
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    background: "#007bff",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "white",
+                    fontSize: "16px",
+                  }}
+                >
+                  1
+                </span>
                 Загрузка плана зала
               </h4>
-              
-              <div style={{ marginBottom: '15px' }}>
+
+              <div style={{ marginBottom: "15px" }}>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
                   id="mapUpload"
-                  style={{ display: 'none' }}
+                  style={{ display: "none" }}
                   disabled={loading}
                 />
-                <label htmlFor="mapUpload" style={{
-                  display: 'block',
-                  padding: '15px',
-                  background: loading ? '#e9ecef' : 'linear-gradient(135deg, #007bff, #0056b3)',
-                  color: loading ? '#6c757d' : 'white',
-                  textAlign: 'center',
-                  borderRadius: '8px',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  fontWeight: '600',
-                  fontSize: '16px',
-                  transition: 'all 0.2s',
-                  opacity: loading ? 0.7 : 1
-                }}>
-                  {loading ? '⏳ Загрузка на сервер...' : '📁 Загрузить'}
+                <label
+                  htmlFor="mapUpload"
+                  style={{
+                    display: "block",
+                    padding: "15px",
+                    background: loading
+                      ? "#e9ecef"
+                      : "linear-gradient(135deg, #007bff, #0056b3)",
+                    color: loading ? "#6c757d" : "white",
+                    textAlign: "center",
+                    borderRadius: "8px",
+                    cursor: loading ? "not-allowed" : "pointer",
+                    fontWeight: "600",
+                    fontSize: "16px",
+                    transition: "all 0.2s",
+                    opacity: loading ? 0.7 : 1,
+                  }}
+                >
+                  {loading ? "⏳ Загрузка на сервер..." : "📁 Загрузить"}
                 </label>
-                
+
                 {/* Прогресс бар */}
                 {loading && uploadProgress > 0 && (
-                  <div style={{
-                    marginTop: '15px',
-                    background: '#e9ecef',
-                    borderRadius: '6px',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{
-                      width: `${uploadProgress}%`,
-                      height: '6px',
-                      background: 'linear-gradient(90deg, #28a745, #20c997)',
-                      transition: 'width 0.3s'
-                    }}></div>
-                    <div style={{
-                      padding: '8px 12px',
-                      fontSize: '12px',
-                      color: '#495057',
-                      textAlign: 'center'
-                    }}>
+                  <div
+                    style={{
+                      marginTop: "15px",
+                      background: "#e9ecef",
+                      borderRadius: "6px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${uploadProgress}%`,
+                        height: "6px",
+                        background: "linear-gradient(90deg, #28a745, #20c997)",
+                        transition: "width 0.3s",
+                      }}
+                    ></div>
+                    <div
+                      style={{
+                        padding: "8px 12px",
+                        fontSize: "12px",
+                        color: "#495057",
+                        textAlign: "center",
+                      }}
+                    >
                       Загрузка: {uploadProgress}%
                     </div>
                   </div>
                 )}
-                
+
                 {/* Информация о загруженном изображении */}
                 {uploadedImageUrl && !loading && (
-                  <div style={{
-                    backgroundColor: '#d4edda',
-                    color: '#155724',
-                    padding: '12px',
-                    borderRadius: '6px',
-                    marginTop: '15px',
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px'
-                  }}>
-                    <span style={{ fontSize: '18px' }}>✅</span>
+                  <div
+                    style={{
+                      backgroundColor: "#d4edda",
+                      color: "#155724",
+                      padding: "12px",
+                      borderRadius: "6px",
+                      marginTop: "15px",
+                      fontSize: "14px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <span style={{ fontSize: "18px" }}>✅</span>
                     <div>
-                      <div><strong>Изображение загружено на сервер</strong></div>
-                      <div style={{ fontSize: '12px', opacity: 0.8, marginTop: '4px' }}>
-                        ID карты: {hallMapId || 'новый'}
+                      <div>
+                        <strong>Изображение загружено на сервер</strong>
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          opacity: 0.8,
+                          marginTop: "4px",
+                        }}
+                      >
+                        ID карты: {hallMapId || "новый"}
                       </div>
                     </div>
                   </div>
                 )}
-                
+
                 {mapImage && !imageError && !loading && (
-                  <div style={{
-                    backgroundColor: '#cce5ff',
-                    color: '#004085',
-                    padding: '12px',
-                    borderRadius: '6px',
-                    marginTop: '15px',
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px'
-                  }}>
-                    <span style={{ fontSize: '18px' }}></span>
+                  <div
+                    style={{
+                      backgroundColor: "#cce5ff",
+                      color: "#004085",
+                      padding: "12px",
+                      borderRadius: "6px",
+                      marginTop: "15px",
+                      fontSize: "14px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <span style={{ fontSize: "18px" }}></span>
                     <span>Карта зала загружена</span>
                   </div>
                 )}
-                
+
                 {imageError && (
-                  <div style={{
-                    backgroundColor: '#f8d7da',
-                    color: '#721c24',
-                    padding: '12px',
-                    borderRadius: '6px',
-                    marginTop: '15px',
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px'
-                  }}>
-                    <span style={{ fontSize: '18px' }}>❌</span>
+                  <div
+                    style={{
+                      backgroundColor: "#f8d7da",
+                      color: "#721c24",
+                      padding: "12px",
+                      borderRadius: "6px",
+                      marginTop: "15px",
+                      fontSize: "14px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <span style={{ fontSize: "18px" }}>❌</span>
                     <span>Ошибка загрузки изображения</span>
                   </div>
                 )}
               </div>
-              
+
               {/* Информация о карте */}
               {hallMapId && (
-                <div style={{
-                  backgroundColor: '#fff3cd',
-                  color: '#856404',
-                  padding: '12px',
-                  borderRadius: '6px',
-                  marginTop: '10px',
-                  fontSize: '13px',
-                  border: '1px solid #ffeaa7'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
-               
+                <div
+                  style={{
+                    backgroundColor: "#fff3cd",
+                    color: "#856404",
+                    padding: "12px",
+                    borderRadius: "6px",
+                    marginTop: "10px",
+                    fontSize: "13px",
+                    border: "1px solid #ffeaa7",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      marginBottom: "5px",
+                    }}
+                  >
                     <strong>Информация</strong>
                   </div>
-                  <div style={{ fontSize: '12px', opacity: 0.9 }}>
-                    ID карты: <code>{hallMapId}</code><br />
+                  <div style={{ fontSize: "12px", opacity: 0.9 }}>
+                    ID карты: <code>{hallMapId}</code>
+                    <br />
                     {hallMap?.name && `Название: ${hallMap.name}`}
                   </div>
                 </div>
               )}
             </div>
-             {/* СЕКЦИЯ ДОБАВЛЕНИЯ СТЕНДОВ */}
-             <div style={{ 
-              backgroundColor: '#f8f9fa', 
-              padding: '20px', 
-              borderRadius: '10px',
-              marginBottom: '20px',
-              border: isDrawing ? '2px solid #28a745' : '2px solid #dee2e6'
-            }}>
-              <h4 style={{ marginTop: 0, color: '#495057', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ 
-                  width: '30px', 
-                  height: '30px', 
-                  background: '#28a745', 
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '16px'
-                }}>2</span>
+            {/* СЕКЦИЯ ДОБАВЛЕНИЯ СТЕНДОВ */}
+            <div
+              style={{
+                backgroundColor: "#f8f9fa",
+                padding: "20px",
+                borderRadius: "10px",
+                marginBottom: "20px",
+                border: isDrawing ? "2px solid #28a745" : "2px solid #dee2e6",
+              }}
+            >
+              <h4
+                style={{
+                  marginTop: 0,
+                  color: "#495057",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                <span
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    background: "#28a745",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "white",
+                    fontSize: "16px",
+                  }}
+                >
+                  2
+                </span>
                 Добавление стендов
               </h4>
-              
-              <div style={{ marginBottom: '15px' }}>
+
+              <div style={{ marginBottom: "15px" }}>
                 <button
                   onClick={handleToggleDrawing}
                   style={{
-                    width: '100%',
-                    padding: '15px',
-                    background: isDrawing 
-                      ? 'linear-gradient(135deg, #dc3545, #c82333)' 
-                      : 'linear-gradient(135deg, #28a745, #218838)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    fontSize: '16px',
-                    transition: 'all 0.2s'
+                    width: "100%",
+                    padding: "15px",
+                    background: isDrawing
+                      ? "linear-gradient(135deg, #dc3545, #c82333)"
+                      : "linear-gradient(135deg, #28a745, #218838)",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                    fontSize: "16px",
+                    transition: "all 0.2s",
                   }}
                 >
-                  {isDrawing ? '❌ Отменить добавление' : '➕ Добавить стенд'}
+                  {isDrawing ? "❌ Отменить добавление" : "➕ Добавить стенд"}
                 </button>
-                
-                <div style={{ 
-                  backgroundColor: isDrawing ? '#d4edda' : '#fff3cd',
-                  color: isDrawing ? '#155724' : '#856404',
-                  padding: '15px',
-                  borderRadius: '8px',
-                  marginTop: '15px',
-                  fontSize: '14px',
-                  border: `2px solid ${isDrawing ? '#c3e6cb' : '#ffeaa7'}`
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    
-                    <strong>{isDrawing ? 'Режим добавления активен' : 'Инструкция'}</strong>
+
+                <div
+                  style={{
+                    backgroundColor: isDrawing ? "#d4edda" : "#fff3cd",
+                    color: isDrawing ? "#155724" : "#856404",
+                    padding: "15px",
+                    borderRadius: "8px",
+                    marginTop: "15px",
+                    fontSize: "14px",
+                    border: `2px solid ${isDrawing ? "#c3e6cb" : "#ffeaa7"}`,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <strong>
+                      {isDrawing ? "Режим добавления активен" : "Инструкция"}
+                    </strong>
                   </div>
                   <p style={{ margin: 0 }}>
-                    {isDrawing 
-                      ? 'Кликните на карте справа в нужном месте, чтобы разместить стенд'
-                      : 'Нажмите кнопку выше, чтобы включить режим добавления стендов'}
+                    {isDrawing
+                      ? "Кликните на карте справа в нужном месте, чтобы разместить стенд"
+                      : "Нажмите кнопку выше, чтобы включить режим добавления стендов"}
                   </p>
                 </div>
 
                 {/* ВИЗУАЛЬНЫЙ ИНДИКАТОР РЕЖИМА */}
                 {isDrawing && (
-                  <div style={{
-                    backgroundColor: '#d1ecf1',
-                    border: '2px solid #bee5eb',
-                    color: '#0c5460',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    marginTop: '15px',
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px'
-                  }}>
-                    <div style={{
-                      width: '20px',
-                      height: '20px',
-                      background: '#17a2b8',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontSize: '12px'
-                    }}>🎯</div>
+                  <div
+                    style={{
+                      backgroundColor: "#d1ecf1",
+                      border: "2px solid #bee5eb",
+                      color: "#0c5460",
+                      padding: "12px",
+                      borderRadius: "8px",
+                      marginTop: "15px",
+                      fontSize: "14px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "20px",
+                        height: "20px",
+                        background: "#17a2b8",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        fontSize: "12px",
+                      }}
+                    >
+                      🎯
+                    </div>
                     <div>
                       <strong>Режим добавления активен</strong>
-                      <div style={{ fontSize: '12px', marginTop: '4px', opacity: 0.8 }}>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          marginTop: "4px",
+                          opacity: 0.8,
+                        }}
+                      >
                         Кликните на карте, чтобы разместить стенд
                       </div>
                     </div>
                   </div>
                 )}
               </div>
-              
+
               {/* ФОРМА ДОБАВЛЕНИЯ СТЕНДА */}
               {showStandForm && (
-                <div style={{
-                  backgroundColor: 'white',
-                  padding: '20px',
-                  borderRadius: '10px',
-                  border: '2px solid #007bff',
-                  marginTop: '15px',
-                  boxShadow: '0 4px 15px rgba(0,123,255,0.15)'
-                }}>
-                  <h5 style={{ marginTop: 0, color: '#007bff', fontSize: '18px' }}>
+                <div
+                  style={{
+                    backgroundColor: "white",
+                    padding: "20px",
+                    borderRadius: "10px",
+                    border: "2px solid #007bff",
+                    marginTop: "15px",
+                    boxShadow: "0 4px 15px rgba(0,123,255,0.15)",
+                  }}
+                >
+                  <h5
+                    style={{ marginTop: 0, color: "#007bff", fontSize: "18px" }}
+                  >
                     📝 Новый стенд
                   </h5>
-                  
-                  <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>
+
+                  <div style={{ marginBottom: "15px" }}>
+                    <label
+                      style={{
+                        display: "block",
+                        marginBottom: "8px",
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        color: "#495057",
+                      }}
+                    >
                       Номер стенда *
                     </label>
                     <input
                       type="text"
                       placeholder="Например: A1, B2"
                       value={standFormData.standNumber}
-                      onChange={(e) => setStandFormData({...standFormData, standNumber: e.target.value})}
+                      onChange={(e) =>
+                        setStandFormData({
+                          ...standFormData,
+                          standNumber: e.target.value,
+                        })
+                      }
                       style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '2px solid #ced4da',
-                        borderRadius: '6px',
-                        fontSize: '16px',
-                        transition: 'border-color 0.2s'
+                        width: "100%",
+                        padding: "12px",
+                        border: "2px solid #ced4da",
+                        borderRadius: "6px",
+                        fontSize: "16px",
+                        transition: "border-color 0.2s",
                       }}
-                      onFocus={(e) => e.target.style.borderColor = '#007bff'}
-                      onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+                      onFocus={(e) => (e.target.style.borderColor = "#007bff")}
+                      onBlur={(e) => (e.target.style.borderColor = "#ced4da")}
                     />
                   </div>
-                  
-                  <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>
+
+                  <div style={{ marginBottom: "15px" }}>
+                    <label
+                      style={{
+                        display: "block",
+                        marginBottom: "8px",
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        color: "#495057",
+                      }}
+                    >
                       Тип стенда
                     </label>
-                    // Измените options в форме:
-<select
-  value={standFormData.type}
-  onChange={(e) => setStandFormData({...standFormData, type: e.target.value})}
->
-  <option value="WALL">🎨 Стена для живописи</option>
-  <option value="BOOTH">🗿 Будка для скульптур</option>
-  <option value="OPEN_SPACE">📷 Открытое пространство</option>
-</select>
+
+                    <select
+                      value={standFormData.type}
+                      onChange={(e) =>
+                        setStandFormData({
+                          ...standFormData,
+                          type: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="WALL">🎨 Стена для живописи</option>
+                      <option value="BOOTH">🗿 Будка для скульптур</option>
+                      <option value="OPEN_SPACE">
+                        📷 Открытое пространство
+                      </option>
+                    </select>
                   </div>
-                  
-                  <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "15px",
+                      marginBottom: "20px",
+                    }}
+                  >
                     <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>
+                      <label
+                        style={{
+                          display: "block",
+                          marginBottom: "8px",
+                          fontSize: "14px",
+                          fontWeight: "500",
+                          color: "#495057",
+                        }}
+                      >
                         Ширина (см)
                       </label>
                       <input
@@ -1346,21 +1375,36 @@ const handleBack = () => {
                         min="50"
                         max="500"
                         value={standFormData.width}
-                        onChange={(e) => setStandFormData({...standFormData, width: parseInt(e.target.value) || 100})}
+                        onChange={(e) =>
+                          setStandFormData({
+                            ...standFormData,
+                            width: parseInt(e.target.value) || 100,
+                          })
+                        }
                         style={{
-                          width: '100%',
-                          padding: '12px',
-                          border: '2px solid #ced4da',
-                          borderRadius: '6px',
-                          fontSize: '16px',
-                          transition: 'border-color 0.2s'
+                          width: "100%",
+                          padding: "12px",
+                          border: "2px solid #ced4da",
+                          borderRadius: "6px",
+                          fontSize: "16px",
+                          transition: "border-color 0.2s",
                         }}
-                        onFocus={(e) => e.target.style.borderColor = '#007bff'}
-                        onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+                        onFocus={(e) =>
+                          (e.target.style.borderColor = "#007bff")
+                        }
+                        onBlur={(e) => (e.target.style.borderColor = "#ced4da")}
                       />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>
+                      <label
+                        style={{
+                          display: "block",
+                          marginBottom: "8px",
+                          fontSize: "14px",
+                          fontWeight: "500",
+                          color: "#495057",
+                        }}
+                      >
                         Высота (см)
                       </label>
                       <input
@@ -1368,38 +1412,49 @@ const handleBack = () => {
                         min="50"
                         max="500"
                         value={standFormData.height}
-                        onChange={(e) => setStandFormData({...standFormData, height: parseInt(e.target.value) || 100})}
+                        onChange={(e) =>
+                          setStandFormData({
+                            ...standFormData,
+                            height: parseInt(e.target.value) || 100,
+                          })
+                        }
                         style={{
-                          width: '100%',
-                          padding: '12px',
-                          border: '2px solid #ced4da',
-                          borderRadius: '6px',
-                          fontSize: '16px',
-                          transition: 'border-color 0.2s'
+                          width: "100%",
+                          padding: "12px",
+                          border: "2px solid #ced4da",
+                          borderRadius: "6px",
+                          fontSize: "16px",
+                          transition: "border-color 0.2s",
                         }}
-                        onFocus={(e) => e.target.style.borderColor = '#007bff'}
-                        onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+                        onFocus={(e) =>
+                          (e.target.style.borderColor = "#007bff")
+                        }
+                        onBlur={(e) => (e.target.style.borderColor = "#ced4da")}
                       />
                     </div>
                   </div>
-                  
-                  <div style={{ display: 'flex', gap: '15px' }}>
+
+                  <div style={{ display: "flex", gap: "15px" }}>
                     <button
                       onClick={handleSaveStand}
                       style={{
                         flex: 1,
-                        padding: '12px',
-                        background: 'linear-gradient(135deg, #28a745, #218838)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        fontSize: '16px',
-                        transition: 'all 0.2s'
+                        padding: "12px",
+                        background: "linear-gradient(135deg, #28a745, #218838)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                        fontSize: "16px",
+                        transition: "all 0.2s",
                       }}
-                      onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-                      onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                      onMouseOver={(e) =>
+                        (e.target.style.transform = "translateY(-2px)")
+                      }
+                      onMouseOut={(e) =>
+                        (e.target.style.transform = "translateY(0)")
+                      }
                     >
                       ✅ Сохранить стенд
                     </button>
@@ -1411,18 +1466,22 @@ const handleBack = () => {
                       }}
                       style={{
                         flex: 1,
-                        padding: '12px',
-                        background: 'linear-gradient(135deg, #6c757d, #5a6268)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        fontSize: '16px',
-                        transition: 'all 0.2s'
+                        padding: "12px",
+                        background: "linear-gradient(135deg, #6c757d, #5a6268)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                        fontSize: "16px",
+                        transition: "all 0.2s",
                       }}
-                      onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-                      onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                      onMouseOver={(e) =>
+                        (e.target.style.transform = "translateY(-2px)")
+                      }
+                      onMouseOut={(e) =>
+                        (e.target.style.transform = "translateY(0)")
+                      }
                     >
                       ❌ Отмена
                     </button>
@@ -1430,173 +1489,232 @@ const handleBack = () => {
                 </div>
               )}
             </div>
-            
+
             {/* СТАТИСТИКА */}
-            <div style={{ 
-              backgroundColor: '#f8f9fa', 
-              padding: '20px', 
-              borderRadius: '10px',
-              marginBottom: '20px',
-              border: '2px solid #dee2e6'
-            }}>
-              <h4 style={{ marginTop: 0, color: '#495057', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ 
-                  width: '30px', 
-                  height: '30px', 
-                  background: '#6f42c1', 
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '16px'
-                }}>3</span>
+            <div
+              style={{
+                backgroundColor: "#f8f9fa",
+                padding: "20px",
+                borderRadius: "10px",
+                marginBottom: "20px",
+                border: "2px solid #dee2e6",
+              }}
+            >
+              <h4
+                style={{
+                  marginTop: 0,
+                  color: "#495057",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                <span
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    background: "#6f42c1",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "white",
+                    fontSize: "16px",
+                  }}
+                >
+                  3
+                </span>
                 Статистика выставки
               </h4>
-              
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '1fr 1fr', 
-                gap: '15px',
-                marginBottom: '20px'
-              }}>
-                <div style={{ 
-                  background: 'linear-gradient(135deg, #343a40, #212529)', 
-                  padding: '15px', 
-                  borderRadius: '8px',
-                  textAlign: 'center',
-                  color: 'white'
-                }}>
-                  <div style={{ fontSize: '28px', fontWeight: 'bold' }}>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "15px",
+                  marginBottom: "20px",
+                }}
+              >
+                <div
+                  style={{
+                    background: "linear-gradient(135deg, #343a40, #212529)",
+                    padding: "15px",
+                    borderRadius: "8px",
+                    textAlign: "center",
+                    color: "white",
+                  }}
+                >
+                  <div style={{ fontSize: "28px", fontWeight: "bold" }}>
                     {stats.total}
                   </div>
-                  <div style={{ fontSize: '12px', opacity: 0.9 }}>
+                  <div style={{ fontSize: "12px", opacity: 0.9 }}>
                     Всего стендов
                   </div>
                 </div>
-                <div style={{ 
-                  background: 'linear-gradient(135deg, #28a745, #218838)', 
-                  padding: '15px', 
-                  borderRadius: '8px',
-                  textAlign: 'center',
-                  color: 'white'
-                }}>
-                  <div style={{ fontSize: '28px', fontWeight: 'bold' }}>
+                <div
+                  style={{
+                    background: "linear-gradient(135deg, #28a745, #218838)",
+                    padding: "15px",
+                    borderRadius: "8px",
+                    textAlign: "center",
+                    color: "white",
+                  }}
+                >
+                  <div style={{ fontSize: "28px", fontWeight: "bold" }}>
                     {stats.available}
                   </div>
-                  <div style={{ fontSize: '12px', opacity: 0.9 }}>
-                    Свободно
-                  </div>
+                  <div style={{ fontSize: "12px", opacity: 0.9 }}>Свободно</div>
                 </div>
-                <div style={{ 
-                  background: 'linear-gradient(135deg, #dc3545, #c82333)', 
-                  padding: '15px', 
-                  borderRadius: '8px',
-                  textAlign: 'center',
-                  color: 'white'
-                }}>
-                  <div style={{ fontSize: '28px', fontWeight: 'bold' }}>
+                <div
+                  style={{
+                    background: "linear-gradient(135deg, #dc3545, #c82333)",
+                    padding: "15px",
+                    borderRadius: "8px",
+                    textAlign: "center",
+                    color: "white",
+                  }}
+                >
+                  <div style={{ fontSize: "28px", fontWeight: "bold" }}>
                     {stats.booked}
                   </div>
-                  <div style={{ fontSize: '12px', opacity: 0.9 }}>
-                    Занято
+                  <div style={{ fontSize: "12px", opacity: 0.9 }}>Занято</div>
+                </div>
+                <div
+                  style={{
+                    background: "linear-gradient(135deg, #ff9800, #f57c00)",
+                    padding: "15px",
+                    borderRadius: "8px",
+                    textAlign: "center",
+                    color: "white",
+                  }}
+                >
+                  <div style={{ fontSize: "28px", fontWeight: "bold" }}>
+                    {stats.pending}
+                  </div>
+                  <div style={{ fontSize: "12px", opacity: 0.9 }}>
+                    В ожидании
                   </div>
                 </div>
-                
               </div>
             </div>
           </>
         ) : (
           /* ИНТЕРФЕЙС ХУДОЖНИКА */
           <>
-            <div style={{ 
-              backgroundColor: '#f8f9fa', 
-              padding: '20px', 
-              borderRadius: '10px',
-              marginBottom: '20px',
-              border: '2px solid #dee2e6'
-            }}>
-              <h4 style={{ marginTop: 0, color: '#495057' }}>
+            <div
+              style={{
+                backgroundColor: "#f8f9fa",
+                padding: "20px",
+                borderRadius: "10px",
+                marginBottom: "20px",
+                border: "2px solid #dee2e6",
+              }}
+            >
+              <h4 style={{ marginTop: 0, color: "#495057" }}>
                 🎨 Выбор стенда
               </h4>
-              
+
               {selectedStand ? (
                 <>
-                  <div style={{ 
-                    background: 'linear-gradient(135deg, #007bff, #0056b3)', 
-                    padding: '20px', 
-                    borderRadius: '10px',
-                    marginBottom: '20px',
-                    color: 'white'
-                  }}>
-                    <h5 style={{ marginTop: 0, fontSize: '20px' }}>
+                  <div
+                    style={{
+                      background: "linear-gradient(135deg, #007bff, #0056b3)",
+                      padding: "20px",
+                      borderRadius: "10px",
+                      marginBottom: "20px",
+                      color: "white",
+                    }}
+                  >
+                    <h5 style={{ marginTop: 0, fontSize: "20px" }}>
                       Стенд {selectedStand.standNumber}
                     </h5>
-                    <p style={{ margin: '10px 0', opacity: 0.9 }}>
+                    <p style={{ margin: "10px 0", opacity: 0.9 }}>
                       <strong>Тип:</strong> {getTypeText(selectedStand.type)}
                     </p>
-                    <p style={{ margin: '10px 0', opacity: 0.9 }}>
-                      <strong>Размер:</strong> {selectedStand.width}×{selectedStand.height} см
+                    <p style={{ margin: "10px 0", opacity: 0.9 }}>
+                      <strong>Размер:</strong> {selectedStand.width}×
+                      {selectedStand.height} см
                     </p>
-                    <p style={{ margin: '10px 0' }}>
-                      <strong>Статус:</strong> 
-                      <span style={{ 
-                        color: selectedStand.status === 'BOOKED' ? '#ffcccb' : '#90ee90',
-                        fontWeight: 'bold',
-                        marginLeft: '5px'
-                      }}>
-                        {selectedStand.status === 'BOOKED' ? 'Занят' : 'Свободен'}
+                    <p style={{ margin: "10px 0" }}>
+                      <strong>Статус:</strong>
+                      <span
+                        style={{
+                          color:
+                            selectedStand.status === "BOOKED"
+                              ? "#ffcccb"
+                              : "#90ee90",
+                          fontWeight: "bold",
+                          marginLeft: "5px",
+                        }}
+                      >
+                        {selectedStand.status === "BOOKED"
+                          ? "Занят"
+                          : "Свободен"}
                       </span>
                     </p>
                   </div>
-                  
-                  {selectedStand.status !== 'BOOKED' ? (
+
+                  {selectedStand.status !== "BOOKED" ? (
                     <button
                       onClick={handleBookStand}
                       style={{
-                        width: '100%',
-                        padding: '15px',
-                        background: 'linear-gradient(135deg, #28a745, #218838)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        fontSize: '18px',
-                        transition: 'all 0.2s'
+                        width: "100%",
+                        padding: "15px",
+                        background: "linear-gradient(135deg, #28a745, #218838)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                        fontSize: "18px",
+                        transition: "all 0.2s",
                       }}
-                      onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-                      onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                      onMouseOver={(e) =>
+                        (e.target.style.transform = "translateY(-2px)")
+                      }
+                      onMouseOut={(e) =>
+                        (e.target.style.transform = "translateY(0)")
+                      }
                     >
                       📝 Забронировать этот стенд
                     </button>
                   ) : (
-                    <div style={{
-                      background: 'linear-gradient(135deg, #dc3545, #c82333)',
-                      color: 'white',
-                      padding: '15px',
-                      borderRadius: '8px',
-                      textAlign: 'center',
-                      marginBottom: '15px'
-                    }}>
-                      <div style={{ fontSize: '24px', marginBottom: '10px' }}>⚠️</div>
-                      <div style={{ fontWeight: '600' }}>Этот стенд уже забронирован</div>
+                    <div
+                      style={{
+                        background: "linear-gradient(135deg, #dc3545, #c82333)",
+                        color: "white",
+                        padding: "15px",
+                        borderRadius: "8px",
+                        textAlign: "center",
+                        marginBottom: "15px",
+                      }}
+                    >
+                      <div style={{ fontSize: "24px", marginBottom: "10px" }}>
+                        ⚠️
+                      </div>
+                      <div style={{ fontWeight: "600" }}>
+                        Этот стенд уже забронирован
+                      </div>
                     </div>
                   )}
                 </>
               ) : (
-                <div style={{ 
-                  background: 'linear-gradient(135deg, #6c757d, #5a6268)', 
-                  padding: '30px 20px', 
-                  borderRadius: '10px',
-                  textAlign: 'center',
-                  color: 'white'
-                }}>
-                  <div style={{ fontSize: '48px', marginBottom: '15px' }}>🎯</div>
-                  <h5 style={{ margin: '10px 0', fontSize: '20px' }}>
+                <div
+                  style={{
+                    background: "linear-gradient(135deg, #6c757d, #5a6268)",
+                    padding: "30px 20px",
+                    borderRadius: "10px",
+                    textAlign: "center",
+                    color: "white",
+                  }}
+                >
+                  <div style={{ fontSize: "48px", marginBottom: "15px" }}>
+                    🎯
+                  </div>
+                  <h5 style={{ margin: "10px 0", fontSize: "20px" }}>
                     Выберите стенд на карте
                   </h5>
-                  <p style={{ fontSize: '14px', opacity: 0.8, margin: 0 }}>
+                  <p style={{ fontSize: "14px", opacity: 0.8, margin: 0 }}>
                     Кликните на любой свободный стенд (зелёная точка)
                   </p>
                 </div>
@@ -1605,109 +1723,159 @@ const handleBack = () => {
           </>
         )}
       </div>
-      
+
       {/* ПРАВАЯ ПАНЕЛЬ - КАРТА */}
-      <div style={{
-        flex: 1,
-        position: 'relative',
-        backgroundColor: '#ffffff',
-        borderRadius: '12px',
-        marginTop: '60px',
-        overflow: 'hidden',
-        boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
-        border: '15px solid #ffffff',
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
+      <div
+        style={{
+          flex: 1,
+          position: "relative",
+          backgroundColor: "#ffffff",
+          borderRadius: "12px",
+          marginTop: "60px",
+          overflow: "hidden",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+          border: "15px solid #ffffff",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         {/* ЗАГОЛОВОК КАРТЫ */}
-        <div style={{
-          padding: '15px 20px',
-          backgroundColor: '#f8f9fa',
-          borderBottom: '2px solid #dee2e6',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
+        <div
+          style={{
+            padding: "15px 20px",
+            backgroundColor: "#f8f9fa",
+            borderBottom: "2px solid #dee2e6",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <div>
-            <h3 style={{ margin: 0, color: '#343a40', display: 'flex', alignItems: 'center', gap: '10px' }}>
-             
+            <h3
+              style={{
+                margin: 0,
+                color: "#343a40",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
               Карта выставки
             </h3>
-            <p style={{ margin: '5px 0 0 0', color: '#6c757d', fontSize: '14px' }}>
-              {mapImage ? 'Используйте колесико мыши для масштабирования' : 'Загрузите план зала для начала работы'}
+            <p
+              style={{
+                margin: "5px 0 0 0",
+                color: "#6c757d",
+                fontSize: "14px",
+              }}
+            >
+              {mapImage
+                ? "Используйте колесико мыши для масштабирования"
+                : "Загрузите план зала для начала работы"}
             </p>
           </div>
-          
-          <div style={{
-            backgroundColor: mode === 'owner' ? '#007bff' : '#28a745',
-            color: 'white',
-            padding: '8px 16px',
-            borderRadius: '20px',
-            fontSize: '14px',
-            fontWeight: '600',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            {mode === 'owner' ? 'Владелец галереи' : 'Художник'}
+
+          <div
+            style={{
+              backgroundColor: mode === "owner" ? "#007bff" : "#28a745",
+              color: "white",
+              padding: "8px 16px",
+              borderRadius: "20px",
+              fontSize: "14px",
+              fontWeight: "600",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            {mode === "owner" ? "Владелец галереи" : "Художник"}
           </div>
         </div>
-        
+
         {/* ОБЛАСТЬ КАРТЫ */}
-        <div 
-          ref={mapRef} 
+        <div
+          ref={mapRef}
           style={{
             flex: 1,
-            width: '100%',
-            backgroundColor: '#f8f9fa'
+            width: "100%",
+            backgroundColor: "#f8f9fa",
           }}
         />
-        
+
         {/* ПАНЕЛЬ ИНФОРМАЦИИ */}
-        <div style={{
-          padding: '15px 20px',
-          backgroundColor: '#f8f9fa',
-          borderTop: '2px solid #dee2e6',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontSize: '14px',
-          color: '#495057'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          
-<div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-    <div style={{ width: '12px', height: '12px', backgroundColor: '#28a745', borderRadius: '50%' }}></div>
-    <span>Свободно ({stats.available})</span>
-  </div>
-  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-    <div style={{ width: '12px', height: '12px', backgroundColor: '#ff9800', borderRadius: '50%' }}></div>
-    <span>Ожидает ({stats.pending})</span>
-  </div>
-  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-    <div style={{ width: '12px', height: '12px', backgroundColor: '#dc3545', borderRadius: '50%' }}></div>
-    <span>Забронировано ({stats.booked})</span>
-  </div>
-</div>
-          
-          </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ opacity: 0.7 }}>Масштаб:</span>
-              <span style={{ fontWeight: '600' }}>{mapScale.toFixed(1)}x</span>
+        <div
+          style={{
+            padding: "15px 20px",
+            backgroundColor: "#f8f9fa",
+            borderTop: "2px solid #dee2e6",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontSize: "14px",
+            color: "#495057",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <div
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    backgroundColor: "#28a745",
+                    borderRadius: "50%",
+                  }}
+                ></div>
+                <span>Свободно ({stats.available})</span>
+              </div>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <div
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    backgroundColor: "#ff9800",
+                    borderRadius: "50%",
+                  }}
+                ></div>
+                <span>Ожидает ({stats.pending})</span>
+              </div>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <div
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    backgroundColor: "#dc3545",
+                    borderRadius: "50%",
+                  }}
+                ></div>
+                <span>Забронировано ({stats.booked})</span>
+              </div>
             </div>
-            <div style={{ 
-              padding: '6px 12px', 
-              backgroundColor: 'white', 
-              borderRadius: '6px',
-              border: '1px solid #dee2e6',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ opacity: 0.7 }}>Масштаб:</span>
+              <span style={{ fontWeight: "600" }}>{mapScale.toFixed(1)}x</span>
+            </div>
+            <div
+              style={{
+                padding: "6px 12px",
+                backgroundColor: "white",
+                borderRadius: "6px",
+                border: "1px solid #dee2e6",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
               <span>🔍</span>
               <span>Колесико мыши</span>
             </div>
