@@ -99,7 +99,6 @@ const AddGalleryModal = ({
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Валидация
         if (!galleryData.name.trim()) {
             setError('Название галереи обязательно');
             return;
@@ -113,7 +112,6 @@ const AddGalleryModal = ({
             return;
         }
 
-        // Валидация email
         const emailRegex = /\S+@\S+\.\S+/;
         if (!emailRegex.test(galleryData.contactEmail)) {
             setError('Введите корректный email адрес');
@@ -157,13 +155,11 @@ const AddGalleryModal = ({
                     method: method,
                     headers: {
                         'Authorization': `Bearer ${token}`,
-                        // НЕ УКАЗЫВАЕМ Content-Type для FormData - браузер сам установит правильный заголовок
                     },
                     body: formData
                 });
 
                 const data = await response.json();
-                console.log('Response data with file:', data);
 
                 if (response.ok) {
                     const message = isEditMode
@@ -188,7 +184,6 @@ const AddGalleryModal = ({
                 });
 
                 const data = await response.json();
-                console.log('Response data without file:', data);
 
                 if (response.ok) {
                     const message = isEditMode
@@ -216,26 +211,28 @@ const AddGalleryModal = ({
     const submitButtonText = isEditMode ? 'Сохранить изменения' : 'Создать галерею';
 
     return (
-        <div className="modal-overlay">
-            <div className="modal-content gallery-modal">
-                <div className="modal-header">
-                    <h2>{modalTitle}</h2>
-                    <button className="modal-close" onClick={onClose}>
+        <div className="add-gallery-modal__overlay">
+            <div className="add-gallery-modal__content">
+                <div className="add-gallery-modal__header">
+                    <h2 className="add-gallery-modal__title">{modalTitle}</h2>
+                    <button className="add-gallery-modal__close" onClick={onClose}>
                         <i className="fas fa-times"></i>
                     </button>
                 </div>
 
-                <div className="modal-body">
+                <div className="add-gallery-modal__body">
                     {error && (
-                        <div className="error-message">
+                        <div className="add-gallery-modal__error-message">
                             <i className="fas fa-exclamation-circle"></i>
                             {error}
                         </div>
                     )}
 
-                    <form className="gallery-form">
-                        <div className="form-group">
-                            <label htmlFor="name">Название галереи *</label>
+                    <form className="add-gallery-form">
+                        <div className="add-gallery-form__group">
+                            <label htmlFor="name" className="add-gallery-form__label">
+                                Название галереи *
+                            </label>
                             <input
                                 type="text"
                                 id="name"
@@ -243,12 +240,15 @@ const AddGalleryModal = ({
                                 value={galleryData.name}
                                 onChange={handleInputChange}
                                 placeholder="Введите название галереи"
+                                className="add-gallery-form__input"
                                 required
                             />
                         </div>
 
-                        <div className="form-group">
-                            <label htmlFor="description">Описание</label>
+                        <div className="add-gallery-form__group">
+                            <label htmlFor="description" className="add-gallery-form__label">
+                                Описание
+                            </label>
                             <textarea
                                 id="description"
                                 name="description"
@@ -256,11 +256,14 @@ const AddGalleryModal = ({
                                 onChange={handleInputChange}
                                 placeholder="Опишите вашу галерею"
                                 rows="3"
+                                className="add-gallery-form__textarea"
                             />
                         </div>
 
-                        <div className="form-group">
-                            <label htmlFor="address">Адрес *</label>
+                        <div className="add-gallery-form__group">
+                            <label htmlFor="address" className="add-gallery-form__label">
+                                Адрес *
+                            </label>
                             <input
                                 type="text"
                                 id="address"
@@ -268,13 +271,16 @@ const AddGalleryModal = ({
                                 value={galleryData.address}
                                 onChange={handleInputChange}
                                 placeholder="Полный адрес галереи"
+                                className="add-gallery-form__input"
                                 required
                             />
                         </div>
 
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label htmlFor="contactPhone">Телефон</label>
+                        <div className="add-gallery-form__row">
+                            <div className="add-gallery-form__group">
+                                <label htmlFor="contactPhone" className="add-gallery-form__label">
+                                    Телефон
+                                </label>
                                 <input
                                     type="tel"
                                     id="contactPhone"
@@ -282,11 +288,14 @@ const AddGalleryModal = ({
                                     value={galleryData.contactPhone}
                                     onChange={handleInputChange}
                                     placeholder="+7 (XXX) XXX-XX-XX"
+                                    className="add-gallery-form__input"
                                 />
                             </div>
 
-                            <div className="form-group">
-                                <label htmlFor="contactEmail">Email *</label>
+                            <div className="add-gallery-form__group">
+                                <label htmlFor="contactEmail" className="add-gallery-form__label">
+                                    Email *
+                                </label>
                                 <input
                                     type="email"
                                     id="contactEmail"
@@ -294,35 +303,38 @@ const AddGalleryModal = ({
                                     value={galleryData.contactEmail}
                                     onChange={handleInputChange}
                                     placeholder="email@example.com"
+                                    className="add-gallery-form__input"
                                     required
                                 />
                             </div>
                         </div>
 
-                        <div className="form-group">
-                            <label>Логотип галереи</label>
-                            <div className="logo-upload-container">
+                        <div className="add-gallery-form__group">
+                            <label className="add-gallery-form__label">
+                                Логотип галереи
+                            </label>
+                            <div className="add-gallery-logo-upload">
                                 <input
                                     type="file"
                                     accept="image/*"
                                     onChange={handleLogoChange}
-                                    className="file-input"
+                                    className="add-gallery-logo-upload__input"
                                     ref={logoInputRef}
                                     style={{ display: 'none' }}
                                     id="gallery-logo-upload"
                                 />
 
-                                <div className="logo-preview-area">
+                                <div className="add-gallery-logo-upload__preview-area">
                                     {logoPreview ? (
-                                        <div className="logo-preview">
+                                        <div className="add-gallery-logo-upload__preview">
                                             <img
                                                 src={logoPreview}
                                                 alt="Превью логотипа"
-                                                className="logo-preview-image"
+                                                className="add-gallery-logo-upload__preview-image"
                                             />
                                             <button
                                                 type="button"
-                                                className="remove-logo-btn"
+                                                className="add-gallery-logo-upload__remove-btn"
                                                 onClick={removeLogo}
                                                 title="Удалить логотип"
                                             >
@@ -330,7 +342,7 @@ const AddGalleryModal = ({
                                             </button>
                                         </div>
                                     ) : (
-                                        <div className="logo-upload-placeholder">
+                                        <div className="add-gallery-logo-upload__placeholder">
                                             <i className="fas fa-image"></i>
                                             <span>Загрузите логотип галереи</span>
                                             <small>Рекомендуемый размер: 200x200px</small>
@@ -338,7 +350,7 @@ const AddGalleryModal = ({
                                     )}
                                 </div>
 
-                                <div className="logo-upload-controls">
+                                <div className="add-gallery-logo-upload__controls">
                                     <button
                                         type="button"
                                         className="btn btn-outline btn-sm"
@@ -348,8 +360,13 @@ const AddGalleryModal = ({
                                         {logoPreview ? 'Изменить логотип' : 'Выбрать файл'}
                                     </button>
 
-                                    <div className="logo-url-input">
-                                        <label htmlFor="logoUrl">Или укажите ссылку:</label>
+                                    <div className="add-gallery-logo-upload__url-input">
+                                        <label
+                                            htmlFor="logoUrl"
+                                            className="add-gallery-logo-upload__url-label"
+                                        >
+                                            Или укажите ссылку:
+                                        </label>
                                         <input
                                             type="url"
                                             id="logoUrl"
@@ -357,19 +374,20 @@ const AddGalleryModal = ({
                                             value={galleryData.logoUrl}
                                             onChange={handleInputChange}
                                             placeholder="https://example.com/logo.png"
+                                            className="add-gallery-logo-upload__url-input-field"
                                             disabled={!!logoPreview}
                                         />
                                     </div>
                                 </div>
 
                                 {logoUploadError && (
-                                    <div className="logo-error-message">
+                                    <div className="add-gallery-logo-upload__error">
                                         <i className="fas fa-exclamation-triangle"></i>
                                         {logoUploadError}
                                     </div>
                                 )}
 
-                                <div className="logo-upload-hint">
+                                <div className="add-gallery-logo-upload__hint">
                                     <small>
                                         <i className="fas fa-info-circle"></i>
                                         Вы можете загрузить файл (макс. 10MB) или указать ссылку на изображение
@@ -380,7 +398,7 @@ const AddGalleryModal = ({
                     </form>
                 </div>
 
-                <div className="modal-footer">
+                <div className="add-gallery-modal__footer">
                     <button
                         type="button"
                         className="btn btn-outline"
@@ -397,7 +415,7 @@ const AddGalleryModal = ({
                     >
                         {loading ? (
                             <>
-                                <span className="spinner-small"></span>
+                                <span className="add-gallery-modal__spinner"></span>
                                 {isEditMode ? 'Сохранение...' : 'Создание...'}
                             </>
                         ) : submitButtonText}

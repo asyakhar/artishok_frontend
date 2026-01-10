@@ -114,6 +114,7 @@ const GalleryOwnerDashboard = () => {
       setLoading(prev => ({ ...prev, bookings: false }));
     }
   };
+
   const handleCreateGallery = async (galleryData) => {
     try {
       const token = sessionStorage.getItem('authToken');
@@ -130,7 +131,6 @@ const GalleryOwnerDashboard = () => {
 
       if (response.ok && data.success) {
         alert('Галерея создана и отправлена на модерацию!');
-        // Обновляем список галерей
         fetchOwnerGalleries(token);
         return { success: true, gallery: data.gallery };
       } else {
@@ -141,11 +141,13 @@ const GalleryOwnerDashboard = () => {
       return { success: false, error: error.message };
     }
   };
+
   const handleGallerySelect = (gallery) => {
     setSelectedGallery(gallery);
     const token = sessionStorage.getItem('authToken');
     fetchGalleryExhibitions(gallery.id, token);
   };
+
   const handleEditGallery = (gallery) => {
     setEditingGallery(gallery);
     setShowEditGalleryModal(true);
@@ -190,6 +192,7 @@ const GalleryOwnerDashboard = () => {
     setShowEditGalleryModal(false);
     setEditingGallery(null);
   };
+
   const handleViewBookings = (exhibition) => {
     setSelectedExhibition(exhibition);
     const token = sessionStorage.getItem('authToken');
@@ -213,7 +216,6 @@ const GalleryOwnerDashboard = () => {
 
       if (response.ok) {
         alert('Бронирование подтверждено!');
-        // Обновляем список бронирований
         if (selectedExhibition) {
           fetchExhibitionBookings(selectedExhibition.id, token);
         }
@@ -244,7 +246,6 @@ const GalleryOwnerDashboard = () => {
 
       if (response.ok) {
         alert('Бронирование отклонено!');
-        // Обновляем список бронирований
         if (selectedExhibition) {
           fetchExhibitionBookings(selectedExhibition.id, token);
         }
@@ -284,61 +285,68 @@ const GalleryOwnerDashboard = () => {
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case 'ACTIVE': return 'status-badge active';
-      case 'APPROVED': return 'status-badge approved';
-      case 'PENDING': return 'status-badge pending';
-      case 'DRAFT': return 'status-badge draft';
-      case 'CONFIRMED': return 'status-badge confirmed';
-      case 'CANCELLED': return 'status-badge cancelled';
-      default: return 'status-badge';
+      case 'ACTIVE': return 'owner-status-badge owner-status-active';
+      case 'APPROVED': return 'owner-status-badge owner-status-approved';
+      case 'PENDING': return 'owner-status-badge owner-status-pending';
+      case 'DRAFT': return 'owner-status-badge owner-status-draft';
+      case 'CONFIRMED': return 'owner-status-badge owner-status-confirmed';
+      case 'CANCELLED': return 'owner-status-badge owner-status-cancelled';
+      default: return 'owner-status-badge';
     }
   };
 
   if (loading.profile) {
     return (
-      <div className="dashboard-loading">
-        <div className="spinner"></div>
+      <div className="owner-dashboard-loading">
+        <div className="owner-spinner"></div>
         <p>Загрузка кабинета владельца...</p>
       </div>
     );
   }
 
   return (
-    <div className="gallery-owner-dashboard">
+    <div className="owner-dashboard">
       {/* Шапка профиля */}
-      <div className="dashboard-header">
-        <div className="profile-card">
-          <div className="profile-avatar">
+      <div className="owner-dashboard-header">
+        <div className="owner-profile-card">
+          <div className="owner-profile-avatar">
             {userData?.avatarUrl ? (
-              <img src={userData.avatarUrl} alt="Аватар" className="avatar-image" />
+              <img src={userData.avatarUrl} alt="Аватар" className="owner-avatar-image" />
             ) : (
-              <div className="avatar-placeholder">
+              <div className="owner-avatar-placeholder">
                 <i className="fas fa-building"></i>
               </div>
             )}
           </div>
-          <div className="profile-info">
-            <h1 className="profile-name">{userData?.fullName || 'Владелец галереи'}</h1>
-            <div className="profile-details">
-              <div className="detail-item">
+          <div className="owner-profile-info">
+            <h1 className="owner-profile-name">{userData?.fullName || 'Владелец галереи'}</h1>
+            <div className="owner-profile-details">
+              <div className="owner-detail-item">
                 <i className="fas fa-envelope"></i>
                 <span>{userData?.email || 'Email не указан'}</span>
               </div>
-              <div className="detail-item">
+              <div className="owner-detail-item">
+                <i className="fas fa-phone"></i>
+                <span>{userData?.phoneNumber || 'Телефон не указан'}</span>
+              </div>
+              <div className="owner-detail-item">
                 <i className="fas fa-user-tag"></i>
-                <span className="role-badge owner">Владелец галереи</span>
+                <span className="owner-role-badge owner-role-owner">Владелец галереи</span>
               </div>
             </div>
+            <p className="owner-profile-bio">
+              {userData?.bio || 'Описание профиля пока не добавлено'}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Выбор галереи */}
-      <div className="galleries-section">
-        <div className="section-header">
-          <h2><i className="fas fa-store"></i> Мои галереи</h2>
+      <div className="owner-dashboard-content">
+        <div className="owner-section-header">
+          <h2>Мои галереи</h2>
           <button
-            className="btn btn-primary"
+            className="owner-btn owner-btn-primary"
             onClick={() => setShowAddGalleryModal(true)}
           >
             <i className="fas fa-plus"></i> Новая галерея
@@ -346,25 +354,28 @@ const GalleryOwnerDashboard = () => {
         </div>
 
         {loading.galleries ? (
-          <div className="loading-placeholder">Загрузка галерей...</div>
+          <div className="owner-loading-placeholder">
+            <div className="owner-spinner"></div>
+            <p>Загрузка галерей...</p>
+          </div>
         ) : galleries.length === 0 ? (
-          <div className="empty-state">
+          <div className="owner-empty-state">
             <i className="fas fa-store-alt-slash"></i>
             <p>У вас пока нет галерей</p>
             <button
-              className="btn btn-primary" // Измените с btn-outline на btn-primary
-              onClick={() => setShowAddGalleryModal(true)} // Измените обработчик
+              className="owner-btn owner-btn-primary"
+              onClick={() => setShowAddGalleryModal(true)}
             >
               Создать первую галерею
             </button>
           </div>
         ) : (
-          <div className="gallery-selector">
-            <div className="gallery-selector-header">
+          <div className="owner-gallery-selector">
+            <div className="owner-gallery-selector-header">
               <label htmlFor="gallery-select">Выберите галерею:</label>
               {selectedGallery && (
                 <button
-                  className="btn btn-outline btn-sm"
+                  className="owner-btn owner-btn-outline owner-btn-sm"
                   onClick={() => handleEditGallery(selectedGallery)}
                   title="Редактировать галерею"
                 >
@@ -375,7 +386,7 @@ const GalleryOwnerDashboard = () => {
 
             <select
               id="gallery-select"
-              className="gallery-dropdown"
+              className="owner-gallery-dropdown"
               value={selectedGallery?.id || ''}
               onChange={(e) => {
                 const gallery = galleries.find(g => g.id == e.target.value);
@@ -390,7 +401,7 @@ const GalleryOwnerDashboard = () => {
             </select>
 
             {selectedGallery && (
-              <div className="selected-gallery-info">
+              <div className="owner-selected-gallery-info">
                 <h3>{selectedGallery.name}</h3>
                 <p><i className="fas fa-map-marker-alt"></i> {selectedGallery.address}</p>
                 <p><i className="fas fa-phone"></i> {selectedGallery.contactPhone || 'Телефон не указан'}</p>
@@ -403,11 +414,13 @@ const GalleryOwnerDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Модальные окна для галереи */}
       <AddGalleryModal
         show={showAddGalleryModal}
         onClose={() => setShowAddGalleryModal(false)}
         onSuccess={handleGallerySuccess}
-        isEditMode={false} // Для создания
+        isEditMode={false}
         editData={null}
       />
       <AddGalleryModal
@@ -417,19 +430,17 @@ const GalleryOwnerDashboard = () => {
           setEditingGallery(null);
         }}
         onSuccess={handleGallerySuccess}
-        isEditMode={true} // Для редактирования
+        isEditMode={true}
         editData={editingGallery}
       />
-      {/* Таблица выставок */}
+
+
       {selectedGallery && (
-        <div className="exhibitions-section">
-          <div className="section-header">
-            <h2>
-              <i className="fas fa-calendar-alt"></i>
-              Выставки галереи "{selectedGallery.name}"
-            </h2>
+        <div className="owner-dashboard-content">
+          <div className="owner-section-header">
+            <h2> Выставки галереи "{selectedGallery.name}"</h2>
             <button
-              className="btn btn-primary"
+              className="owner-btn owner-btn-primary"
               onClick={handleCreateExhibition}
               disabled={selectedGallery.status !== 'APPROVED'}
               title={selectedGallery.status !== 'APPROVED' ? 'Галерея должна быть одобрена' : ''}
@@ -439,14 +450,17 @@ const GalleryOwnerDashboard = () => {
           </div>
 
           {loading.exhibitions ? (
-            <div className="loading-placeholder">Загрузка выставок...</div>
+            <div className="owner-loading-placeholder">
+              <div className="owner-spinner"></div>
+              <p>Загрузка выставок...</p>
+            </div>
           ) : exhibitions.length === 0 ? (
-            <div className="empty-state">
+            <div className="owner-empty-state">
               <i className="fas fa-calendar-plus"></i>
               <p>Нет выставок в этой галерее</p>
               {selectedGallery.status === 'APPROVED' && (
                 <button
-                  className="btn btn-outline"
+                  className="owner-btn owner-btn-outline"
                   onClick={handleCreateExhibition}
                 >
                   Создать первую выставку
@@ -454,8 +468,8 @@ const GalleryOwnerDashboard = () => {
               )}
             </div>
           ) : (
-            <div className="table-container">
-              <table className="exhibitions-table">
+            <div className="owner-exhibitions-table-container">
+              <table className="owner-exhibitions-table">
                 <thead>
                   <tr>
                     <th>Название</th>
@@ -472,7 +486,7 @@ const GalleryOwnerDashboard = () => {
                         <strong>{exhibition.title}</strong>
                       </td>
                       <td>
-                        <div className="description-cell">
+                        <div className="owner-description-cell">
                           {exhibition.description || 'Без описания'}
                         </div>
                       </td>
@@ -486,24 +500,28 @@ const GalleryOwnerDashboard = () => {
                         </span>
                       </td>
                       <td>
-                        <div className="table-actions">
+                        <div className="owner-table-actions">
                           <button
-                            className="btn btn-primary btn-sm"
+                            className="owner-btn owner-btn-primary owner-btn-sm"
                             onClick={() => navigate(`/map/${exhibition.id}`)}
                             title="Управление стендами"
                           >
                             <i className="fas fa-map"></i>
                           </button>
                           <button
-                            className="btn btn-info btn-sm"
+                            className="owner-btn owner-btn-info owner-btn-sm"
                             onClick={() => handleViewBookings(exhibition)}
                             title="Просмотр бронирований"
                           >
                             <i className="fas fa-eye"></i>
                           </button>
-
-
-
+                          <button
+                            className="owner-btn owner-btn-warning owner-btn-sm"
+                            onClick={() => handleEditExhibition(exhibition)}
+                            title="Редактировать выставку"
+                          >
+                            <i className="fas fa-edit"></i>
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -513,156 +531,158 @@ const GalleryOwnerDashboard = () => {
             </div>
           )}
         </div>
-      )
-      }
+      )}
 
       {/* Модальное окно бронирований */}
-      {
-        showBookingsModal && selectedExhibition && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h2>
-                  <i className="fas fa-calendar-check"></i>
-                  Бронирования выставки "{selectedExhibition.title}"
-                </h2>
-                <button className="modal-close" onClick={() => setShowBookingsModal(false)}>
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
+      {showBookingsModal && selectedExhibition && (
+        <div className="owner-modal-overlay">
+          <div className="owner-modal-content">
+            <div className="owner-modal-header">
+              <h2>
+                <i className="fas fa-calendar-check"></i>
+                Бронирования выставки "{selectedExhibition.title}"
+              </h2>
+              <button className="owner-modal-close" onClick={() => setShowBookingsModal(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
 
-              <div className="modal-body">
-                {loading.bookings ? (
-                  <div className="loading-placeholder">Загрузка бронирований...</div>
-                ) : bookings.length === 0 ? (
-                  <div className="empty-state">
-                    <i className="fas fa-calendar-times"></i>
-                    <p>Нет бронирований на эту выставку</p>
-                  </div>
-                ) : (
-                  <div className="bookings-table-container">
-                    <table className="bookings-table">
-                      <thead>
-                        <tr>
-                          <th>ID</th>
-                          <th>Художник</th>
-                          <th>Стенд</th>
-                          <th>Дата брони</th>
-                          <th>Статус</th>
-                          <th>Действия</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {bookings.map(booking => (
-                          <tr key={booking.id}>
-                            <td>#{booking.id}</td>
-                            <td>
-                              <div>
-                                <strong>{booking.artistName}</strong>
-                                <br />
-                                <small>{booking.artistEmail}</small>
-                              </div>
-                            </td>
-                            <td>
-                              Стенд #{booking.standNumber}
+            <div className="owner-modal-body">
+              {loading.bookings ? (
+                <div className="owner-loading-placeholder">
+                  <div className="owner-spinner"></div>
+                  <p>Загрузка бронирований...</p>
+                </div>
+              ) : bookings.length === 0 ? (
+                <div className="owner-empty-state">
+                  <i className="fas fa-calendar-times"></i>
+                  <p>Нет бронирований на эту выставку</p>
+                </div>
+              ) : (
+                <div className="owner-bookings-table-container">
+                  <table className="owner-bookings-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Художник</th>
+                        <th>Стенд</th>
+                        <th>Дата брони</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bookings.map(booking => (
+                        <tr key={booking.id}>
+                          <td>#{booking.id}</td>
+                          <td>
+                            <div>
+                              <strong>{booking.artistName}</strong>
                               <br />
-                              <small>{booking.width}×{booking.height} см</small>
-                            </td>
-                            <td>{formatDate(booking.bookingDate)}</td>
-                            <td>
-                              <span className={getStatusBadgeClass(booking.status)}>
-                                {booking.status === 'PENDING' ? 'Ожидает' :
-                                  booking.status === 'CONFIRMED' ? 'Подтверждено' : 'Отменено'}
-                              </span>
-                            </td>
-                            <td>
-                              <div className="table-actions">
-                                {booking.status === 'PENDING' && (
-                                  <>
-                                    <button
-                                      className="btn btn-success btn-sm"
-                                      onClick={() => handleConfirmBooking(booking.id)}
-                                      title="Подтвердить"
-                                    >
-                                      <i className="fas fa-check"></i>
-                                    </button>
-                                    <button
-                                      className="btn btn-danger btn-sm"
-                                      onClick={() => handleRejectBooking(booking.id)}
-                                      title="Отклонить"
-                                    >
-                                      <i className="fas fa-times"></i>
-                                    </button>
-                                  </>
-                                )}
-                                {booking.status === 'CONFIRMED' && (
-                                  <span className="confirmed-text">Подтверждено</span>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
+                              <small>{booking.artistEmail}</small>
+                            </div>
+                          </td>
+                          <td>
+                            Стенд #{booking.standNumber}
+                            <br />
+                            <small>{booking.width}×{booking.height} см</small>
+                          </td>
+                          <td>{formatDate(booking.bookingDate)}</td>
+                          <td>
+                            <span className={getStatusBadgeClass(booking.status)}>
+                              {booking.status === 'PENDING' ? 'Ожидает' :
+                                booking.status === 'CONFIRMED' ? 'Подтверждено' : 'Отменено'}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="owner-table-actions">
+                              {booking.status === 'PENDING' && (
+                                <>
+                                  <button
+                                    className="owner-btn owner-btn-success owner-btn-sm"
+                                    onClick={() => handleConfirmBooking(booking.id)}
+                                    title="Подтвердить"
+                                  >
+                                    <i className="fas fa-check"></i>
+                                  </button>
+                                  <button
+                                    className="owner-btn owner-btn-danger owner-btn-sm"
+                                    onClick={() => handleRejectBooking(booking.id)}
+                                    title="Отклонить"
+                                  >
+                                    <i className="fas fa-times"></i>
+                                  </button>
+                                </>
+                              )}
+                              {booking.status === 'CONFIRMED' && (
+                                <span className="owner-confirmed-text">Подтверждено</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
 
-              <div className="modal-footer">
-                <button
-                  className="btn btn-outline"
-                  onClick={() => setShowBookingsModal(false)}
-                >
-                  Закрыть
-                </button>
-              </div>
+            <div className="owner-modal-footer">
+              <button
+                className="owner-btn owner-btn-outline"
+                onClick={() => setShowBookingsModal(false)}
+              >
+                Закрыть
+              </button>
             </div>
           </div>
-        )
-      }
+        </div>
+      )}
 
       {/* Статистика */}
-      <div className="dashboard-stats">
-        <div className="stat-card">
-          <div className="stat-icon gallery">
+      <div className="owner-dashboard-stats">
+        <div className="owner-stat-card">
+          <div className="owner-stat-icon owner-stat-gallery">
             <i className="fas fa-store"></i>
           </div>
-          <div className="stat-content">
+          <div className="owner-stat-content">
             <h3>{galleries.length}</h3>
             <p>Галерей</p>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-icon exhibition">
+        <div className="owner-stat-card">
+          <div className="owner-stat-icon owner-stat-exhibition">
             <i className="fas fa-calendar-alt"></i>
           </div>
-          <div className="stat-content">
+          <div className="owner-stat-content">
             <h3>{exhibitions.length}</h3>
             <p>Выставок</p>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-icon booking">
+        <div className="owner-stat-card">
+          <div className="owner-stat-icon owner-stat-booking">
             <i className="fas fa-ticket-alt"></i>
           </div>
-          <div className="stat-content">
+          <div className="owner-stat-content">
             <h3>{bookings.length}</h3>
             <p>Всего бронирований</p>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-icon pending">
+        <div className="owner-stat-card">
+          <div className="owner-stat-icon owner-stat-pending">
             <i className="fas fa-clock"></i>
           </div>
-          <div className="stat-content">
+          <div className="owner-stat-content">
             <h3>{bookings.filter(b => b.status === 'PENDING').length}</h3>
-            <p>Ожидают подтверждения</p>
+            <p>Ожидают одобрения</p>
           </div>
         </div>
       </div>
+
+      {/* Модальное окно выставки */}
       {showAddExhibitionModal && selectedGallery && (
         <AddExhibitionModal
           isOpen={showAddExhibitionModal}
@@ -672,7 +692,6 @@ const GalleryOwnerDashboard = () => {
             setEditingExhibition(null);
           }}
           onSuccess={() => {
-            // Обновляем список выставок
             const token = sessionStorage.getItem('authToken');
             fetchGalleryExhibitions(selectedGallery.id, token);
           }}
@@ -681,7 +700,7 @@ const GalleryOwnerDashboard = () => {
           editData={editingExhibition}
         />
       )}
-    </div >
+    </div>
   );
 };
 

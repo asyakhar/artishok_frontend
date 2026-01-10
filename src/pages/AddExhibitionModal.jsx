@@ -184,7 +184,7 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
 
                         {/* Название выставки */}
                         <div className="form-group">
-                            <label htmlFor="title">Название выставки *</label>
+                            <label htmlFor="title">Название выставки</label>
                             <input
                                 type="text"
                                 id="title"
@@ -196,7 +196,7 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
                             />
                         </div>
 
-                        {/* Описание */}
+
                         <div className="form-group">
                             <label htmlFor="description">Описание</label>
                             <textarea
@@ -210,9 +210,9 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
                         </div>
 
                         <div className="form-row">
-                            {/* Дата начала */}
+
                             <div className="form-group">
-                                <label htmlFor="startDate">Дата начала *</label>
+                                <label htmlFor="startDate">Дата начала </label>
                                 <input
                                     type="datetime-local"
                                     id="startDate"
@@ -224,9 +224,8 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
                                 />
                             </div>
 
-                            {/* Дата окончания */}
                             <div className="form-group">
-                                <label htmlFor="endDate">Дата окончания *</label>
+                                <label htmlFor="endDate">Дата окончания </label>
                                 <input
                                     type="datetime-local"
                                     id="endDate"
@@ -255,18 +254,7 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
                             </div>
                         )}
 
-                        {/* Информация о выставке */}
-                        <div className="exhibition-info">
-                            <h4><i className="fas fa-info-circle"></i> Информация:</h4>
-                            <ul>
-                                <li>Выставка будет создана для галереи "{selectedGallery.name}"</li>
-                                <li>После создания вы сможете добавить стенды и карту зала</li>
-                                <li>Выставка в статусе "Черновик" не видна художникам</li>
-                                {!isEditMode && (
-                                    <li>После создания вы сможете отправить выставку на модерацию</li>
-                                )}
-                            </ul>
-                        </div>
+
                     </div>
 
                     <div className="modal-footer">
