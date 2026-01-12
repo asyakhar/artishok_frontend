@@ -533,237 +533,6 @@ const MapEditor = ({
     }
   };
 
-  //   const createStandMarker = (stand) => {
-  //     if (!mapInstance.current) return;
-
-  //     let color = "#28a745";
-  //     let statusText = "Свободен";
-
-  //     if (stand.status === "BOOKED") {
-  //       color = "#dc3545";
-  //       statusText = "Забронирован";
-  //     } else if (stand.status === "PENDING") {
-  //       color = "#ff9800";
-  //       statusText = "Ожидает подтверждения";
-  //     }
-
-  //     const marker = L.marker([stand.positionY, stand.positionX], {
-  //       icon: L.divIcon({
-  //         html: `
-  //           <div style="
-  //             width: 40px;
-  //             height: 40px;
-  //             background: ${color};
-  //             border-radius: 50%;
-  //             border: 3px solid white;
-  //             display: flex;
-  //             align-items: center;
-  //             justify-content: center;
-  //             color: white;
-  //             font-weight: bold;
-  //             font-size: 14px;
-  //             box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-  //             cursor: pointer;
-  //             transition: all 0.2s;
-  //           ">
-  //             ${stand.standNumber}
-  //           </div>
-  //         `,
-  //         className: "stand-marker-container",
-  //         iconSize: [46, 46],
-  //       }),
-  //     }).addTo(mapInstance.current);
-
-  //     const popupContent = `
-  // <div style="padding: 15px; min-width: 250px;">
-  //   <div style="display: flex; align-items: center; margin-bottom: 10px;">
-  //     <div style="width: 20px; height: 20px; background: ${color}; border-radius: 50%; margin-right: 10px;"></div>
-  //     <h4 style="margin: 0;">Стенд ${stand.standNumber}</h4>
-  //   </div>
-  //   <div style="margin-bottom: 15px;">
-  //     <p style="margin: 5px 0;"><strong>Тип:</strong> ${getTypeText(
-  //       stand.type
-  //     )}</p>
-  //     <p style="margin: 5px 0;"><strong>Размер:</strong> ${stand.width}×${
-  //       stand.height
-  //     } см</p>
-  //     <p style="margin: 5px 0;"><strong>Статус:</strong>
-  //       <span style="color: ${color}; font-weight: bold;">
-  //         ${statusText}
-  //       </span>
-  //     </p>
-  //     <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${
-  //       stand.positionX
-  //     }, Y:${stand.positionY}</p>
-  //   </div>
-  //   <div style="display: flex; gap: 10px; flex-direction: column;">
-  //     ${
-  //       mode === "artist" && stand.status === "AVAILABLE"
-  //         ? `<button
-  //         onclick="if(confirm('Забронировать стенд ${stand.standNumber}?')) {
-  //           if(window.handleBookStand) {
-  //             window.handleBookStand('${stand.id}', '${stand.standNumber}');
-  //           }
-  //         }"
-  //         style="
-  //           padding: 10px;
-  //           background: linear-gradient(135deg, #007bff, #0056b3);
-  //           color: white;
-  //           border: none;
-  //           border-radius: 6px;
-  //           cursor: pointer;
-  //           font-weight: bold;
-  //         "
-  //       >
-  //         📝 Забронировать
-  //       </button>`
-  //         : ""
-  //     }
-  //     ${
-  //       mode === "artist" && stand.status === "PENDING"
-  //         ? `<div style="
-  //         padding: 10px;
-  //         background: linear-gradient(135deg, #ff9800, #f57c00);
-  //         color: white;
-  //         border-radius: 6px;
-  //         text-align: center;
-  //         font-weight: bold;
-  //       ">
-  //         ⏳ Ожидает подтверждения
-  //       </div>`
-  //         : ""
-  //     }
-  //     ${
-  //       mode === "artist" && stand.status === "BOOKED"
-  //         ? `<div style="
-  //         padding: 10px;
-  //         background: linear-gradient(135deg, #dc3545, #c82333);
-  //         color: white;
-  //         border-radius: 6px;
-  //         text-align: center;
-  //         font-weight: bold;
-  //       ">
-  //         ✅ Забронировано
-  //       </div>`
-  //         : ""
-  //     }
-  //     ${
-  //       mode === "owner"
-  //         ? `<div style="display: flex; flex-direction: column; gap: 8px;">
-  //         ${
-  //           stand.status === "PENDING"
-  //             ? `<div style="display: flex; gap: 8px;">
-  //             <button
-  //               onclick="if(confirm('Подтвердить бронирование стенда ${stand.standNumber}?')) {
-  //                 if(window.handleApproveBooking) {
-  //                   window.handleApproveBooking('${stand.id}', '${stand.standNumber}');
-  //                 }
-  //               }"
-  //               style="
-  //                 flex: 1;
-  //                 padding: 10px;
-  //                 background: linear-gradient(135deg, #28a745, #218838);
-  //                 color: white;
-  //                 border: none;
-  //                 border-radius: 6px;
-  //                 cursor: pointer;
-  //                 font-weight: bold;
-  //               "
-  //             >
-  //               ✅ Подтвердить
-  //             </button>
-  //             <button
-  //               onclick="if(confirm('Отклонить бронирование стенда ${stand.standNumber}?')) {
-  //                 if(window.handleRejectBooking) {
-  //                   window.handleRejectBooking('${stand.id}', '${stand.standNumber}');
-  //                 }
-  //               }"
-  //               style="
-  //                 flex: 1;
-  //                 padding: 10px;
-  //                 background: linear-gradient(135deg, #dc3545, #c82333);
-  //                 color: white;
-  //                 border: none;
-  //                 border-radius: 6px;
-  //                 cursor: pointer;
-  //                 font-weight: bold;
-  //               "
-  //             >
-  //               ❌ Отклонить
-  //             </button>
-  //           </div>`
-  //             : ""
-  //         }
-  //         <button
-  //           onclick="if(confirm('Удалить стенд ${stand.standNumber}?')) {
-  //             if(window.handleDeleteStand) {
-  //               window.handleDeleteStand('${stand.id}', '${stand.standNumber}');
-  //             }
-  //           }"
-  //           style="
-  //             padding: 10px;
-  //             background: linear-gradient(135deg, #6c757d, #5a6268);
-  //             color: white;
-  //             border: none;
-  //             border-radius: 6px;
-  //             cursor: pointer;
-  //             font-weight: bold;
-  //           "
-  //         >
-  //           🗑️ Удалить стенд
-  //         </button>
-  //       </div>`
-  //         : ""
-  //     }
-  //   </div>
-  // </div>
-  // `;
-
-  //     window.handleBookStandClick = async (standId) => {
-  //       try {
-  //         if (onBookStand) {
-  //           await onBookStand(standId);
-  //           alert("Заявка на бронирование отправлена!");
-  //           marker.closePopup();
-  //           if (onRefreshStands) {
-  //             onRefreshStands();
-  //           }
-  //         }
-  //       } catch (err) {
-  //         alert("Ошибка: " + err.message);
-  //       }
-  //     };
-
-  //     window.handleDeleteStandClick = async (standId) => {
-  //       try {
-  //         if (onDeleteStand) {
-  //           await onDeleteStand(standId);
-  //           // alert('Стенд удален!');
-  //           marker.closePopup();
-
-  //           mapInstance.current.removeLayer(marker);
-
-  //           if (onRefreshStands) {
-  //             onRefreshStands();
-  //           }
-  //         }
-  //       } catch (err) {
-  //         alert("Ошибка: " + err.message);
-  //       }
-  //     };
-
-  //     marker.bindPopup(popupContent);
-
-  //     marker.on("click", (e) => {
-  //       e.originalEvent.stopPropagation();
-  //       setSelectedStand(stand);
-
-  //       marker.openPopup();
-  //     });
-
-  //     marker.standData = stand;
-  //     return marker;
-  //   };
   const createStandMarker = (stand) => {
     if (!mapInstance.current) return;
 
@@ -2166,8 +1935,6 @@ const MapEditor = ({
                         >
                           <strong>Размер:</strong> {stand.width}×{stand.height}{" "}
                           см
-                          {stand.hallMapName &&
-                            ` • <strong>Зал:</strong> ${stand.hallMapName}`}
                         </div>
                       </div>
                     ))}
@@ -2187,111 +1954,206 @@ const MapEditor = ({
                 border: "2px solid #dee2e6",
               }}
             >
-              <h4 style={{ marginTop: 0, color: "#495057" }}>
-                🎨 Выбор стенда
-              </h4>
+              <h4 style={{ marginTop: 0, color: "#495057" }}>Выбор стенда</h4>
 
               {selectedStand ? (
                 <>
                   <div
                     style={{
-                      background: "linear-gradient(135deg, #007bff, #0056b3)",
+                      backgroundColor: "white",
                       padding: "20px",
                       borderRadius: "10px",
                       marginBottom: "20px",
-                      color: "white",
+                      border: "2px solid #007bff",
+                      borderLeft: `8px solid ${
+                        selectedStand.status === "BOOKED"
+                          ? "#dc3545"
+                          : selectedStand.status === "PENDING"
+                          ? "#ff9800"
+                          : "#28a745"
+                      }`,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                     }}
                   >
-                    <h5 style={{ marginTop: 0, fontSize: "20px" }}>
-                      Стенд {selectedStand.standNumber}
-                    </h5>
-                    <p style={{ margin: "10px 0", opacity: 0.9 }}>
-                      <strong>Тип:</strong> {getTypeText(selectedStand.type)}
-                    </p>
-                    <p style={{ margin: "10px 0", opacity: 0.9 }}>
-                      <strong>Размер:</strong> {selectedStand.width}×
-                      {selectedStand.height} см
-                    </p>
-                    <p style={{ margin: "10px 0" }}>
-                      <strong>Статус:</strong>
-                      <span
-                        style={{
-                          color:
-                            selectedStand.status === "BOOKED"
-                              ? "#ffcccb"
-                              : "#90ee90",
-                          fontWeight: "bold",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {selectedStand.status === "BOOKED"
-                          ? "Занят"
-                          : "Свободен"}
-                      </span>
-                    </p>
-                  </div>
-
-                  {selectedStand.status !== "BOOKED" ? (
-                    <button
-                      onClick={handleBookStand}
-                      style={{
-                        width: "100%",
-                        padding: "15px",
-                        background: "linear-gradient(135deg, #28a745, #218838)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        fontWeight: "600",
-                        fontSize: "18px",
-                        transition: "all 0.2s",
-                      }}
-                      onMouseOver={(e) =>
-                        (e.target.style.transform = "translateY(-2px)")
-                      }
-                      onMouseOut={(e) =>
-                        (e.target.style.transform = "translateY(0)")
-                      }
-                    >
-                      📝 Забронировать этот стенд
-                    </button>
-                  ) : (
                     <div
                       style={{
-                        background: "linear-gradient(135deg, #dc3545, #c82333)",
-                        color: "white",
-                        padding: "15px",
-                        borderRadius: "8px",
-                        textAlign: "center",
+                        display: "flex",
+                        alignItems: "center",
                         marginBottom: "15px",
                       }}
                     >
-                      <div style={{ fontSize: "24px", marginBottom: "10px" }}>
-                        ⚠️
+                      <div
+                        style={{
+                          width: "40px",
+                          height: "40px",
+                          background:
+                            selectedStand.status === "BOOKED"
+                              ? "#dc3545"
+                              : selectedStand.status === "PENDING"
+                              ? "#ff9800"
+                              : "#28a745",
+                          borderRadius: "50%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "white",
+                          fontWeight: "bold",
+                          fontSize: "16px",
+                          marginRight: "12px",
+                        }}
+                      >
+                        {selectedStand.standNumber}
                       </div>
-                      <div style={{ fontWeight: "600" }}>
-                        Этот стенд уже забронирован
+                      <div>
+                        <h5
+                          style={{
+                            margin: 0,
+                            color: "#343a40",
+                            fontSize: "18px",
+                          }}
+                        >
+                          Стенд {selectedStand.standNumber}
+                        </h5>
+                        <div
+                          style={{
+                            fontSize: "14px",
+                            color: "#6c757d",
+                            marginTop: "2px",
+                          }}
+                        >
+                          {getTypeText(selectedStand.type)}
+                        </div>
                       </div>
                     </div>
-                  )}
+
+                    <div style={{ marginBottom: "15px" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "15px",
+                          marginBottom: "15px",
+                        }}
+                      >
+                        <div style={{ flex: 1 }}>
+                          <div
+                            style={{
+                              fontSize: "12px",
+                              color: "#6c757d",
+                              marginBottom: "4px",
+                            }}
+                          >
+                            Ширина
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "16px",
+                              fontWeight: "500",
+                              color: "#495057",
+                            }}
+                          >
+                            {selectedStand.width} см
+                          </div>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div
+                            style={{
+                              fontSize: "12px",
+                              color: "#6c757d",
+                              marginBottom: "4px",
+                            }}
+                          >
+                            Высота
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "16px",
+                              fontWeight: "500",
+                              color: "#495057",
+                            }}
+                          >
+                            {selectedStand.height} см
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          padding: "10px",
+                          borderRadius: "6px",
+                          background:
+                            selectedStand.status === "BOOKED"
+                              ? "#f8d7da"
+                              : selectedStand.status === "PENDING"
+                              ? "#fff3cd"
+                              : "#d4edda",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span style={{ fontSize: "14px", color: "#495057" }}>
+                          Статус:
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "600",
+                            fontSize: "14px",
+                            color:
+                              selectedStand.status === "BOOKED"
+                                ? "#721c24"
+                                : selectedStand.status === "PENDING"
+                                ? "#856404"
+                                : "#155724",
+                          }}
+                        >
+                          {selectedStand.status === "BOOKED"
+                            ? "Забронирован"
+                            : selectedStand.status === "PENDING"
+                            ? "Ожидает подтверждения"
+                            : "Свободен"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </>
               ) : (
                 <div
                   style={{
-                    background: "linear-gradient(135deg, #6c757d, #5a6268)",
+                    background:
+                      "linear-gradient(135deg, #6c757d 0%, #5a6268 100%)",
                     padding: "30px 20px",
                     borderRadius: "10px",
                     textAlign: "center",
-                    color: "white",
+                    color: "#ffffff", // Явно указываем белый цвет для всего контейнера
+                    width: "100%",
+                    boxSizing: "border-box",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minHeight: "200px",
                   }}
                 >
-                  <div style={{ fontSize: "48px", marginBottom: "15px" }}>
-                    🎯
-                  </div>
-                  <h5 style={{ margin: "10px 0", fontSize: "20px" }}>
+                  <h5
+                    style={{
+                      margin: "10px 0",
+                      fontSize: "20px",
+                      fontWeight: "600",
+                      lineHeight: "1.3",
+                      color: "#ffffff", // Явно белый для заголовка
+                    }}
+                  >
                     Выберите стенд на карте
                   </h5>
-                  <p style={{ fontSize: "14px", opacity: 0.8, margin: 0 }}>
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      color: "rgba(255, 255, 255, 0.9)", // Полупрозрачный белый
+                      margin: "10px 0 0 0",
+                      maxWidth: "300px",
+                      lineHeight: "1.4",
+                    }}
+                  >
                     Кликните на любой свободный стенд (зелёная точка)
                   </p>
                 </div>
