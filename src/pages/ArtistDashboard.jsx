@@ -297,16 +297,16 @@ const ArtistDashboard = () => {
                 <i className="fas fa-envelope"></i>
                 <span>{userData?.email || "Email не указан"}</span>
               </div>
-              <div className="artist-detail-item">
-                <i className="fas fa-user-tag"></i>
-                <span className="artist-role-badge artist-role-artist">Художник</span>
-              </div>
               {userData?.phoneNumber && (
                 <div className="artist-detail-item">
                   <i className="fas fa-phone"></i>
                   <span>{userData.phoneNumber}</span>
                 </div>
               )}
+              <div className="artist-detail-item">
+                <i className="fas fa-user-tag"></i>
+                <span className="artist-role-badge artist-role-artist">Художник</span>
+              </div>
             </div>
             {userData?.bio && <p className="artist-profile-bio">{userData.bio}</p>}
           </div>

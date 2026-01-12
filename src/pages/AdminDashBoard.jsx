@@ -196,7 +196,12 @@ const AdminDashboard = () => {
 
     const handleConfirmAction = async () => {
         if (!selectedItem) return;
-
+        if (activeTab === 'galleries' && actionType === 'reject') {
+            if (!comment.trim()) {
+                alert('Пожалуйста, укажите причину отклонения');
+                return;
+            }
+        }
         const token = sessionStorage.getItem('authToken');
 
         try {
@@ -296,37 +301,37 @@ const AdminDashboard = () => {
             case 'ACTIVE':
             case 'APPROVED':
             case 'CONFIRMED':
-                return 'status-badge active';
+                return 'admin-status-badge admin-active';
             case 'PENDING':
-                return 'status-badge pending';
+                return 'admin-status-badge admin-pending';
             case 'REJECTED':
             case 'CANCELLED':
             case 'INACTIVE':
-                return 'status-badge cancelled';
+                return 'admin-status-badge admin-cancelled';
             case 'DRAFT':
-                return 'status-badge draft';
+                return 'admin-status-badge admin-draft';
             default:
-                return 'status-badge';
+                return 'admin-status-badge';
         }
     };
 
     const getRoleBadgeClass = (role) => {
         switch (role) {
             case 'ADMIN':
-                return 'role-badge admin';
+                return 'admin-role-badge admin-role-admin';
             case 'GALLERY_OWNER':
-                return 'role-badge owner';
+                return 'admin-role-badge admin-role-owner';
             case 'ARTIST':
-                return 'role-badge artist';
+                return 'admin-role-badge admin-role-artist';
             default:
-                return 'role-badge';
+                return 'admin-role-badge';
         }
     };
 
     if (loading.statistics) {
         return (
-            <div className="dashboard-loading">
-                <div className="spinner"></div>
+            <div className="admin-dashboard-loading">
+                <div className="admin-spinner"></div>
                 <p>Загрузка кабинета администратора...</p>
             </div>
         );
@@ -335,91 +340,99 @@ const AdminDashboard = () => {
     return (
         <div className="admin-dashboard">
             {/* Шапка профиля */}
-            <div className="dashboard-header">
-                <div className="profile-card">
-                    <div className="profile-avatar">
+            <div className="admin-dashboard-header">
+                <div className="admin-profile-card">
+                    <div className="admin-profile-avatar">
                         {userData?.avatarUrl ? (
-                            <img src={userData.avatarUrl} alt="Аватар" className="avatar-image" />
+                            <img src={userData.avatarUrl} alt="Аватар" className="admin-avatar-image" />
                         ) : (
-                            <div className="avatar-placeholder admin">
+                            <div className="admin-avatar-placeholder">
                                 <i className="fas fa-user-shield"></i>
                             </div>
                         )}
                     </div>
-                    <div className="profile-info">
-                        <h1 className="profile-name">{userData?.fullName || 'Администратор'}</h1>
-                        <div className="profile-details">
-                            <div className="detail-item">
+                    <div className="admin-profile-info">
+                        <h1 className="admin-profile-name">{userData?.fullName || 'Администратор'}</h1>
+                        <div className="admin-profile-details">
+                            <div className="admin-detail-item">
                                 <i className="fas fa-envelope"></i>
                                 <span>{userData?.email || 'Email не указан'}</span>
                             </div>
-                            <div className="detail-item">
+
+                            <div className="admin-detail-item">
+                                <i className="fas fa-phone"></i>
+                                <span>{userData?.phoneNumber || 'Телефон не указан'}</span>
+                            </div>
+                            <div className="admin-detail-item">
                                 <i className="fas fa-user-tag"></i>
-                                <span className="role-badge admin">Администратор системы</span>
+                                <span className="admin-role-badge admin-role-admin">Администратор системы</span>
                             </div>
                         </div>
+                        {userData?.bio && (
+                            <p className="admin-profile-bio">{userData.bio}</p>
+                        )}
                     </div>
                 </div>
             </div>
 
             {/* Статистика */}
             {statistics && (
-                <div className="dashboard-stats">
-                    <div className="stat-card">
-                        <div className="stat-icon users">
+                <div className="admin-dashboard-stats">
+                    <div className="admin-stat-card">
+                        <div className="admin-stat-icon admin-users">
                             <i className="fas fa-users"></i>
                         </div>
-                        <div className="stat-content">
+                        <div className="admin-stat-content">
                             <h3>{statistics.totalUsers || 0}</h3>
                             <p>Всего пользователей</p>
                         </div>
                     </div>
 
-                    <div className="stat-card">
-                        <div className="stat-icon active">
+                    <div className="admin-stat-card">
+                        <div className="admin-stat-icon admin-active">
                             <i className="fas fa-user-check"></i>
                         </div>
-                        <div className="stat-content">
+                        <div className="admin-stat-content">
                             <h3>{statistics.activeUsers || 0}</h3>
                             <p>Активных пользователей</p>
                         </div>
                     </div>
 
-                    <div className="stat-card">
-                        <div className="stat-icon gallery">
+                    <div className="admin-stat-card">
+                        <div className="admin-stat-icon admin-gallery">
                             <i className="fas fa-store"></i>
                         </div>
-                        <div className="stat-content">
+                        <div className="admin-stat-content">
                             <h3>{galleries.length}</h3>
                             <p>Галерей</p>
                         </div>
                     </div>
 
-                    <div className="stat-card">
-                        <div className="stat-icon artist">
+                    <div className="admin-stat-card">
+                        <div className="admin-stat-icon admin-artist">
                             <i className="fas fa-palette"></i>
                         </div>
-                        <div className="stat-content">
+                        <div className="admin-stat-content">
                             <h3>{statistics.artists || 0}</h3>
                             <p>Художников</p>
                         </div>
                     </div>
 
-                    <div className="stat-card">
-                        <div className="stat-icon owner">
+                    <div className="admin-stat-card">
+                        <div className="admin-stat-icon admin-owner">
                             <i className="fas fa-building"></i>
                         </div>
-                        <div className="stat-content">
+                        <div className="admin-stat-content">
                             <h3>{statistics.galleryOwners || 0}</h3>
                             <p>Владельцев галерей</p>
                         </div>
                     </div>
 
-                    <div className="stat-card">
-                        <div className="stat-icon exhibition">
+                    <div className="admin-stat-card">
+                        <div className="admin-stat-icon admin-exhibition">
                             <i className="fas fa-calendar-alt"></i>
                         </div>
-                        <div className="stat-content">
+                        <div className="admin-stat-content">
                             <h3>{exhibitions.length}</h3>
                             <p>Выставок</p>
                         </div>
@@ -428,47 +441,42 @@ const AdminDashboard = () => {
             )}
 
             {/* Табы */}
-            <div className="admin-tabs">
-                <div className="tabs-header">
-                    <h2>Управление системой</h2>
-                </div>
-                <div className="tabs-navigation">
-                    <button
-                        className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`}
-                        onClick={() => handleTabChange('users')}
-                    >
-                        <i className="fas fa-users"></i> Пользователи
-                    </button>
-                    <button
-                        className={`tab-btn ${activeTab === 'galleries' ? 'active' : ''}`}
-                        onClick={() => handleTabChange('galleries')}
-                    >
-                        <i className="fas fa-store"></i> Галереи
-                    </button>
-                    <button
-                        className={`tab-btn ${activeTab === 'exhibitions' ? 'active' : ''}`}
-                        onClick={() => handleTabChange('exhibitions')}
-                    >
-                        <i className="fas fa-calendar-alt"></i> Выставки
-                    </button>
-                    <button
-                        className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`}
-                        onClick={() => handleTabChange('logs')}
-                    >
-                        <i className="fas fa-history"></i> Логи
-                    </button>
-                </div>
+            <div className="admin-dashboard-tabs">
+                <button
+                    className={`admin-tab-btn ${activeTab === 'users' ? 'admin-active' : ''}`}
+                    onClick={() => handleTabChange('users')}
+                >
+                    <i className="fas fa-users"></i> Пользователи
+                </button>
+                <button
+                    className={`admin-tab-btn ${activeTab === 'galleries' ? 'admin-active' : ''}`}
+                    onClick={() => handleTabChange('galleries')}
+                >
+                    <i className="fas fa-store"></i> Галереи
+                </button>
+                <button
+                    className={`admin-tab-btn ${activeTab === 'exhibitions' ? 'admin-active' : ''}`}
+                    onClick={() => handleTabChange('exhibitions')}
+                >
+                    <i className="fas fa-calendar-alt"></i> Выставки
+                </button>
+                <button
+                    className={`admin-tab-btn ${activeTab === 'logs' ? 'admin-active' : ''}`}
+                    onClick={() => handleTabChange('logs')}
+                >
+                    <i className="fas fa-history"></i> Логи
+                </button>
             </div>
 
-            {/* Содержимое табов */}
-            <div className="tab-content">
+
+            <div className="admin-dashboard-content">
                 {/* Таблица пользователей */}
                 {activeTab === 'users' && (
-                    <div className="users-section">
-                        <div className="section-header">
-                            <h3><i className="fas fa-users"></i> Управление пользователями</h3>
+                    <div>
+                        <div className="admin-section-header">
+                            <h2> Управление пользователями</h2>
                             <button
-                                className="btn btn-outline"
+                                className="admin-btn admin-btn-outline"
                                 onClick={() => fetchUsers(sessionStorage.getItem('authToken'))}
                             >
                                 <i className="fas fa-sync-alt"></i> Обновить
@@ -476,14 +484,14 @@ const AdminDashboard = () => {
                         </div>
 
                         {loading.users ? (
-                            <div className="loading-placeholder">Загрузка пользователей...</div>
+                            <div className="admin-loading-placeholder">Загрузка пользователей...</div>
                         ) : users.length === 0 ? (
-                            <div className="empty-state">
+                            <div className="admin-empty-state">
                                 <i className="fas fa-users-slash"></i>
                                 <p>Пользователи не найдены</p>
                             </div>
                         ) : (
-                            <div className="table-container">
+                            <div className="admin-table-container">
                                 <table className="admin-table">
                                     <thead>
                                         <tr>
@@ -500,22 +508,23 @@ const AdminDashboard = () => {
                                             <tr key={user.id}>
                                                 <td>#{user.id}</td>
                                                 <td>
-                                                    <div className="user-info">
+                                                    <div className="admin-user-info">
                                                         {user.avatarUrl && (
-                                                            <img src={user.avatarUrl} alt="" className="user-avatar" />
+                                                            <img src={user.avatarUrl} alt="" className="admin-user-avatar" />
                                                         )}
-                                                        <strong>{user.fullName}</strong>
+                                                        <div className="admin-user-details">
+                                                            <span className="admin-user-name">{user.fullName}</span>
+                                                            {user.email && (
+                                                                <span className="admin-user-email">{user.email}</span>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td>{user.email}</td>
                                                 <td>
                                                     <span className={getRoleBadgeClass(user.role)}>
-                                                        {user.role === 'GALLERY_OWNER' ?
-                                                            <span className="owner-two-lines">
-                                                                <span>Владелец</span>
-                                                                <span>галереи</span>
-                                                            </span> :
-                                                            user.role === 'ADMIN' ? 'Админ' : 'Художник'}
+                                                        {user.role === 'GALLERY_OWNER' ? 'Владелец галереи' :
+                                                            user.role === 'ADMIN' ? 'Администратор' : 'Художник'}
                                                     </span>
                                                 </td>
                                                 <td>
@@ -523,11 +532,10 @@ const AdminDashboard = () => {
                                                         {user.isActive ? 'Активен' : 'Неактивен'}
                                                     </span>
                                                 </td>
-
                                                 <td>
-                                                    <div className="table-actions">
+                                                    <div className="admin-table-actions">
                                                         <button
-                                                            className={`btn btn-sm ${user.isActive ? 'btn-danger' : 'btn-success'}`}
+                                                            className={`admin-btn admin-btn-sm ${user.isActive ? 'admin-btn-danger' : 'admin-btn-success'}`}
                                                             onClick={() => handleUserAction(user, 'activate')}
                                                             title={user.isActive ? 'Деактивировать' : 'Активировать'}
                                                         >
@@ -535,14 +543,13 @@ const AdminDashboard = () => {
                                                         </button>
                                                         {user.role !== 'ADMIN' && (
                                                             <button
-                                                                className="btn btn-warning btn-sm"
+                                                                className="admin-btn admin-btn-warning admin-btn-sm"
                                                                 onClick={() => handleUserAction(user, 'role')}
                                                                 title="Сделать админом"
                                                             >
                                                                 <i className="fas fa-user-shield"></i>
                                                             </button>
                                                         )}
-
                                                     </div>
                                                 </td>
                                             </tr>
@@ -556,11 +563,11 @@ const AdminDashboard = () => {
 
                 {/* Таблица галерей */}
                 {activeTab === 'galleries' && (
-                    <div className="galleries-section">
-                        <div className="section-header">
-                            <h3><i className="fas fa-store"></i> Управление галереями</h3>
+                    <div>
+                        <div className="admin-section-header">
+                            <h2>Управление галереями</h2>
                             <button
-                                className="btn btn-outline"
+                                className="admin-btn admin-btn-outline"
                                 onClick={() => fetchGalleries(sessionStorage.getItem('authToken'))}
                             >
                                 <i className="fas fa-sync-alt"></i> Обновить
@@ -568,14 +575,14 @@ const AdminDashboard = () => {
                         </div>
 
                         {loading.galleries ? (
-                            <div className="loading-placeholder">Загрузка галерей...</div>
+                            <div className="admin-loading-placeholder">Загрузка галерей...</div>
                         ) : galleries.length === 0 ? (
-                            <div className="empty-state">
+                            <div className="admin-empty-state">
                                 <i className="fas fa-store-alt-slash"></i>
                                 <p>Галереи не найдены</p>
                             </div>
                         ) : (
-                            <div className="table-container">
+                            <div className="admin-table-container">
                                 <table className="admin-table">
                                     <thead>
                                         <tr>
@@ -595,15 +602,15 @@ const AdminDashboard = () => {
                                                 <td>
                                                     <strong>{gallery.name}</strong>
                                                     {gallery.description && (
-                                                        <small className="description">{gallery.description}</small>
+                                                        <span className="admin-description">{gallery.description}</span>
                                                     )}
                                                 </td>
                                                 <td>{gallery.address}</td>
                                                 <td>
                                                     {gallery.owner ? (
-                                                        <div className="owner-info">
-                                                            <span className="owner-name">{gallery.owner.fullName}</span>
-                                                            <span className="owner-email">{gallery.owner.email}</span>
+                                                        <div className="admin-owner-info">
+                                                            <span className="admin-owner-name">{gallery.owner.fullName}</span>
+                                                            <span className="admin-owner-email">{gallery.owner.email}</span>
                                                         </div>
                                                     ) : 'Не указан'}
                                                 </td>
@@ -613,25 +620,25 @@ const AdminDashboard = () => {
                                                             gallery.status === 'PENDING' ? 'На модерации' : 'Отклонена'}
                                                     </span>
                                                     {gallery.adminComment && (
-                                                        <div className="comment-badge" title={gallery.adminComment}>
+                                                        <div className="admin-comment-badge" title={gallery.adminComment}>
                                                             <i className="fas fa-comment"></i>
                                                         </div>
                                                     )}
                                                 </td>
                                                 <td>{formatDate(gallery.createdAt)}</td>
                                                 <td>
-                                                    <div className="table-actions">
+                                                    <div className="admin-table-actions">
                                                         {gallery.status === 'PENDING' && (
                                                             <>
                                                                 <button
-                                                                    className="btn btn-success btn-sm"
+                                                                    className="admin-btn admin-btn-success admin-btn-sm"
                                                                     onClick={() => handleGalleryAction(gallery, 'approve')}
                                                                     title="Одобрить"
                                                                 >
                                                                     <i className="fas fa-check"></i>
                                                                 </button>
                                                                 <button
-                                                                    className="btn btn-danger btn-sm"
+                                                                    className="admin-btn admin-btn-danger admin-btn-sm"
                                                                     onClick={() => handleGalleryAction(gallery, 'reject')}
                                                                     title="Отклонить"
                                                                 >
@@ -640,7 +647,7 @@ const AdminDashboard = () => {
                                                             </>
                                                         )}
                                                         <button
-                                                            className={`btn btn-sm ${gallery.status === 'APPROVED' ? 'btn-warning' : 'btn-primary'}`}
+                                                            className={`admin-btn admin-btn-sm ${gallery.status === 'APPROVED' ? 'admin-btn-warning' : 'admin-btn-primary'}`}
                                                             onClick={() => handleGalleryAction(gallery, 'change-status')}
                                                             title={gallery.status === 'APPROVED' ? 'Снять одобрение' : 'Изменить статус'}
                                                         >
@@ -659,11 +666,11 @@ const AdminDashboard = () => {
 
                 {/* Таблица выставок */}
                 {activeTab === 'exhibitions' && (
-                    <div className="exhibitions-section">
-                        <div className="section-header">
-                            <h3><i className="fas fa-calendar-alt"></i> Управление выставками</h3>
+                    <div>
+                        <div className="admin-section-header">
+                            <h2>Управление выставками</h2>
                             <button
-                                className="btn btn-outline"
+                                className="admin-btn admin-btn-outline"
                                 onClick={() => fetchExhibitions(sessionStorage.getItem('authToken'))}
                             >
                                 <i className="fas fa-sync-alt"></i> Обновить
@@ -671,14 +678,14 @@ const AdminDashboard = () => {
                         </div>
 
                         {loading.exhibitions ? (
-                            <div className="loading-placeholder">Загрузка выставок...</div>
+                            <div className="admin-loading-placeholder">Загрузка выставок...</div>
                         ) : exhibitions.length === 0 ? (
-                            <div className="empty-state">
+                            <div className="admin-empty-state">
                                 <i className="fas fa-calendar-times"></i>
                                 <p>Выставки не найдены</p>
                             </div>
                         ) : (
-                            <div className="table-container">
+                            <div className="admin-table-container">
                                 <table className="admin-table">
                                     <thead>
                                         <tr>
@@ -697,7 +704,7 @@ const AdminDashboard = () => {
                                                 <td>
                                                     <strong>{exhibition.title}</strong>
                                                     {exhibition.description && (
-                                                        <small className="description">{exhibition.description}</small>
+                                                        <span className="admin-description">{exhibition.description}</span>
                                                     )}
                                                 </td>
                                                 <td>
@@ -713,16 +720,16 @@ const AdminDashboard = () => {
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <div className="table-actions">
+                                                    <div className="admin-table-actions">
                                                         <button
-                                                            className="btn btn-primary btn-sm"
+                                                            className="admin-btn admin-btn-primary admin-btn-sm"
                                                             onClick={() => navigate(`/exhibitions/${exhibition.id}`)}
                                                             title="Просмотреть"
                                                         >
                                                             <i className="fas fa-eye"></i>
                                                         </button>
                                                         <button
-                                                            className="btn btn-warning btn-sm"
+                                                            className="admin-btn admin-btn-warning admin-btn-sm"
                                                             onClick={() => handleExhibitionAction(exhibition, 'edit')}
                                                             title="Редактировать"
                                                         >
@@ -741,18 +748,18 @@ const AdminDashboard = () => {
 
                 {/* Логи */}
                 {activeTab === 'logs' && (
-                    <div className="logs-section">
-                        <div className="section-header">
-                            <h3><i className="fas fa-history"></i> Системные логи</h3>
-                            <div className="log-tabs">
+                    <div>
+                        <div className="admin-section-header">
+                            <h2>Системные логи</h2>
+                            <div className="admin-log-tabs">
                                 <button
-                                    className={`log-tab-btn ${logsType === 'activity' ? 'active' : ''}`}
+                                    className={`admin-log-tab-btn ${logsType === 'activity' ? 'admin-active' : ''}`}
                                     onClick={() => setLogsType('activity')}
                                 >
                                     Активность пользователей
                                 </button>
                                 <button
-                                    className={`log-tab-btn ${logsType === 'audit' ? 'active' : ''}`}
+                                    className={`admin-log-tab-btn ${logsType === 'audit' ? 'admin-active' : ''}`}
                                     onClick={() => setLogsType('audit')}
                                 >
                                     Админ логи
@@ -761,9 +768,9 @@ const AdminDashboard = () => {
                         </div>
 
                         {loading.logs ? (
-                            <div className="loading-placeholder">Загрузка логов...</div>
+                            <div className="admin-loading-placeholder">Загрузка логов...</div>
                         ) : (
-                            <div className="table-container">
+                            <div className="admin-table-container">
                                 <table className="admin-table">
                                     <thead>
                                         <tr>
@@ -785,7 +792,7 @@ const AdminDashboard = () => {
                                                         log.user ? log.user.fullName : 'Система'}
                                                 </td>
                                                 <td>
-                                                    <span className="action-badge">
+                                                    <span className="admin-action-badge">
                                                         {log.action}
                                                     </span>
                                                 </td>
@@ -807,19 +814,19 @@ const AdminDashboard = () => {
 
             {/* Модальное окно для пользователей */}
             {showUserModal && selectedItem && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h3>
+                <div className="admin-modal-overlay">
+                    <div className="admin-modal-content">
+                        <div className="admin-modal-header">
+                            <h2>
                                 {actionType === 'activate' ? (selectedItem.isActive ? 'Деактивация' : 'Активация') :
                                     actionType === 'role' ? 'Изменение роли' : 'Сброс пароля'}
-                            </h3>
-                            <button className="modal-close" onClick={() => setShowUserModal(false)}>
+                            </h2>
+                            <button className="admin-modal-close" onClick={() => setShowUserModal(false)}>
                                 <i className="fas fa-times"></i>
                             </button>
                         </div>
 
-                        <div className="modal-body">
+                        <div className="admin-modal-body">
                             {actionType === 'activate' ? (
                                 <p>
                                     Вы уверены, что хотите {selectedItem.isActive ? 'деактивировать' : 'активировать'} пользователя
@@ -839,7 +846,7 @@ const AdminDashboard = () => {
                                 </p>
                             )}
 
-                            <div className="form-group">
+                            <div className="admin-form-group">
                                 <label htmlFor="comment">Комментарий (опционально)</label>
                                 <textarea
                                     id="comment"
@@ -851,15 +858,15 @@ const AdminDashboard = () => {
                             </div>
                         </div>
 
-                        <div className="modal-footer">
+                        <div className="admin-modal-footer">
                             <button
-                                className="btn btn-outline"
+                                className="admin-btn admin-btn-outline"
                                 onClick={() => setShowUserModal(false)}
                             >
                                 Отмена
                             </button>
                             <button
-                                className="btn btn-primary"
+                                className="admin-btn admin-btn-primary"
                                 onClick={handleConfirmAction}
                             >
                                 Подтвердить
@@ -871,29 +878,29 @@ const AdminDashboard = () => {
 
             {/* Модальное окно для галерей */}
             {showGalleryModal && selectedItem && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h3>
+                <div className="admin-modal-overlay">
+                    <div className="admin-modal-content">
+                        <div className="admin-modal-header">
+                            <h2>
                                 {actionType === 'approve' ? 'Одобрение галереи' :
                                     actionType === 'reject' ? 'Отклонение галереи' : 'Изменение статуса'}
-                            </h3>
-                            <button className="modal-close" onClick={() => setShowGalleryModal(false)}>
+                            </h2>
+                            <button className="admin-modal-close" onClick={() => setShowGalleryModal(false)}>
                                 <i className="fas fa-times"></i>
                             </button>
                         </div>
 
-                        <div className="modal-body">
+                        <div className="admin-modal-body">
                             <p>
                                 Галерея: <strong>{selectedItem.name}</strong>
                                 <br />
                                 Владелец: {selectedItem.owner ? selectedItem.owner.fullName : 'Не указан'}
                             </p>
 
-                            <div className="form-group">
+                            <div className="admin-form-group">
                                 <label htmlFor="comment">
                                     {actionType === 'reject' ? 'Причина отклонения *' : 'Комментарий'}
-                                    {actionType === 'reject' && <span className="required">*</span>}
+                                    {actionType === 'reject' && <span className="admin-required">*</span>}
                                 </label>
                                 <textarea
                                     id="comment"
@@ -906,15 +913,15 @@ const AdminDashboard = () => {
                             </div>
                         </div>
 
-                        <div className="modal-footer">
+                        <div className="admin-modal-footer">
                             <button
-                                className="btn btn-outline"
+                                className="admin-btn admin-btn-outline"
                                 onClick={() => setShowGalleryModal(false)}
                             >
                                 Отмена
                             </button>
                             <button
-                                className={`btn ${actionType === 'reject' ? 'btn-danger' : 'btn-primary'}`}
+                                className={`admin-btn ${actionType === 'reject' ? 'admin-btn-danger' : 'admin-btn-primary'}`}
                                 onClick={handleConfirmAction}
                                 disabled={actionType === 'reject' && !comment.trim()}
                             >

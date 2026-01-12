@@ -1,22 +1,537 @@
 .admin-dashboard {
-    padding: 20px;
-    max-width: 1400px;
-    margin: 0 auto;
+    width: 100%;
+    min-height: calc(100vh - 70px);
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f8f9fa;
 }
 
-.dashboard-loading {
+/* Учитываем высоту header */
+body {
+    padding-top: 70px;
+}
+
+/* Шапка профиля - как у артиста */
+.admin-dashboard-header {
+    background: #405bd4;
+    padding: 40px 0;
+    margin-bottom: 30px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.admin-profile-card {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding: 0 20px;
+}
+
+.admin-profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 5px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.admin-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.admin-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #667eea;
+    color: white;
+    font-size: 48px;
+}
+
+.admin-profile-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-profile-name {
+    font-size: 2.2rem;
+    margin: 0 0 10px 0;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-profile-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.admin-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    opacity: 0.9;
+    flex-shrink: 0;
+}
+
+.admin-detail-item i {
+    font-size: 1.1rem;
+}
+
+.admin-role-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-role-badge.admin-role-admin {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.admin-role-badge.admin-role-owner {
+    background: rgba(40, 167, 69, 0.8);
+    color: white;
+}
+
+.admin-profile-bio {
+    color: white;
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 10px 0 0 0;
+    word-wrap: break-word;
+}
+
+/* Вкладки */
+.admin-dashboard-tabs {
+    max-width: 1200px;
+    margin: 0 auto 30px;
+    display: flex;
+    gap: 10px;
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    width: calc(100% - 40px);
+}
+
+.admin-tab-btn {
+    flex: 1;
+    padding: 15px 20px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.admin-tab-btn:hover {
+    background: #f8f9fa;
+    color: #333;
+}
+
+.admin-tab-btn.admin-active {
+    background: #667eea;
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.admin-tab-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.admin-tab-btn.admin-active .admin-tab-badge {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Контент */
+.admin-dashboard-content {
+    max-width: 1200px;
+    margin: 0 auto 30px;
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    width: calc(100% - 40px);
+    overflow: hidden;
+}
+
+.admin-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.admin-section-header h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-section-header i {
+    color: #667eea;
+}
+
+.admin-dashboard-stats {
+    max-width: none;
+    /* Убираем ограничение ширины */
+    margin: 0 0 30px 0;
+    /* Убираем auto, только нижний отступ */
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 15px;
+    padding: 0 20px;
+    /* Боковые отступы */
+    width: 100%;
+    /* Занимает всю ширину */
+    box-sizing: border-box;
+}
+
+.admin-stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+    min-height: 90px;
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.admin-stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.admin-stat-icon.admin-users {
+    background: #667eea;
+}
+
+.admin-stat-icon.admin-active {
+    background: #4facfe;
+}
+
+.admin-stat-icon.admin-gallery {
+    background: #f1a7b1;
+}
+
+.admin-stat-icon.admin-artist {
+    background: #6f42c1;
+}
+
+.admin-stat-icon.admin-owner {
+    background: #fd7e14;
+}
+
+.admin-stat-icon.admin-exhibition {
+    background: #e83e8c;
+}
+
+.admin-stat-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.admin-stat-content h3 {
+    font-size: 2rem;
+    margin: 0;
+    color: #333;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-stat-content p {
+    margin: 5px 0 0 0;
+    color: #666;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+/* Таблицы */
+.admin-table-container {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 800px;
+}
+
+.admin-table th {
+    background: #f8f9fa;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #e9ecef;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.admin-table td {
+    padding: 15px;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+.admin-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+/* Статусы */
+.admin-status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.admin-status-badge.admin-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.admin-status-badge.admin-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.admin-status-badge.admin-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.admin-status-badge.admin-draft {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+/* Информация о пользователе */
+.admin-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e9ecef;
+}
+
+.admin-user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.admin-user-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.admin-user-email {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Бейдж для комментария */
+.admin-comment-badge {
+    display: inline-block;
+    margin-left: 8px;
+    color: #6c757d;
+    cursor: help;
+    font-size: 0.9rem;
+}
+
+.admin-description {
+    display: block;
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Владелец галереи - стили как у артиста */
+.admin-owner-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-owner-name,
+.admin-owner-email {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.admin-owner-name {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.admin-owner-email {
+    background: #f8f9fa;
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+/* Вкладки для логов */
+.admin-log-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.admin-log-tab-btn {
+    padding: 10px 20px;
+    border: 2px solid #e9ecef;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.admin-log-tab-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.admin-log-tab-btn.admin-active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.admin-action-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-family: 'Courier New', monospace;
+    color: #333;
+    border: 1px solid #e9ecef;
+}
+
+/* Состояния */
+.admin-loading-placeholder,
+.admin-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+    width: 100%;
+}
+
+.admin-empty-state i {
+    font-size: 64px;
+    color: #adb5bd;
+    margin-bottom: 20px;
+}
+
+.admin-empty-state p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.admin-dashboard-loading {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    min-height: 400px;
+    width: 100%;
 }
 
-.spinner {
+.admin-spinner {
     width: 50px;
     height: 50px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #007bff;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #667eea;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 20px;
@@ -32,549 +547,108 @@
     }
 }
 
-.dashboard-header {
-    margin-bottom: 30px;
-    width: 100%;
-}
-
-.profile-card {
-    display: flex;
-    align-items: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 25px;
-    border-radius: 15px;
-    color: white;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.profile-avatar {
-    width: 80px;
-    height: 80px;
-    margin-right: 20px;
-}
-
-.avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 36px;
-}
-
-.avatar-placeholder.admin {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.avatar-image {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid white;
-}
-
-.profile-info {
-    flex: 1;
-}
-
-.profile-name {
-    margin: 0 0 10px 0;
-    font-size: 24px;
-}
-
-.profile-details {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.detail-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-}
-
-.role-badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-.role-badge.admin {
-    background: #dc3545;
-    color: white;
-}
-
-.role-badge.owner {
-    background: #28a745;
-    /* Зеленый как раньше */
-    color: white;
-    padding: 6px 10px;
-    min-width: 70px;
-    text-align: center;
-    white-space: normal;
-    line-height: 1.2;
-}
-
-.owner-two-lines {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.owner-two-lines span {
-    display: block;
-    line-height: 1;
-}
-
-/* Владелец галереи - два овала */
-.owner-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.owner-name,
-.owner-email {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 12px;
-    background: #e9ecef;
-    color: #495057;
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 150px;
-}
-
-.owner-name {
-    background: #d1ecf1;
-    color: #0c5460;
-}
-
-.owner-email {
-    background: #f8f9fa;
-    color: #6c757d;
-    font-size: 11px;
-}
-
-.role-badge.artist {
-    background: #17a2b8;
-    color: white;
-}
-
-.dashboard-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-    gap: 2-px;
-    margin-bottom: 30px;
-}
-
-.stat-card {
-    background: white;
+.admin-error-message {
+    max-width: 1200px;
+    margin: 0 auto 20px;
+    background: #f8d7da;
+    color: #721c24;
     padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    transition: transform 0.3s, box-shadow 0.3s;
-    min-height: 80px;
-    min-width: 270px;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-}
-
-.stat-icon {
-    width: 45px;
-    height: 45px;
     border-radius: 8px;
     display: flex;
     align-items: center;
+    gap: 10px;
+    width: calc(100% - 40px);
+}
+
+.admin-error-message i {
+    font-size: 1.2rem;
+}
+
+
+.admin-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    margin-right: 12px;
-    font-size: 20px;
-    color: white;
-    flex-shrink: 0;
-}
-
-.stat-icon.users {
-    background: #007bff;
-}
-
-.stat-icon.active {
-    background: #28a745;
-}
-
-.stat-icon.gallery {
-    background: #6f42c1;
-}
-
-.stat-icon.artist {
-    background: #17a2b8;
-}
-
-.stat-icon.owner {
-    background: #fd7e14;
-}
-
-.stat-icon.exhibition {
-    background: #e83e8c;
-}
-
-.stat-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.stat-content h3 {
-    margin: 0 0 5px 0;
-    font-size: 24px;
-    font-weight: 700;
+    gap: 8px;
+    transition: all 0.3s ease;
     white-space: nowrap;
 }
 
-.stat-content p {
-    margin: 0;
-    color: #666;
-    font-size: 14px;
-    line-height: 1.3;
-
-    word-break: break-word;
-
-    hyphens: auto;
-
-    min-height: 36px;
-}
-
-.stat-label {
-    margin: 0;
-    color: #666;
-    font-size: 13px;
-    line-height: 1.3;
-    /* Перенос длинных слов */
-    word-break: break-word;
-    hyphens: auto;
-    /* Ограничение по высоте */
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.admin-tabs {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    overflow: hidden;
-}
-
-.tabs-header {
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-    background: #f8f9fa;
-}
-
-.tabs-header h2 {
-    margin: 0;
-    color: #333;
-}
-
-.tabs-navigation {
-    display: flex;
-    background: white;
-    overflow-x: auto;
-}
-
-.tab-btn {
-    padding: 15px 25px;
-    border: none;
-    background: none;
-    font-size: 16px;
-    font-weight: 500;
-    color: #666;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s;
-    border-bottom: 3px solid transparent;
-}
-
-.tab-btn:hover {
-    background: #f8f9fa;
-    color: #007bff;
-}
-
-.tab-btn.active {
-    color: #007bff;
-    border-bottom-color: #007bff;
-    background: #f8f9fa;
-}
-
-.tab-btn i {
-    font-size: 18px;
-}
-
-.tab-content {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
-}
-
-.section-header h3 {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.table-container {
-    overflow-x: auto;
-}
-
-.admin-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.admin-table thead {
-    background: #f8f9fa;
-}
-
-.admin-table th {
-    padding: 15px;
-    text-align: left;
-    font-weight: 600;
-    color: #333;
-    border-bottom: 2px solid #dee2e6;
-}
-
-.admin-table td {
-    padding: 15px;
-    border-bottom: 1px solid #dee2e6;
-    vertical-align: top;
-}
-
-.admin-table tr:hover {
-    background: #f8f9fa;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.status-badge.active {
-    background: #d4edda;
-    color: #155724;
-}
-
-.status-badge.pending {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.status-badge.cancelled {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.status-badge.draft {
-    background: #e2e3e5;
-    color: #383d41;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.user-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.table-actions {
-    display: flex;
-    gap: 5px;
-}
-
-.btn {
+.admin-btn-sm {
     padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s;
+    font-size: 0.9rem;
 }
 
-.btn-sm {
-    padding: 5px 10px;
-    font-size: 12px;
-}
-
-.btn-primary {
-    background: #007bff;
+.admin-btn-primary {
+    background: #667eea;
     color: white;
 }
 
-.btn-primary:hover {
-    background: #0056b3;
+.admin-btn-primary:hover {
+    background: #5a67d8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
-.btn-outline {
-    background: white;
-    color: #007bff;
-    border: 1px solid #007bff;
+.admin-btn-outline {
+    background: transparent;
+    border: 2px solid #667eea;
+    color: #667eea;
 }
 
-.btn-outline:hover {
-    background: #007bff;
+.admin-btn-outline:hover {
+    background: #667eea;
     color: white;
 }
 
-.btn-success {
+.admin-btn-success {
     background: #28a745;
     color: white;
 }
 
-.btn-success:hover {
-    background: #1e7e34;
+.admin-btn-success:hover {
+    background: #218838;
+    transform: translateY(-2px);
 }
 
-.btn-danger {
-    background: #dc3545;
-    color: white;
-}
-
-.btn-danger:hover {
-    background: #bd2130;
-}
-
-.btn-warning {
+.admin-btn-warning {
     background: #ffc107;
     color: #212529;
 }
 
-.btn-warning:hover {
+.admin-btn-warning:hover {
     background: #e0a800;
+    transform: translateY(-2px);
 }
 
-.btn-info {
+.admin-btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.admin-btn-danger:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+}
+
+.admin-btn-info {
     background: #17a2b8;
     color: white;
 }
 
-.btn-info:hover {
+.admin-btn-info:hover {
     background: #117a8b;
+    transform: translateY(-2px);
 }
 
-.loading-placeholder {
-    padding: 40px;
-    text-align: center;
-    color: #666;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 50px 20px;
-    color: #666;
-}
-
-.empty-state i {
-    font-size: 48px;
-    margin-bottom: 15px;
-    color: #ccc;
-}
-
-.empty-state p {
-    margin-bottom: 20px;
-}
-
-.description {
-    display: block;
-    color: #666;
-    font-size: 12px;
-    margin-top: 5px;
-    max-width: 300px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.comment-badge {
-    display: inline-block;
-    margin-left: 5px;
-    color: #6c757d;
-    cursor: help;
-}
-
-.log-tabs {
-    display: flex;
-    gap: 10px;
-}
-
-.log-tab-btn {
-    padding: 8px 16px;
-    border: 1px solid #dee2e6;
-    background: white;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.log-tab-btn.active {
-    background: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-.action-badge {
-    display: inline-block;
-    padding: 4px 8px;
-    background: #e9ecef;
-    border-radius: 4px;
-    font-size: 12px;
-    font-family: monospace;
-}
-
-.modal-overlay {
+/* Модальное окно */
+.admin-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -585,89 +659,313 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    padding: 20px;
 }
 
-.modal-content {
+.admin-modal-content {
     background: white;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 500px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 600px;
     max-height: 90vh;
     overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalAppear 0.3s ease;
 }
 
-.modal-header {
-    padding: 20px;
-    border-bottom: 1px solid #eee;
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.admin-modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 20px 30px;
+    border-bottom: 1px solid #e9ecef;
 }
 
-.modal-header h3 {
+.admin-modal-header h2 {
     margin: 0;
+    font-size: 1.5rem;
+    color: #333;
 }
 
-.modal-close {
+.admin-modal-close {
     background: none;
     border: none;
-    font-size: 20px;
-    cursor: pointer;
+    font-size: 1.5rem;
     color: #666;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
 }
 
-.modal-body {
-    padding: 20px;
+.admin-modal-close:hover {
+    background: #f8f9fa;
+    color: #333;
 }
 
-.modal-footer {
-    padding: 20px;
-    border-top: 1px solid #eee;
+.admin-modal-body {
+    padding: 30px;
+}
+
+.admin-modal-footer {
+    padding: 20px 30px;
+    border-top: 1px solid #e9ecef;
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 15px;
 }
 
-.form-group {
+/* Форма в модалке */
+.admin-form-group {
     margin-bottom: 20px;
 }
 
-.form-group label {
+.admin-form-group label {
     display: block;
     margin-bottom: 8px;
-    font-weight: 500;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.95rem;
 }
 
-.form-group textarea {
+.admin-form-group input,
+.admin-form-group select,
+.admin-form-group textarea {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 12px 16px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
     font-family: inherit;
-    resize: vertical;
 }
 
-.required {
+.admin-form-group input:focus,
+.admin-form-group select:focus,
+.admin-form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.admin-form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.admin-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.admin-required {
     color: #dc3545;
     margin-left: 5px;
 }
 
+.admin-alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-alert.admin-alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Адаптивность */
 @media (max-width: 768px) {
-    .dashboard-stats {
-        grid-template-columns: repeat(2, 1fr);
+    .admin-dashboard {
+        min-height: calc(100vh - 60px);
     }
 
-    .tabs-navigation {
+    body {
+        padding-top: 60px;
+    }
+
+    .admin-dashboard-header {
+        padding: 30px 0;
+    }
+
+    .admin-profile-card {
         flex-direction: column;
+        text-align: center;
+        gap: 20px;
     }
 
-    .tab-btn {
+    .admin-profile-details {
         justify-content: center;
     }
 
-    .section-header {
-        flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
+    .admin-profile-name {
+        font-size: 1.8rem;
     }
+
+    .admin-dashboard-tabs {
+        flex-direction: column;
+    }
+
+    .admin-dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-section-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-section-header h2 {
+        text-align: center;
+        justify-content: center;
+    }
+
+    .admin-table-actions {
+        flex-direction: column;
+    }
+
+    .admin-table-actions .admin-btn {
+        width: 100%;
+    }
+
+    .admin-table {
+        font-size: 0.85rem;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 10px 8px;
+    }
+
+    .admin-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-log-tabs {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-dashboard-content {
+        padding: 20px 15px;
+    }
+
+    .admin-dashboard-tabs,
+    .admin-dashboard-content,
+    .admin-error-message {
+        width: calc(100% - 30px);
+    }
+
+    .admin-dashboard-stats {
+        padding: 0 15px;
+        width: calc(100% - 30px);
+    }
+
+    .admin-profile-card {
+        padding: 0 15px;
+    }
+
+    .admin-tab-btn {
+        padding: 12px 15px;
+        font-size: 0.9rem;
+    }
+
+    .admin-section-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .admin-stat-card {
+        padding: 20px;
+    }
+
+    .admin-stat-content h3 {
+        font-size: 1.5rem;
+    }
+
+    .admin-user-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .admin-user-avatar {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+/* Стили для ролей пользователей */
+.admin-role-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    display: inline-block;
+    text-align: center;
+}
+
+.admin-role-badge.admin-role-admin {
+    background: #667eea;
+    /* Синий для админа */
+    color: white;
+}
+
+.admin-role-badge.admin-role-owner {
+    background: #28a745;
+    /* Зеленый для владельца галереи */
+    color: white;
+    padding: 6px 10px;
+    min-width: 70px;
+}
+
+.admin-role-badge.admin-role-artist {
+    background: #17a2b8;
+    /* Бирюзовый для художника */
+    color: white;
+}
+
+.admin-role-badge.admin-role-user {
+    background: #6c757d;
+    /* Серый для обычного пользователя */
+    color: white;
+}
+
+/* Если нужно сделать владельца галереи как у артиста (с двумя строками) */
+.owner-two-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1;
+}
+
+.owner-two-lines span {
+    display: block;
+    font-size: 0.8rem;
+    line-height: 1.2;
 }
