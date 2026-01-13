@@ -230,8 +230,10 @@ const GalleryOwnerDashboard = () => {
   };
 
   const handleRejectBooking = async (bookingId) => {
-    const reason = window.prompt('Укажите причину отклонения бронирования:');
-    if (!reason) return;
+    // Убираем prompt и используем стандартное сообщение
+    if (!window.confirm('Вы действительно хотите отклонить бронирование?')) return;
+
+    const reason = "Бронирование отклонено владельцем галереи"; // Стандартная причина
 
     try {
       const token = sessionStorage.getItem('authToken');
@@ -241,7 +243,7 @@ const GalleryOwnerDashboard = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ reason })
+        body: JSON.stringify({ reason }) // Отправляем стандартную причину
       });
 
       if (response.ok) {
@@ -613,9 +615,7 @@ const GalleryOwnerDashboard = () => {
                                   </button>
                                 </>
                               )}
-                              {booking.status === 'CONFIRMED' && (
-                                <span className="owner-confirmed-text">Подтверждено</span>
-                              )}
+
                             </div>
                           </td>
                         </tr>
