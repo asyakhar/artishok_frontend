@@ -539,7 +539,6 @@ const GalleryOwnerDashboard = () => {
           <div className="owner-modal-content">
             <div className="owner-modal-header">
               <h2>
-                <i className="fas fa-calendar-check"></i>
                 Бронирования выставки "{selectedExhibition.title}"
               </h2>
               <button className="owner-modal-close" onClick={() => setShowBookingsModal(false)}>

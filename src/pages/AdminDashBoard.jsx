@@ -196,12 +196,7 @@ const AdminDashboard = () => {
 
     const handleConfirmAction = async () => {
         if (!selectedItem) return;
-        if (activeTab === 'galleries' && actionType === 'reject') {
-            if (!comment.trim()) {
-                alert('Пожалуйста, укажите причину отклонения');
-                return;
-            }
-        }
+
         const token = sessionStorage.getItem('authToken');
 
         try {
@@ -750,7 +745,7 @@ const AdminDashboard = () => {
                 {activeTab === 'logs' && (
                     <div>
                         <div className="admin-section-header">
-                            <h2>Системные логи</h2>
+                            <h2> Системные логи</h2>
                             <div className="admin-log-tabs">
                                 <button
                                     className={`admin-log-tab-btn ${logsType === 'activity' ? 'admin-active' : ''}`}

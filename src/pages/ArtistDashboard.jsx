@@ -17,6 +17,8 @@ const ArtistDashboard = () => {
     artworks: true,
     exhibitions: true,
   });
+  const [selectedBookingComment, setSelectedBookingComment] = useState(null);
+  const [showCommentModal, setShowCommentModal] = useState(false);
   const [activeTab, setActiveTab] = useState("bookings");
   const [error, setError] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -155,6 +157,17 @@ const ArtistDashboard = () => {
       console.error("Ошибка отмены бронирования:", error);
       alert("Произошла ошибка при отмене бронирования");
     }
+  };
+
+  const handleViewComment = (booking) => {
+    setSelectedBookingComment({
+      id: booking.id,
+      comment: booking.adminComment || "Комментарий отсутствует",
+      status: booking.status,
+      date: booking.bookingDate,
+      updatedAt: booking.updatedAt || booking.bookingDate,
+    });
+    setShowCommentModal(true);
   };
 
   const handlePublishArtwork = async (artworkId) => {
@@ -447,6 +460,14 @@ const ArtistDashboard = () => {
                                 </span>
                               )}
                             </div>
+                            <button
+                              className="artist-btn artist-btn-info artist-btn-sm"
+                              onClick={() => handleViewComment(booking)}
+                              title="Просмотреть комментарий"
+                              style={{ marginLeft: "5px" }}
+                            >
+                              <i className="fas fa-comment-alt"></i>
+                            </button>
                           </td>
                         </tr>
                       );
@@ -674,6 +695,43 @@ const ArtistDashboard = () => {
           editData={editingArtwork}
           isEditMode={isEditMode}
         />
+      )}
+
+      {showCommentModal && selectedBookingComment && (
+        <div className="artist-modal-overlay">
+          <div className="artist-modal artist-comment-modal">
+            <div className="artist-modal-header">
+              <h3>Комментарий к бронированию #{selectedBookingComment.id}</h3>
+              <button
+                className="artist-modal-close"
+                onClick={() => setShowCommentModal(false)}
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="artist-modal-body">
+              <div className="artist-comment-status">
+                <span className={getStatusBadgeClass(selectedBookingComment.status)}>
+                  {selectedBookingComment.status}
+                </span>
+                <span className="artist-comment-date">
+                  Обновлено: {selectedBookingComment.updatedAt}
+                </span>
+              </div>
+              <div className="artist-comment-content">
+                {selectedBookingComment.comment}
+              </div>
+            </div>
+            <div className="artist-modal-footer">
+              <button
+                className="artist-btn artist-btn-secondary"
+                onClick={() => setShowCommentModal(false)}
+              >
+                Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

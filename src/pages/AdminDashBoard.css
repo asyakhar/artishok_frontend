@@ -7,12 +7,10 @@
     background: #f8f9fa;
 }
 
-/* Учитываем высоту header */
 body {
     padding-top: 70px;
 }
 
-/* Шапка профиля - как у артиста */
 .admin-dashboard-header {
     background: #405bd4;
     padding: 40px 0;
@@ -124,7 +122,6 @@ body {
     word-wrap: break-word;
 }
 
-/* Вкладки */
 .admin-dashboard-tabs {
     max-width: 1200px;
     margin: 0 auto 30px;
@@ -178,7 +175,6 @@ body {
     background: rgba(255, 255, 255, 0.3);
 }
 
-/* Контент */
 .admin-dashboard-content {
     max-width: 1200px;
     margin: 0 auto 30px;
@@ -214,16 +210,12 @@ body {
 
 .admin-dashboard-stats {
     max-width: none;
-    /* Убираем ограничение ширины */
     margin: 0 0 30px 0;
-    /* Убираем auto, только нижний отступ */
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 15px;
     padding: 0 20px;
-    /* Боковые отступы */
     width: 100%;
-    /* Занимает всю ширину */
     box-sizing: border-box;
 }
 
@@ -301,7 +293,6 @@ body {
     white-space: nowrap;
 }
 
-/* Таблицы */
 .admin-table-container {
     overflow-x: auto;
     width: 100%;
@@ -346,7 +337,6 @@ body {
     flex-wrap: nowrap;
 }
 
-/* Статусы */
 .admin-status-badge {
     padding: 6px 12px;
     border-radius: 20px;
@@ -376,7 +366,6 @@ body {
     color: #383d41;
 }
 
-/* Информация о пользователе */
 .admin-user-info {
     display: flex;
     align-items: center;
@@ -407,7 +396,6 @@ body {
     color: #666;
 }
 
-/* Бейдж для комментария */
 .admin-comment-badge {
     display: inline-block;
     margin-left: 8px;
@@ -427,7 +415,6 @@ body {
     white-space: nowrap;
 }
 
-/* Владелец галереи - стили как у артиста */
 .admin-owner-info {
     display: flex;
     flex-direction: column;
@@ -458,7 +445,6 @@ body {
     font-size: 0.8rem;
 }
 
-/* Вкладки для логов */
 .admin-log-tabs {
     display: flex;
     gap: 10px;
@@ -498,7 +484,6 @@ body {
     border: 1px solid #e9ecef;
 }
 
-/* Состояния */
 .admin-loading-placeholder,
 .admin-empty-state {
     text-align: center;
@@ -647,7 +632,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Модальное окно */
 .admin-modal-overlay {
     position: fixed;
     top: 0;
@@ -732,7 +716,6 @@ body {
     gap: 15px;
 }
 
-/* Форма в модалке */
 .admin-form-group {
     margin-bottom: 20px;
 }
@@ -796,7 +779,6 @@ body {
     border: 1px solid #f5c6cb;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .admin-dashboard {
         min-height: calc(100vh - 60px);
@@ -917,7 +899,6 @@ body {
     }
 }
 
-/* Стили для ролей пользователей */
 .admin-role-badge {
     padding: 6px 12px;
     border-radius: 20px;
@@ -932,13 +913,11 @@ body {
 
 .admin-role-badge.admin-role-admin {
     background: #667eea;
-    /* Синий для админа */
     color: white;
 }
 
 .admin-role-badge.admin-role-owner {
     background: #28a745;
-    /* Зеленый для владельца галереи */
     color: white;
     padding: 6px 10px;
     min-width: 70px;
@@ -946,17 +925,15 @@ body {
 
 .admin-role-badge.admin-role-artist {
     background: #17a2b8;
-    /* Бирюзовый для художника */
     color: white;
 }
 
 .admin-role-badge.admin-role-user {
     background: #6c757d;
-    /* Серый для обычного пользователя */
     color: white;
 }
 
-/* Если нужно сделать владельца галереи как у артиста (с двумя строками) */
+
 .owner-two-lines {
     display: flex;
     flex-direction: column;
