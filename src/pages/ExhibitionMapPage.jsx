@@ -163,31 +163,72 @@ const ExhibitionMapPage = () => {
     }
   };
   // ========== ОБРАБОТЧИКИ ДЛЯ ВЛАДЕЛЬЦА ==========
-  const handleUploadHallMap = async (imageFile, name = "Карта зала") => {
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("exhibitionEventId", exhibitionId); // убедитесь, что exhibitionId доступен
-    if (imageFile) {
-      formData.append("mapImage", imageFile); // ← именно файл, не URL!
-    }
+  // const handleUploadHallMap = async (imageFile, name = "Карта зала") => {
+  //   const formData = new FormData();
+  //   formData.append("name", name);
+  //   formData.append("exhibitionEventId", exhibitionId); // убедитесь, что exhibitionId доступен
+  //   if (imageFile) {
+  //     formData.append("mapImage", imageFile); // ← именно файл, не URL!
+  //   }
 
+  //   try {
+  //     // Предполагается, что ownerApi.uploadHallMapWithImage отправляет FormData
+  //     const response = await ownerApi.uploadHallMapWithImage(formData);
+
+  //     // Обновляем данные
+  //     const mapsData = await commonApi.getHallMapsByEvent(exhibitionId);
+  //     setHallMaps(mapsData);
+  //     if (mapsData.length > 0) {
+  //       setSelectedMap(mapsData[0]);
+  //       await loadStandsForMap(mapsData[0].id);
+  //     }
+  //     return response;
+  //   } catch (err) {
+  //     throw new Error(err.response?.data?.error || "Ошибка загрузки карты");
+  //   }
+  // };
+  const handleUploadHallMap = async (imageFile, name = "Карта зала") => {
     try {
-      // Предполагается, что ownerApi.uploadHallMapWithImage отправляет FormData
-      const response = await ownerApi.uploadHallMapWithImage(formData);
+      // Создаем объект для API
+      const requestData = {
+        name: name,
+        exhibitionEventId: Number(exhibitionId), // Преобразуем в число
+        mapImage: imageFile,
+      };
+
+      console.log("📤 Отправка данных для создания карты:", {
+        name: requestData.name,
+        exhibitionEventId: requestData.exhibitionEventId,
+        hasImage: !!requestData.mapImage,
+      });
+
+      // Используем правильную функцию
+      const response = await ownerApi.createHallMapWithImage(requestData);
+
+      console.log("✅ Карта успешно создана:", response);
 
       // Обновляем данные
       const mapsData = await commonApi.getHallMapsByEvent(exhibitionId);
       setHallMaps(mapsData);
+
       if (mapsData.length > 0) {
-        setSelectedMap(mapsData[0]);
-        await loadStandsForMap(mapsData[0].id);
+        const newMap = mapsData[mapsData.length - 1];
+        setSelectedMap(newMap);
+        await loadStandsForMap(newMap.id);
+        setManualRefreshKey((prev) => prev + 1);
       }
+
       return response;
     } catch (err) {
-      throw new Error(err.response?.data?.error || "Ошибка загрузки карты");
+      console.error("❌ Ошибка создания карты:", err);
+      throw new Error(
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          err.message ||
+          "Ошибка создания карты"
+      );
     }
   };
-
   const handleCreateStand = async (standData) => {
     try {
       // Форматируем данные для нового DTO

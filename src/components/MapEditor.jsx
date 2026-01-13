@@ -352,7 +352,7 @@ const MapEditor = ({
           "Превышен размер"
         );
         setLoading(false);
-        toast.dismiss(loadingToast);
+
         return;
       }
 
@@ -371,7 +371,7 @@ const MapEditor = ({
         try {
           if (hallMapId) {
             setUploadProgress(30);
-            toast.dismiss(loadingToast);
+
             toast.info("Обновляем существующую карту...", 3000);
 
             const result = await ownerApi.uploadHallMapImage(hallMapId, file);
@@ -383,7 +383,7 @@ const MapEditor = ({
             }
           } else {
             setUploadProgress(30);
-            toast.dismiss(loadingToast);
+
             toast.info("Создаем новую карту зала...", 3000);
 
             const mapData = {
@@ -440,7 +440,6 @@ const MapEditor = ({
       img.onerror = () => {
         showError("Не удалось прочитать файл изображения", "Ошибка файла");
         setLoading(false);
-        toast.dismiss(loadingToast);
       };
     } catch (error) {
       showError("Непредвиденная ошибка при обработке файла", "Ошибка");
