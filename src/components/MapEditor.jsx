@@ -51,7 +51,42 @@ const MapEditor = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   const [hallMapId, setHallMapId] = useState(hallMap?.id || null);
+  const showError = (message, title = "Ошибка") => {
+    if (window.toast && window.toast.error) {
+      window.toast.error(`${title}: ${message}`, 6000);
+    } else {
+      console.error(`${title}: ${message}`);
+      // Fallback на стандартный alert
+      alert(`${title}: ${message}`);
+    }
+  };
 
+  const showSuccess = (message) => {
+    if (window.toast && window.toast.success) {
+      window.toast.success(message, 4000);
+    } else {
+      console.log("✅", message);
+      alert("✅ " + message);
+    }
+  };
+
+  const showWarning = (message) => {
+    if (window.toast && window.toast.warning) {
+      window.toast.warning(message, 5000);
+    } else {
+      console.warn("⚠️", message);
+      alert("⚠️ " + message);
+    }
+  };
+
+  const showInfo = (message) => {
+    if (window.toast && window.toast.info) {
+      window.toast.info(message, 3000);
+    } else {
+      console.info("ℹ️", message);
+      alert("ℹ️ " + message);
+    }
+  };
   useEffect(() => {
     window.handleBookStand = async (standId, standNumber) => {
       try {
@@ -65,8 +100,12 @@ const MapEditor = ({
           if (onRefreshStands) {
             setTimeout(() => onRefreshStands(), 300);
           }
+          showSuccess(
+            `Запрос на бронирование стенда ${standNumber} отправлен!`
+          );
         }
       } catch (err) {
+        showError(errorMessage, "Ошибка бронирования");
         console.error("Ошибка бронирования:", err);
       }
     };
@@ -83,8 +122,10 @@ const MapEditor = ({
           if (onRefreshStands) {
             setTimeout(() => onRefreshStands(), 300);
           }
+          showSuccess(`Бронирование стенда ${standNumber} подтверждено!`);
         }
       } catch (err) {
+        showError(errorMessage, "Ошибка подтверждения");
         console.error("Ошибка подтверждения:", err);
       }
     };
@@ -101,9 +142,11 @@ const MapEditor = ({
           if (onRefreshStands) {
             setTimeout(() => onRefreshStands(), 300);
           }
+          showInfo(`Бронирование стенда ${standNumber} отклонено`);
         }
       } catch (err) {
         console.error("Ошибка отклонения:", err);
+        showError(errorMessage, "Ошибка отклонения");
       }
     };
 
@@ -119,8 +162,10 @@ const MapEditor = ({
           if (onRefreshStands) {
             setTimeout(() => onRefreshStands(), 300);
           }
+          showSuccess(`Стенд ${standNumber} успешно удален`);
         }
       } catch (err) {
+        showError(errorMessage, "Ошибка удаления");
         console.error("Ошибка удаления:", err);
       }
     };
@@ -211,12 +256,83 @@ const MapEditor = ({
     renderStands();
   }, [stands, tempStands]);
 
+  // const handleImageUpload = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file) return;
+
+  //   if (!file.type.includes("image")) {
+  //     alert("Выберите картинку!");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+  //     setUploadProgress(10);
+
+  //     let uploadedUrl = null;
+  //     let mapId = hallMapId;
+
+  //     if (file.size > 10 * 1024 * 1024) {
+  //       alert("Файл слишком большой! Максимальный размер 10MB.");
+  //       setLoading(false);
+  //       return;
+  //     }
+
+  //     if (hallMapId) {
+  //       setUploadProgress(30);
+  //       const result = await ownerApi.uploadHallMapImage(hallMapId, file);
+  //       uploadedUrl = result.mapImageUrl;
+  //       setUploadProgress(70);
+
+  //       if (onMapImageUpload) {
+  //         await onMapImageUpload(hallMapId, uploadedUrl);
+  //       }
+  //     } else {
+  //       setUploadProgress(30);
+  //       const mapData = {
+  //         name: `План зала ${new Date().toLocaleDateString()}`,
+  //         exhibitionEventId: exhibitionId,
+  //         mapImage: file,
+  //       };
+
+  //       const result = await ownerApi.createHallMapWithImage(mapData);
+  //       uploadedUrl = result.mapImageUrl;
+  //       mapId = result.id;
+  //       setHallMapId(result.id);
+  //       setUploadProgress(70);
+
+  //       if (onUploadHallMap) {
+  //         await onUploadHallMap(result);
+  //       }
+  //     }
+
+  //     if (uploadedUrl) {
+  //       setUploadedImageUrl(uploadedUrl);
+  //       await loadImageToMap(uploadedUrl);
+  //       setUploadProgress(100);
+
+  //       setTimeout(() => {
+  //         setUploadProgress(0);
+  //         alert("✅ Изображение успешно загружено на сервер!");
+  //       }, 500);
+  //     }
+  //   } catch (error) {
+  //     console.error("Ошибка загрузки:", error);
+  //     alert(
+  //       `❌ Ошибка загрузки: ${error.response?.data?.error || error.message}`
+  //     );
+  //     setImageError(true);
+  //   } finally {
+  //     setLoading(false);
+  //     e.target.value = "";
+  //   }
+  // };
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     if (!file.type.includes("image")) {
-      alert("Выберите картинку!");
+      showWarning("Пожалуйста, выберите файл изображения (JPG, PNG, GIF)");
       return;
     }
 
@@ -224,65 +340,114 @@ const MapEditor = ({
       setLoading(true);
       setUploadProgress(10);
 
+      // Показать информационное уведомление о начале загрузки
+      const loadingToast = toast.info("Начинаем загрузку изображения...", 0);
+
       let uploadedUrl = null;
       let mapId = hallMapId;
 
       if (file.size > 10 * 1024 * 1024) {
-        alert("Файл слишком большой! Максимальный размер 10MB.");
+        showError(
+          "Файл слишком большой! Максимальный размер 10MB.",
+          "Превышен размер"
+        );
         setLoading(false);
+        toast.dismiss(loadingToast);
         return;
       }
 
-      if (hallMapId) {
-        setUploadProgress(30);
-        const result = await ownerApi.uploadHallMapImage(hallMapId, file);
-        uploadedUrl = result.mapImageUrl;
-        setUploadProgress(70);
-
-        if (onMapImageUpload) {
-          await onMapImageUpload(hallMapId, uploadedUrl);
+      // Проверка минимального размера
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = async () => {
+        if (img.width < 500 || img.height < 500) {
+          showWarning(
+            "Рекомендуемый размер изображения не менее 500×500 пикселей"
+          );
         }
-      } else {
-        setUploadProgress(30);
-        const mapData = {
-          name: `План зала ${new Date().toLocaleDateString()}`,
-          exhibitionEventId: exhibitionId,
-          mapImage: file,
-        };
 
-        const result = await ownerApi.createHallMapWithImage(mapData);
-        uploadedUrl = result.mapImageUrl;
-        mapId = result.id;
-        setHallMapId(result.id);
-        setUploadProgress(70);
+        URL.revokeObjectURL(img.src);
 
-        if (onUploadHallMap) {
-          await onUploadHallMap(result);
+        try {
+          if (hallMapId) {
+            setUploadProgress(30);
+            toast.dismiss(loadingToast);
+            toast.info("Обновляем существующую карту...", 3000);
+
+            const result = await ownerApi.uploadHallMapImage(hallMapId, file);
+            uploadedUrl = result.mapImageUrl;
+            setUploadProgress(70);
+
+            if (onMapImageUpload) {
+              await onMapImageUpload(hallMapId, uploadedUrl);
+            }
+          } else {
+            setUploadProgress(30);
+            toast.dismiss(loadingToast);
+            toast.info("Создаем новую карту зала...", 3000);
+
+            const mapData = {
+              name: `План зала ${new Date().toLocaleDateString()}`,
+              exhibitionEventId: exhibitionId,
+              mapImage: file,
+            };
+
+            const result = await ownerApi.createHallMapWithImage(mapData);
+            uploadedUrl = result.mapImageUrl;
+            mapId = result.id;
+            setHallMapId(result.id);
+            setUploadProgress(70);
+
+            if (onUploadHallMap) {
+              await onUploadHallMap(result);
+            }
+          }
+
+          if (uploadedUrl) {
+            setUploadedImageUrl(uploadedUrl);
+            await loadImageToMap(uploadedUrl);
+            setUploadProgress(100);
+
+            showSuccess("✅ Изображение успешно загружено на сервер!");
+
+            setTimeout(() => {
+              setUploadProgress(0);
+            }, 500);
+          }
+        } catch (error) {
+          console.error("Ошибка загрузки:", error);
+
+          const errorMessage =
+            error.response?.data?.error ||
+            error.response?.data?.message ||
+            error.message ||
+            "Неизвестная ошибка";
+
+          showError(errorMessage, "Ошибка загрузки");
+
+          // Дополнительная информация для разработчика
+          if (process.env.NODE_ENV === "development") {
+            console.error("Полная ошибка:", error);
+          }
+
+          setImageError(true);
+        } finally {
+          setLoading(false);
+          e.target.value = "";
         }
-      }
+      };
 
-      if (uploadedUrl) {
-        setUploadedImageUrl(uploadedUrl);
-        await loadImageToMap(uploadedUrl);
-        setUploadProgress(100);
-
-        setTimeout(() => {
-          setUploadProgress(0);
-          alert("✅ Изображение успешно загружено на сервер!");
-        }, 500);
-      }
+      img.onerror = () => {
+        showError("Не удалось прочитать файл изображения", "Ошибка файла");
+        setLoading(false);
+        toast.dismiss(loadingToast);
+      };
     } catch (error) {
-      console.error("Ошибка загрузки:", error);
-      alert(
-        `❌ Ошибка загрузки: ${error.response?.data?.error || error.message}`
-      );
-      setImageError(true);
-    } finally {
+      showError("Непредвиденная ошибка при обработке файла", "Ошибка");
       setLoading(false);
       e.target.value = "";
     }
   };
-
   const loadHallMapImage = (imageUrl) => {
     if (!mapInstance.current || !imageUrl) return;
 
@@ -324,12 +489,17 @@ const MapEditor = ({
       setTimeout(() => {
         renderStands();
       }, 200);
+      if (!hasShownMapLoaded) {
+        showSuccess("Карта зала успешно загружена");
+        setHasShownMapLoaded(true);
+      }
     };
 
     img.onerror = function () {
       console.error("Ошибка загрузки изображения");
       setImageError(true);
       showPlaceholder();
+      showError("Не удалось загрузить изображение карты", "Ошибка загрузки");
     };
 
     img.src = imageUrl;
@@ -516,12 +686,12 @@ const MapEditor = ({
 
   const handleToggleDrawing = () => {
     if (mode !== "owner") {
-      alert("Эта функция доступна только владельцам выставки");
+      showWarning("Эта функция доступна только владельцам выставки");
       return;
     }
 
     if (!imageOverlayRef.current && !isDrawing) {
-      alert("⚠️ Сначала загрузите план зала!");
+      showWarning("Сначала загрузите план зала!");
       return;
     }
 
@@ -530,6 +700,11 @@ const MapEditor = ({
 
     if (!newState) {
       clearTempMarkers();
+      showInfo("Режим добавления стендов отключен");
+    } else {
+      showSuccess(
+        "Режим добавления стендов включен. Кликните на карте для размещения стенда"
+      );
     }
   };
 
@@ -849,7 +1024,7 @@ const MapEditor = ({
 
   const handleSaveStand = async () => {
     if (!pendingStandPosition || !standFormData.standNumber) {
-      alert("Заполните все обязательные поля");
+      showWarning("Заполните все обязательные поля");
       return;
     }
 
@@ -883,9 +1058,9 @@ const MapEditor = ({
 
       clearTempMarkers();
 
-      alert("✅ Стенд успешно добавлен!");
+      showSuccess(`Стенд ${newStand.standNumber} успешно добавлен!`);
     } catch (err) {
-      alert("❌ Ошибка сохранения: " + err.message);
+      showError(errorMessage, "Ошибка сохранения стенда");
     }
   };
 
@@ -926,12 +1101,12 @@ const MapEditor = ({
   const handleSaveAll = async () => {
     try {
       if (tempStands.length > 0) {
-        alert(`✅ Сохранено ${tempStands.length} стендов!`);
+        showSuccess(`Сохранено ${tempStands.length} стендов!`);
       } else {
-        alert("✅ Все изменения сохранены!");
+        showInfo("Все изменения уже сохранены");
       }
     } catch (error) {
-      alert("❌ Ошибка сохранения: " + error.message);
+      showError(errorMessage, "Ошибка сохранения");
     }
   };
 

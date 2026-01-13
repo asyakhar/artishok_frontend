@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./RegisterPage.css";
 
@@ -27,6 +27,8 @@ const RegisterPage = () => {
     avatarUrl: "",
   });
 
+  const [fieldErrors, setFieldErrors] = useState({});
+
   const steps = [
     {
       title: "Личные данные",
@@ -35,7 +37,7 @@ const RegisterPage = () => {
       type: "text",
       placeholder: "Иванов Иван Иванович",
       required: true,
-      description: "Введите ваше полное имя",
+      description: "Введите ваше полное имя (ФИО)",
     },
     {
       title: "Контактная информация",
@@ -89,9 +91,9 @@ const RegisterPage = () => {
       question: "Ваш телефон",
       field: "phoneNumber",
       type: "tel",
-      placeholder: "+7 (999) 000-00-00",
+      placeholder: "+7 (___) ___-__-__",
       required: true,
-      description: "Для связи и уведомлений. Обязательное поле",
+      description: "Введите номер в формате +7 (999) 999-99-99",
     },
     {
       title: "О себе",
@@ -112,12 +114,156 @@ const RegisterPage = () => {
     },
   ];
 
+  // Форматирование телефона в реальном времени
+  const formatPhoneNumber = (value) => {
+    // Убираем все нецифровые символы
+    const cleaned = value.replace(/\D/g, "");
+
+    // Если начинается с 8 или 7, приводим к +7
+    let formatted = cleaned;
+    if (cleaned.startsWith("8") || cleaned.startsWith("7")) {
+      formatted = "7" + cleaned.slice(1);
+    }
+
+    // Форматируем по маске
+    const match = formatted.match(
+      /^(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/
+    );
+
+    if (!match) return "";
+
+    const [, code, part1, part2, part3, part4] = match;
+
+    let result = "";
+    if (code) result += `+${code}`;
+    if (part1) result += ` (${part1}`;
+    if (part2) result += `) ${part2}`;
+    if (part3) result += `-${part3}`;
+    if (part4) result += `-${part4}`;
+
+    return result;
+  };
+
+  // Валидация поля Full Name
+  const validateFullName = (name) => {
+    if (!name.trim()) {
+      return "ФИО обязательно для заполнения";
+    }
+    if (name.trim().split(" ").length < 2) {
+      return "Введите имя и фамилию (минимум 2 слова)";
+    }
+    if (name.length < 3) {
+      return "ФИО должно содержать минимум 3 символа";
+    }
+    if (name.length > 100) {
+      return "ФИО не должно превышать 100 символов";
+    }
+    return "";
+  };
+
+  // Валидация поля Email
+  const validateEmail = (email) => {
+    if (!email.trim()) {
+      return "Email обязателен для заполнения";
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return "Введите корректный email адрес";
+    }
+    if (email.length > 100) {
+      return "Email не должен превышать 100 символов";
+    }
+    return "";
+  };
+
+  // Валидация поля Password
+  const validatePassword = (password) => {
+    if (!password) {
+      return "Пароль обязателен для заполнения";
+    }
+    if (password.length < 6) {
+      return "Пароль должен содержать минимум 6 символов";
+    }
+    if (password.length > 50) {
+      return "Пароль не должен превышать 50 символов";
+    }
+    return "";
+  };
+
+  // Валидация поля Confirm Password
+  const validateConfirmPassword = (confirmPassword, password) => {
+    if (!confirmPassword) {
+      return "Подтверждение пароля обязательно";
+    }
+    if (confirmPassword !== password) {
+      return "Пароли не совпадают";
+    }
+    return "";
+  };
+
+  // Валидация поля Phone Number
+  const validatePhoneNumber = (phone) => {
+    if (!phone.trim()) {
+      return "Телефон обязателен для заполнения";
+    }
+
+    // Получаем только цифры из отформатированного номера
+    const cleaned = phone.replace(/\D/g, "");
+
+    // Проверяем, что номер содержит 11 цифр (для российских номеров)
+    if (cleaned.length !== 11) {
+      return "Номер телефона должен содержать 11 цифр";
+    }
+
+    // Проверяем, что номер начинается с 7 или 8
+    if (!cleaned.match(/^(7|8)/)) {
+      return "Номер должен начинаться с +7 или 8";
+    }
+
+    // Проверяем форматирование - должен быть полный шаблон
+    const phoneRegex = /^\+7\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}$/;
+    if (!phoneRegex.test(phone)) {
+      return "Заполните телефон полностью в формате +7 (999) 999-99-99";
+    }
+
+    return "";
+  };
+
+  // Валидация поля Bio
+  const validateBio = (bio) => {
+    if (bio && bio.length > 500) {
+      return "Биография не должна превышать 500 символов";
+    }
+    return "";
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    let newValue = value;
+
+    // Специальная обработка для телефона
+    if (name === "phoneNumber") {
+      newValue = formatPhoneNumber(value);
+
+      // Ограничиваем максимальную длину
+      if (newValue.length > 18) {
+        return;
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: newValue,
     }));
+
+    // Очищаем ошибку для этого поля при вводе
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
   };
 
   const handleOptionSelect = (value) => {
@@ -137,7 +283,7 @@ const RegisterPage = () => {
       }
 
       // Проверяем тип
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         setError("Выберите файл изображения (JPG, PNG)");
         return;
       }
@@ -145,55 +291,78 @@ const RegisterPage = () => {
       setAvatarFile(file);
       setAvatarPreview(URL.createObjectURL(file));
 
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         avatarUrl: "",
-        hasAvatar: true
       }));
 
       setError("");
     }
   };
 
+  const validateCurrentStep = () => {
+    const currentStepData = steps[step];
+    const fieldValue = formData[currentStepData.field];
+    let error = "";
+
+    switch (currentStepData.field) {
+      case "fullName":
+        error = validateFullName(fieldValue);
+        break;
+      case "email":
+        error = validateEmail(fieldValue);
+        break;
+      case "password":
+        error = validatePassword(fieldValue);
+        break;
+      case "confirmPassword":
+        error = validateConfirmPassword(fieldValue, formData.password);
+        break;
+      case "phoneNumber":
+        error = validatePhoneNumber(fieldValue);
+        break;
+      case "bio":
+        error = validateBio(fieldValue);
+        break;
+      case "role":
+        if (!fieldValue) {
+          error = "Выберите вашу роль";
+        }
+        break;
+      case "avatar":
+        // Аватар не обязателен, но если выбран, проверяем
+        if (avatarFile) {
+          if (avatarFile.size > 10 * 1024 * 1024) {
+            error = "Файл слишком большой (макс. 10MB)";
+          }
+          if (!avatarFile.type.startsWith("image/")) {
+            error = "Выберите файл изображения (JPG, PNG)";
+          }
+        }
+        break;
+      default:
+        break;
+    }
+
+    if (error) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        [currentStepData.field]: error,
+      }));
+      return false;
+    }
+
+    return true;
+  };
+
   const nextStep = () => {
-    const currentStep = steps[step];
-
-    if (currentStep.required) {
-      // Для файлового поля проверяем avatarFile
-      if (currentStep.type === "file") {
-        // Файл не обязателен, пропускаем проверку
-      } else if (!formData[currentStep.field]?.trim()) {
-        setError(`Пожалуйста, заполните это поле`);
-        return;
-      }
-    }
-
-    if (currentStep.field === "email" && formData.email) {
-      const emailRegex = /\S+@\S+\.\S+/;
-      if (!emailRegex.test(formData.email)) {
-        setError("Введите корректный email адрес");
-        return;
-      }
-    }
-
-    if (
-      currentStep.field === "confirmPassword" &&
-      formData.password !== formData.confirmPassword
-    ) {
-      setError("Пароли не совпадают");
+    if (!validateCurrentStep()) {
       return;
     }
 
-    // Валидация телефона для шага phoneNumber
-    if (currentStep.field === "phoneNumber" && formData.phoneNumber) {
-      const phoneRegex = /^\+?[0-9\s\-\(\)]{10,}$/;
-      if (!phoneRegex.test(formData.phoneNumber)) {
-        setError("Введите корректный номер телефона");
-        return;
-      }
-    }
-
+    setFieldErrors({});
     setError("");
+
     if (step < steps.length - 1) {
       setStep((prev) => prev + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -203,6 +372,7 @@ const RegisterPage = () => {
   const prevStep = () => {
     if (step > 0) {
       setStep((prev) => prev - 1);
+      setFieldErrors({});
       setError("");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -212,24 +382,89 @@ const RegisterPage = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setFieldErrors({});
+
+    // Валидация всех полей перед отправкой
+    const errors = {};
+
+    // Проверяем все обязательные поля
+    steps.forEach((stepItem) => {
+      if (stepItem.required) {
+        const fieldValue = formData[stepItem.field];
+        let error = "";
+
+        switch (stepItem.field) {
+          case "fullName":
+            error = validateFullName(fieldValue);
+            break;
+          case "email":
+            error = validateEmail(fieldValue);
+            break;
+          case "password":
+            error = validatePassword(fieldValue);
+            break;
+          case "confirmPassword":
+            error = validateConfirmPassword(fieldValue, formData.password);
+            break;
+          case "phoneNumber":
+            error = validatePhoneNumber(fieldValue);
+            break;
+          case "role":
+            if (!fieldValue) {
+              error = "Выберите вашу роль";
+            }
+            break;
+          default:
+            break;
+        }
+
+        if (error) {
+          errors[stepItem.field] = error;
+        }
+      }
+    });
+
+    // Если есть ошибки, показываем их и останавливаем отправку
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setLoading(false);
+
+      // Переходим к первому полю с ошибкой
+      const firstErrorField = Object.keys(errors)[0];
+      const errorStepIndex = steps.findIndex(
+        (step) => step.field === firstErrorField
+      );
+      if (errorStepIndex !== -1) {
+        setStep(errorStepIndex);
+      }
+
+      return;
+    }
 
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append("email", formData.email);
+      formDataToSend.append("email", formData.email.trim());
       formDataToSend.append("password", formData.password);
-      formDataToSend.append("fullName", formData.fullName);
+      formDataToSend.append("fullName", formData.fullName.trim());
       formDataToSend.append("role", formData.role);
-      formDataToSend.append("phoneNumber", formData.phoneNumber || "");
-      formDataToSend.append("bio", formData.bio || "");
+
+      // Очищаем телефон от форматирования перед отправкой
+      const cleanPhone = formData.phoneNumber.replace(/\D/g, "");
+      formDataToSend.append("phoneNumber", cleanPhone);
+
+      formDataToSend.append("bio", formData.bio?.trim() || "");
 
       if (avatarFile) {
         formDataToSend.append("avatarFile", avatarFile);
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/auth/register-with-avatar`, {
-        method: "POST",
-        body: formDataToSend,
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/auth/register-with-avatar`,
+        {
+          method: "POST",
+          body: formDataToSend,
+        }
+      );
 
       const data = await response.json();
 
@@ -255,7 +490,9 @@ const RegisterPage = () => {
         throw new Error(data.error || "Ошибка регистрации");
       }
     } catch (err) {
-      setError(err.message || "Ошибка регистрации. Проверьте подключение к серверу.");
+      setError(
+        err.message || "Ошибка регистрации. Проверьте подключение к серверу."
+      );
     } finally {
       setLoading(false);
     }
@@ -263,6 +500,9 @@ const RegisterPage = () => {
 
   const currentStep = steps[step];
   const progress = ((step + 1) / steps.length) * 100;
+
+  // Получаем ошибку для текущего поля
+  const currentFieldError = fieldErrors[currentStep?.field] || "";
 
   // Если регистрация завершена, показываем финальный экран
   if (step === steps.length) {
@@ -273,74 +513,120 @@ const RegisterPage = () => {
             <i className="fas fa-envelope-circle-check"></i>
           </div>
           <h1 className="register-title">Регистрация завершена!</h1>
-          <p className="success-message">
+
+          <div className="success-message">
             {formData.role === "GALLERY_OWNER" ? (
               <>
-                <strong>Владелец галереи успешно зарегистрирован!</strong>
-                <br /><br />
-                Мы отправили письмо с подтверждением на адрес:
-                <br />
-                <strong>{formData.email}</strong>
+                <div className="success-role-title">
+                  <strong>Владелец галереи успешно зарегистрирован!</strong>
+                </div>
+                <div className="email-confirmation-section">
+                  <div className="email-content">
+                    <p className="email-label">Мы отправили письмо на адрес:</p>
+                    <div className="email-address">
+                      <i className="fas fa-at"></i>
+                      <span>{formData.email}</span>
+                    </div>
+                  </div>
+                </div>
               </>
             ) : (
-              <>
-                Мы отправили письмо с подтверждением на адрес:
-                <br />
-                <strong>{formData.email}</strong>
-              </>
+              <div className="email-confirmation-section">
+                <div className="email-content">
+                  <p className="email-label">Мы отправили письмо на адрес:</p>
+                  <div className="email-address">
+                    <i className="fas fa-at"></i>
+                    <span>{formData.email}</span>
+                  </div>
+                </div>
+              </div>
             )}
-          </p>
+          </div>
 
           {formData.role === "GALLERY_OWNER" && (
             <div className="gallery-owner-info">
               <div className="info-card">
-                <i className="fas fa-info-circle"></i>
+                <div className="info-icon">
+                  <i className="fas fa-info-circle"></i>
+                </div>
                 <div className="info-content">
                   <h4>Что дальше?</h4>
                   <p>После подтверждения email:</p>
-                  <ol>
-                    <li>Войдите в свой аккаунт</li>
-                    <li>Перейдите в личный кабинет</li>
-                    <li>Создайте свою первую галерею</li>
-                    <li>Настройте план галереи и места</li>
-                    <li>Начните организовывать выставки</li>
+                  <ol className="next-steps-list">
+                    <li>
+                      <i className="fas fa-sign-in-alt"></i>
+                      <span>Войдите в свой аккаунт</span>
+                    </li>
+                    <li>
+                      <i className="fas fa-user-cog"></i>
+                      <span>Перейдите в личный кабинет</span>
+                    </li>
+                    <li>
+                      <i className="fas fa-plus-circle"></i>
+                      <span>Создайте свою первую галерею</span>
+                    </li>
+                    <li>
+                      <i className="fas fa-map-marked-alt"></i>
+                      <span>Настройте план галереи и места</span>
+                    </li>
+                    <li>
+                      <i className="fas fa-images"></i>
+                      <span>Начните организовывать выставки</span>
+                    </li>
                   </ol>
                 </div>
               </div>
             </div>
           )}
 
-          <p className="success-description">
-            Пожалуйста, проверьте вашу почту и перейдите по ссылке в письме,
-            <br />
-            чтобы активировать ваш аккаунт.
-          </p>
+          <div className="success-instructions">
+            <div className="instruction-icon">
+              <i className="fas fa-check-circle"></i>
+            </div>
+            <p className="instruction-text">
+              Пожалуйста, проверьте вашу почту и перейдите по ссылке в письме,
+              чтобы активировать ваш аккаунт.
+            </p>
+          </div>
+
           <div className="success-actions">
-            <Link to="/login" className="btn btn-primary">
+            <Link to="/login" className="btn btn-primary btn-icon">
               <i className="fas fa-sign-in-alt"></i>
-              Перейти к входу
+              <span>Перейти к входу</span>
             </Link>
             <button
-              className="btn btn-outline"
+              className="btn btn-outline btn-icon"
               onClick={() => window.location.reload()}
             >
               <i className="fas fa-user-plus"></i>
-              Зарегистрировать ещё
+              <span>Зарегистрировать ещё</span>
             </button>
           </div>
-          <div className="email-tips">
-            <h4>Не получили письмо?</h4>
-            <ul>
-              <li>Проверьте папку "Спам" или "Рассылки"</li>
-              <li>Убедитесь, что адрес указан верно: {formData.email}</li>
-              <li>Попробуйте отправить письмо повторно через 5 минут</li>
+
+          <div className="email-tips-card">
+            <div className="tips-header">
+              <i className="fas fa-question-circle"></i>
+              <h4>Не получили письмо?</h4>
+            </div>
+            <ul className="tips-list">
+              <li>
+                <i className="fas fa-inbox"></i>
+                <span>Проверьте папку "Спам" или "Рассылки"</span>
+              </li>
+              <li>
+                <i className="fas fa-check-double"></i>
+                <span>Убедитесь, что адрес указан верно: {formData.email}</span>
+              </li>
+              <li>
+                <i className="fas fa-redo"></i>
+                <span>Попробуйте отправить письмо повторно через 5 минут</span>
+              </li>
             </ul>
           </div>
         </div>
       </div>
     );
   }
-
   return (
     <div className="minimal-register-page">
       <div className="minimal-register-container">
@@ -394,13 +680,11 @@ const RegisterPage = () => {
                   <button
                     key={option.value}
                     type="button"
-                    className={`option-button ${formData.role === option.value ? "selected" : ""
-                      }`}
+                    className={`option-button ${
+                      formData.role === option.value ? "selected" : ""
+                    }`}
                     onClick={() => handleOptionSelect(option.value)}
                   >
-                    <span className="option-emoji">
-                      {option.label.split(" ")[0]}
-                    </span>
                     <div className="option-content">
                       <span className="option-title">{option.label}</span>
                       <span className="option-description">
@@ -414,14 +698,20 @@ const RegisterPage = () => {
                 ))}
               </div>
             ) : currentStep.type === "textarea" ? (
-              <textarea
-                name={currentStep.field}
-                value={formData[currentStep.field]}
-                onChange={handleChange}
-                placeholder={currentStep.placeholder}
-                className="form-textarea"
-                rows={4}
-              />
+              <>
+                <textarea
+                  name={currentStep.field}
+                  value={formData[currentStep.field]}
+                  onChange={handleChange}
+                  placeholder={currentStep.placeholder}
+                  className="form-textarea"
+                  rows={4}
+                  maxLength="500"
+                />
+                <div className="char-counter">
+                  {formData[currentStep.field]?.length || 0}/500 символов
+                </div>
+              </>
             ) : currentStep.type === "file" ? (
               <div className="file-upload-container">
                 <input
@@ -431,7 +721,7 @@ const RegisterPage = () => {
                   onChange={handleFileChange}
                   className="file-input"
                   ref={avatarFileInputRef}
-                  style={{ display: 'none' }}
+                  style={{ display: "none" }}
                 />
 
                 <div className="avatar-preview-container">
@@ -478,11 +768,32 @@ const RegisterPage = () => {
                 placeholder={currentStep.placeholder}
                 className="form-input"
                 autoFocus
+                maxLength={
+                  currentStep.field === "email"
+                    ? "100"
+                    : currentStep.field === "fullName"
+                    ? "100"
+                    : currentStep.field === "password"
+                    ? "50"
+                    : currentStep.field === "confirmPassword"
+                    ? "50"
+                    : currentStep.field === "phoneNumber"
+                    ? "18"
+                    : ""
+                }
               />
             )}
 
-            {/* Сообщения */}
-            {error && (
+            {/* Показываем ошибку для конкретного поля */}
+            {currentFieldError && (
+              <div className="field-error-message">
+                <i className="fas fa-exclamation-circle"></i>
+                {currentFieldError}
+              </div>
+            )}
+
+            {/* Общие ошибки */}
+            {error && !currentFieldError && (
               <div className="error-message">
                 <i className="fas fa-exclamation-circle"></i>
                 {error}
@@ -509,10 +820,7 @@ const RegisterPage = () => {
                 type="button"
                 className="btn btn-primary"
                 onClick={nextStep}
-                disabled={
-                  loading ||
-                  (currentStep.required && !formData[currentStep.field]?.trim())
-                }
+                disabled={loading}
               >
                 {step === steps.length - 2 ? "Перейти к завершению" : "Далее"}
                 <i className="fas fa-arrow-right"></i>

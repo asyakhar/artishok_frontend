@@ -694,3 +694,292 @@
   margin-bottom: 5px;
   line-height: 1.4;
 }
+.field-error-message {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #fff5f5;
+  border: 1px solid #ffcccc;
+  border-radius: 8px;
+  color: #ff4757;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.field-error-message i {
+  font-size: 16px;
+}
+
+.char-counter {
+  text-align: right;
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
+
+/* Для телефона добавь дополнительный стиль */
+.form-input:focus {
+  border-color: #4d96ff;
+  box-shadow: 0 0 0 2px rgba(77, 150, 255, 0.2);
+}
+/* Стили для экрана успеха */
+.success-container {
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.success-icon {
+  font-size: 64px;
+  color: #4CAF50;
+  margin-bottom: 20px;
+}
+
+.success-message {
+  background: #f8f9fa;
+  border-radius: 12px;
+  text-align: center;
+  padding: 25px;
+  margin: 25px 0;
+  border: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Центрируем содержимое */
+}
+
+.success-role-title {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e9ecef;
+  width: 100%; /* Растягиваем на всю ширину */
+}
+
+.email-confirmation-section {
+  display: flex;
+  flex-direction: column; /* Колонка вместо строки */
+  align-items: center;
+  text-align: center;
+  gap: 15px;
+  width: 100%; /* Занимаем всю ширину */
+}
+
+.email-icon {
+  font-size: 32px;
+  color: #4285f4;
+  margin-bottom: 10px;
+}
+
+.email-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.email-label {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 12px;
+  text-align: center;
+  width: 100%;
+}
+
+.email-address {
+  display: inline-flex; /* Чтобы контейнер подстраивался под содержимое */
+  align-items: center;
+  justify-content: center; /* Центрируем содержимое внутри */
+  gap: 10px;
+  padding: 12px 20px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin: 0 auto; /* Центрируем блок */
+  min-width: 200px; /* Минимальная ширина для красивого отображения */
+}
+
+.email-address i {
+  color: #4285f4;
+}
+
+/* Остальные стили остаются без изменений */
+.gallery-owner-info {
+  margin: 25px 0;
+}
+
+.info-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 25px;
+  color: white;
+  text-align: left;
+  display: flex;
+  gap: 20px;
+}
+
+.info-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.info-content h4 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+}
+
+.info-content p {
+  margin: 0 0 15px 0;
+  opacity: 0.9;
+}
+
+.next-steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.next-steps-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 8px 0;
+}
+
+.next-steps-list li:last-child {
+  margin-bottom: 0;
+}
+
+.next-steps-list li i {
+  font-size: 14px;
+  width: 20px;
+}
+
+.success-instructions {
+  background: #e8f4fd;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 25px 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.instruction-icon {
+  font-size: 24px;
+  color: #2196f3;
+}
+
+.instruction-text {
+  text-align: left;
+  margin: 0;
+  color: #1976d2;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.success-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin: 25px 0;
+}
+
+.btn-icon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  font-size: 14px;
+}
+
+.btn-primary {
+  background: #4285f4;
+  color: white;
+  border: none;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #4285f4;
+  border: 1px solid #4285f4;
+}
+
+.email-tips-card {
+  background: #fff8e1;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 25px;
+  text-align: left;
+  border: 1px solid #ffecb3;
+}
+
+.tips-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  color: #ff9800;
+}
+
+.tips-header h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tips-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 5px 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.tips-list li:last-child {
+  margin-bottom: 0;
+}
+
+.tips-list li i {
+  color: #ff9800;
+  font-size: 14px;
+  width: 16px;
+}
+
+@media (max-width: 576px) {
+  .email-confirmation-section {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .info-card {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .success-actions {
+    flex-direction: column;
+  }
+  
+  .email-address {
+    justify-content: center;
+    min-width: auto; /* На мобильных убираем минимальную ширину */
+    width: 100%; /* На мобильных занимаем всю ширину */
+    max-width: 300px; /* Но ограничиваем максимальную ширину */
+  }
+}
