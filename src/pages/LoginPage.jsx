@@ -39,7 +39,6 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        // Проверяем, нужно ли отправить письмо для верификации
         if (data.error?.includes("не активирован")) {
           throw new Error(
             `${data.error} Проверьте почту или запросите повторную отправку.`
@@ -48,7 +47,6 @@ const LoginPage = () => {
         throw new Error(data.error || "Неверные учетные данные");
       }
 
-      // Сохраняем токен и данные пользователя
       sessionStorage.setItem("authToken", data.token);
       sessionStorage.setItem("user", JSON.stringify(data.user));
 
@@ -64,7 +62,6 @@ const LoginPage = () => {
           detail: { user: data.user, token: data.token },
         })
       );
-      // Перенаправляем в зависимости от роли
       switch (data.user.role) {
         case "ADMIN":
           navigate("/admin/dashboard");

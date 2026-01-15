@@ -238,7 +238,6 @@ const GalleryOwnerDashboard = () => {
   };
 
   const handleRejectBooking = async (bookingId) => {
-    // Убираем prompt и используем стандартное сообщение
     if (!window.confirm("Вы действительно хотите отклонить бронирование?"))
       return;
 
@@ -450,8 +449,8 @@ const GalleryOwnerDashboard = () => {
                   {selectedGallery.status === "APPROVED"
                     ? "Одобрена"
                     : selectedGallery.status === "PENDING"
-                    ? "На модерации"
-                    : "Отклонена"}
+                      ? "На модерации"
+                      : "Отклонена"}
                 </span>
               </div>
             )}
@@ -549,8 +548,8 @@ const GalleryOwnerDashboard = () => {
                           {exhibition.status === "ACTIVE"
                             ? "Активна"
                             : exhibition.status === "DRAFT"
-                            ? "Черновик"
-                            : "Завершена"}
+                              ? "Черновик"
+                              : "Завершена"}
                         </span>
                       </td>
                       <td>
@@ -651,8 +650,8 @@ const GalleryOwnerDashboard = () => {
                               {booking.status === "PENDING"
                                 ? "Ожидает"
                                 : booking.status === "CONFIRMED"
-                                ? "Подтверждено"
-                                : "Отменено"}
+                                  ? "Подтверждено"
+                                  : "Отменено"}
                             </span>
                           </td>
                           <td>

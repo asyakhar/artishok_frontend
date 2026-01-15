@@ -16,7 +16,6 @@ const AdminDashboard = () => {
         statistics: false
     });
 
-    // Данные для таблиц
     const [users, setUsers] = useState([]);
     const [galleries, setGalleries] = useState([]);
     const [exhibitions, setExhibitions] = useState([]);
@@ -25,7 +24,7 @@ const AdminDashboard = () => {
     const [statistics, setStatistics] = useState(null);
     const [logsType, setLogsType] = useState('audit');
 
-    // Модальные окна
+
     const [showUserModal, setShowUserModal] = useState(false);
     const [showGalleryModal, setShowGalleryModal] = useState(false);
     const [showExhibitionModal, setShowExhibitionModal] = useState(false);
@@ -336,6 +335,25 @@ const AdminDashboard = () => {
         <div className="admin-dashboard">
             {/* Шапка профиля */}
             <div className="admin-dashboard-header">
+                <button
+                    onClick={() => {
+                        console.log('Текущие данные пользователя:', userData);
+                        console.log('SessionStorage user:', sessionStorage.getItem('user'));
+                        console.log('SessionStorage token:', sessionStorage.getItem('authToken'));
+                    }}
+                    style={{
+                        position: 'absolute',
+                        top: '10px',
+                        right: '10px',
+                        padding: '5px 10px',
+                        background: '#f0f0f0',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Debug
+                </button>
                 <div className="admin-profile-card">
                     <div className="admin-profile-avatar">
                         {userData?.avatarUrl ? (
@@ -356,7 +374,7 @@ const AdminDashboard = () => {
 
                             <div className="admin-detail-item">
                                 <i className="fas fa-phone"></i>
-                                <span>{userData?.phoneNumber || 'Телефон не указан'}</span>
+                                <span>{userData && userData.phoneNumber ? userData.phoneNumber : 'Телефон не указан'}</span>
                             </div>
                             <div className="admin-detail-item">
                                 <i className="fas fa-user-tag"></i>
