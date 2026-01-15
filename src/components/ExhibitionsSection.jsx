@@ -1,21 +1,21 @@
-import { useState } from 'react';
-import ExhibitionCard from './ExhibitionCard';
-import './ExhibitionsSection.css';
-import { Link } from 'react-router-dom';
+import { useState } from "react";
+import ExhibitionCard from "./ExhibitionCard";
+import "./ExhibitionsSection.css";
+import { Link } from "react-router-dom";
 
 const ExhibitionsSection = ({ events, loading }) => {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState("all");
   const [visibleCount, setVisibleCount] = useState(6);
 
   const filters = [
-    { id: 'all', label: 'Все' },
-    { id: 'current', label: 'Сейчас идут' },
-    { id: 'upcoming', label: 'Скоро' },
-    { id: 'featured', label: 'Рекомендуем' },
+    { id: "all", label: "Все" },
+    { id: "current", label: "Сейчас идут" },
+    { id: "upcoming", label: "Скоро" },
+    { id: "featured", label: "Рекомендуем" },
   ];
 
   const handleLoadMore = () => {
-    setVisibleCount(prev => prev + 3);
+    setVisibleCount((prev) => prev + 3);
   };
 
   const displayedEvents = events.slice(0, visibleCount);
@@ -26,7 +26,6 @@ const ExhibitionsSection = ({ events, loading }) => {
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">Текущие выставки</h2>
-            
           </div>
           <div className="loading-state">
             <div className="spinner">
@@ -44,22 +43,24 @@ const ExhibitionsSection = ({ events, loading }) => {
       <div className="container">
         <div className="section-header">
           <h2 className="section-title">Текущие выставки</h2>
-         
+
           <Link to="/exhibition-events" className="section-link">
-  Все выставки <i className="fas fa-arrow-right"></i>
-</Link>
+            Все выставки <i className="fas fa-arrow-right"></i>
+          </Link>
         </div>
 
         {/* Простые фильтры */}
         <div className="exhibitions-filters">
-          {filters.map(filter => (
+          {filters.map((filter) => (
             <button
               key={filter.id}
-              className={`filter-btn ${activeFilter === filter.id ? 'active' : ''}`}
+              className={`filter-btn ${
+                activeFilter === filter.id ? "active" : ""
+              }`}
               onClick={() => setActiveFilter(filter.id)}
             >
               {filter.label}
-              {filter.id === 'all' && ` (${events.length})`}
+              {filter.id === "all" && ` (${events.length})`}
             </button>
           ))}
         </div>

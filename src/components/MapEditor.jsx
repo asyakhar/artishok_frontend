@@ -76,8 +76,8 @@ const MapEditor = ({
     if (window.toast && window.toast.warning) {
       window.toast.warning(message, 5000);
     } else {
-      console.warn("⚠️", message);
-      alert("⚠️ " + message);
+      console.warn("", message);
+      alert("" + message);
     }
   };
 
@@ -85,8 +85,8 @@ const MapEditor = ({
     if (window.toast && window.toast.info) {
       window.toast.info(message, 3000);
     } else {
-      console.info("ℹ️", message);
-      alert("ℹ️ " + message);
+      console.info("", message);
+      alert("ℹ " + message);
     }
   };
   useEffect(() => {
@@ -274,308 +274,6 @@ const MapEditor = ({
     renderStands();
   }, [stands, tempStands]);
 
-  // const handleImageUpload = async (e) => {
-  //   const file = e.target.files[0];
-  //   if (!file) return;
-
-  //   if (!file.type.includes("image")) {
-  //     alert("Выберите картинку!");
-  //     return;
-  //   }
-
-  //   try {
-  //     setLoading(true);
-  //     setUploadProgress(10);
-
-  //     let uploadedUrl = null;
-  //     let mapId = hallMapId;
-
-  //     if (file.size > 10 * 1024 * 1024) {
-  //       alert("Файл слишком большой! Максимальный размер 10MB.");
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     if (hallMapId) {
-  //       setUploadProgress(30);
-  //       const result = await ownerApi.uploadHallMapImage(hallMapId, file);
-  //       uploadedUrl = result.mapImageUrl;
-  //       setUploadProgress(70);
-
-  //       if (onMapImageUpload) {
-  //         await onMapImageUpload(hallMapId, uploadedUrl);
-  //       }
-  //     } else {
-  //       setUploadProgress(30);
-  //       const mapData = {
-  //         name: `План зала ${new Date().toLocaleDateString()}`,
-  //         exhibitionEventId: exhibitionId,
-  //         mapImage: file,
-  //       };
-
-  //       const result = await ownerApi.createHallMapWithImage(mapData);
-  //       uploadedUrl = result.mapImageUrl;
-  //       mapId = result.id;
-  //       setHallMapId(result.id);
-  //       setUploadProgress(70);
-
-  //       if (onUploadHallMap) {
-  //         await onUploadHallMap(result);
-  //       }
-  //     }
-
-  //     if (uploadedUrl) {
-  //       setUploadedImageUrl(uploadedUrl);
-  //       await loadImageToMap(uploadedUrl);
-  //       setUploadProgress(100);
-
-  //       setTimeout(() => {
-  //         setUploadProgress(0);
-  //         alert("✅ Изображение успешно загружено на сервер!");
-  //       }, 500);
-  //     }
-  //   } catch (error) {
-  //     console.error("Ошибка загрузки:", error);
-  //     alert(
-  //       `❌ Ошибка загрузки: ${error.response?.data?.error || error.message}`
-  //     );
-  //     setImageError(true);
-  //   } finally {
-  //     setLoading(false);
-  //     e.target.value = "";
-  //   }
-  // };
-  // const handleImageUpload = async (e) => {
-  //   const file = e.target.files[0];
-  //   if (!file) return;
-
-  //   if (!file.type.includes("image")) {
-  //     showWarning("Пожалуйста, выберите файл изображения (JPG, PNG, GIF)");
-  //     return;
-  //   }
-
-  //   try {
-  //     setLoading(true);
-  //     setUploadProgress(10);
-
-  //     // Показать информационное уведомление о начале загрузки
-  //     const loadingToast = toast.info("Начинаем загрузку изображения...", 0);
-
-  //     let uploadedUrl = null;
-  //     let mapId = hallMapId;
-
-  //     if (file.size > 10 * 1024 * 1024) {
-  //       showError(
-  //         "Файл слишком большой! Максимальный размер 10MB.",
-  //         "Превышен размер"
-  //       );
-  //       setLoading(false);
-
-  //       return;
-  //     }
-
-  //     // Проверка минимального размера
-  //     const img = new Image();
-  //     img.src = URL.createObjectURL(file);
-  //     img.onload = async () => {
-  //       if (img.width < 500 || img.height < 500) {
-  //         showWarning(
-  //           "Рекомендуемый размер изображения не менее 500×500 пикселей"
-  //         );
-  //       }
-
-  //       URL.revokeObjectURL(img.src);
-
-  //       try {
-  //         if (hallMapId) {
-  //           setUploadProgress(30);
-
-  //           toast.info("Обновляем существующую карту...", 3000);
-
-  //           const result = await ownerApi.uploadHallMapImage(hallMapId, file);
-  //           uploadedUrl = result.mapImageUrl;
-  //           setUploadProgress(70);
-
-  //           if (onMapImageUpload) {
-  //             await onMapImageUpload(hallMapId, uploadedUrl);
-  //           }
-  //         } else {
-  //           setUploadProgress(30);
-
-  //           toast.info("Создаем новую карту зала...", 3000);
-
-  //           const mapData = {
-  //             name: `План зала ${new Date().toLocaleDateString()}`,
-  //             exhibitionEventId: exhibitionId,
-  //             mapImage: file,
-  //           };
-
-  //           const result = await ownerApi.createHallMapWithImage(mapData);
-  //           uploadedUrl = result.mapImageUrl;
-  //           mapId = result.id;
-  //           setHallMapId(result.id);
-  //           setUploadProgress(70);
-
-  //           if (onUploadHallMap) {
-  //             await onUploadHallMap(result);
-  //           }
-  //         }
-
-  //         if (uploadedUrl) {
-  //           setUploadedImageUrl(uploadedUrl);
-  //           await loadImageToMap(uploadedUrl);
-  //           setUploadProgress(100);
-
-  //           setTimeout(() => {
-  //             setUploadProgress(0);
-  //           }, 500);
-  //         }
-  //       } catch (error) {
-  //         console.error("Ошибка загрузки:", error);
-
-  //         const errorMessage =
-  //           error.response?.data?.error ||
-  //           error.response?.data?.message ||
-  //           error.message ||
-  //           "Неизвестная ошибка";
-
-  //         showError(errorMessage, "Ошибка загрузки");
-
-  //         // Дополнительная информация для разработчика
-  //         if (process.env.NODE_ENV === "development") {
-  //           console.error("Полная ошибка:", error);
-  //         }
-
-  //         setImageError(true);
-  //       } finally {
-  //         setLoading(false);
-  //         e.target.value = "";
-  //       }
-  //     };
-
-  //     img.onerror = () => {
-  //       showError("Не удалось прочитать файл изображения", "Ошибка файла");
-  //       setLoading(false);
-  //     };
-  //   } catch (error) {
-  //     showError("Непредвиденная ошибка при обработке файла", "Ошибка");
-  //     setLoading(false);
-  //     e.target.value = "";
-  //   }
-  // };
-  // const handleImageUpload = async (e) => {
-  //   const file = e.target.files[0];
-  //   if (!file) return;
-
-  //   // ВАЖНО: Проверяем, создана ли карта
-  //   if (!mapInstance.current) {
-  //     console.error("Карта еще не создана!");
-  //     showError("Пожалуйста, подождите. Карта загружается...");
-
-  //     // Ждем 1 секунду и пробуем снова
-  //     setTimeout(() => {
-  //       if (mapInstance.current) {
-  //         console.log("Карта готова, пробуем снова...");
-  //         // Программно триггерим загрузку снова
-  //         document.getElementById("mapUpload").click();
-  //       } else {
-  //         showError(
-  //           "Не удалось загрузить карту. Пожалуйста, обновите страницу."
-  //         );
-  //       }
-  //     }, 1000);
-
-  //     e.target.value = "";
-  //     return;
-  //   }
-  //   try {
-  //     setLoading(true);
-  //     setUploadProgress(10);
-
-  //     const fileName = file.name;
-
-  //     // Всегда проверяем, есть ли уже карта
-  //     if (hallMapId || hallMap?.id) {
-  //       // Есть существующая карта - обновляем ее
-  //       console.log("Обновляем существующую карту:", hallMapId || hallMap?.id);
-
-  //       setUploadProgress(30);
-  //       const result = await ownerApi.uploadHallMapImage(
-  //         hallMapId || hallMap?.id,
-  //         file
-  //       );
-  //       const uploadedUrl = result.mapImageUrl;
-  //       setUploadProgress(70);
-
-  //       // Обновляем карту через родительский компонент
-  //       if (onMapImageUpload) {
-  //         await onMapImageUpload(hallMapId || hallMap?.id, uploadedUrl);
-  //       }
-
-  //       // Загружаем изображение на карту
-  //       setUploadedImageUrl(uploadedUrl);
-  //       await loadImageToMap(uploadedUrl);
-  //       setUploadProgress(100);
-
-  //       // Сохраняем в localStorage
-  //       const mapKey = `hall_map_${exhibitionId}_${hallMapId || hallMap?.id}`;
-  //       localStorage.setItem(
-  //         mapKey,
-  //         JSON.stringify({
-  //           id: hallMapId || hallMap?.id,
-  //           mapImageUrl: uploadedUrl,
-  //           exhibitionId: exhibitionId,
-  //           name: fileName,
-  //           timestamp: Date.now(),
-  //         })
-  //       );
-
-  //       showSuccess(`Карта "${fileName}" успешно обновлена!`);
-  //     } else {
-  //       // Нет карты - создаем новую
-  //       console.log("Создаем новую карту");
-
-  //       const mapData = {
-  //         name: fileName || `План зала ${new Date().toLocaleDateString()}`,
-  //         exhibitionEventId: exhibitionId,
-  //         mapImage: file,
-  //       };
-
-  //       setUploadProgress(30);
-
-  //       // Создаем через родительский компонент
-  //       if (onUploadHallMap) {
-  //         const result = await onUploadHallMap(mapData);
-
-  //         if (result && result.id) {
-  //           setHallMapId(result.id);
-  //           setUploadProgress(70);
-
-  //           if (result.mapImageUrl) {
-  //             setUploadedImageUrl(result.mapImageUrl);
-  //             await loadImageToMap(result.mapImageUrl);
-  //           }
-
-  //           setUploadProgress(100);
-  //           showSuccess(`Карта "${fileName}" успешно создана!`);
-  //         }
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Ошибка загрузки:", error);
-  //     const errorMessage =
-  //       error.response?.data?.error ||
-  //       error.response?.data?.message ||
-  //       error.message ||
-  //       "Неизвестная ошибка";
-  //     showError(errorMessage, "Ошибка загрузки");
-  //     setImageError(true);
-  //   } finally {
-  //     setLoading(false);
-  //     e.target.value = "";
-  //     setTimeout(() => setUploadProgress(0), 500);
-  //   }
-  // };
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -759,69 +457,9 @@ const MapEditor = ({
     img.src = imageUrl;
   };
 
-  // const loadImageToMap = (imageUrl) => {
-  //   return new Promise((resolve, reject) => {
-  //     if (!mapInstance.current || !imageUrl) {
-  //       reject("Нет карты или изображения");
-  //       return;
-  //     }
-
-  //     const img = new Image();
-  //     img.crossOrigin = "anonymous";
-
-  //     img.onload = function () {
-  //       const width = this.width;
-  //       const height = this.height;
-  //       const bounds = [
-  //         [0, 0],
-  //         [height, width],
-  //       ];
-
-  //       if (imageOverlayRef.current) {
-  //         mapInstance.current.removeLayer(imageOverlayRef.current);
-  //         imageOverlayRef.current = null;
-  //       }
-
-  //       imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
-  //         interactive: false,
-  //         className: "hall-map-image",
-  //       }).addTo(mapInstance.current);
-
-  //       mapInstance.current.fitBounds(bounds);
-
-  //       setTimeout(() => {
-  //         const currentZoom = mapInstance.current.getZoom();
-  //         if (currentZoom > 0) {
-  //           mapInstance.current.setZoom(currentZoom - 1);
-  //         }
-  //       }, 100);
-
-  //       setImageError(false);
-  //       setMapImage(imageUrl);
-  //       resolve();
-  //     };
-
-  //     img.onerror = function () {
-  //       console.error("Ошибка загрузки изображения");
-  //       setImageError(true);
-  //       reject("Ошибка загрузки изображения");
-  //     };
-
-  //     img.src = imageUrl;
-  //   });
-  // };
   const loadImageToMap = (imageUrl) => {
     return new Promise((resolve, reject) => {
       try {
-        // if (!mapInstance.current || !isMapReady) {
-        //   console.error("Карта не инициализирована или не готова");
-        //   console.log({
-        //     mapInstanceExists: !!mapInstance.current,
-        //     isMapReady: isMapReady,
-        //   });
-        //   reject("Карта не инициализирована");
-        //   return;
-        // }
         if (!mapInstance.current) {
           console.log("⏳ Карта не создана, ждем 300мс...");
           setTimeout(() => {
@@ -1041,7 +679,7 @@ const MapEditor = ({
       .bindPopup(
         `
       <div style="padding: 10px; min-width: 150px;">
-        <strong>📌 Новая точка</strong>
+        <strong>Новая точка</strong>
         <div style="margin-top: 5px; font-size: 12px;">
           X: ${Math.round(position.lng)}<br>
           Y: ${Math.round(position.lat)}
@@ -1075,9 +713,7 @@ const MapEditor = ({
       clearTempMarkers();
       showInfo("Режим добавления стендов отключен");
     } else {
-      showSuccess(
-        "Режим добавления стендов включен. Кликните на карте для размещения стенда"
-      );
+      showSuccess("Режим добавления стендов включен");
     }
   };
 
@@ -1685,7 +1321,7 @@ const MapEditor = ({
                     opacity: loading ? 0.7 : 1,
                   }}
                 >
-                  {loading ? "⏳ Загрузка на сервер..." : "📁 Загрузить"}
+                  {loading ? "Загрузка на сервер..." : "Загрузить"}
                 </label>
 
                 {/* Прогресс бар */}
@@ -1876,7 +1512,7 @@ const MapEditor = ({
                     transition: "all 0.2s",
                   }}
                 >
-                  {isDrawing ? "❌ Отменить добавление" : "➕ Добавить стенд"}
+                  {isDrawing ? "Отменить добавление" : "Добавить стенд"}
                 </button>
 
                 <div
@@ -1925,7 +1561,7 @@ const MapEditor = ({
                       gap: "10px",
                     }}
                   >
-                    <div
+                    {/* <div
                       style={{
                         width: "20px",
                         height: "20px",
@@ -1939,7 +1575,7 @@ const MapEditor = ({
                       }}
                     >
                       🎯
-                    </div>
+                    </div> */}
                     <div>
                       <strong>Режим добавления активен</strong>
                       <div

@@ -1,4 +1,4 @@
-import './CTASection.css';
+import "./CTASection.css";
 
 const CTASection = () => {
   return (
@@ -15,18 +15,16 @@ const CTASection = () => {
               <a href="/register-gallery" className="btn btn-primary btn-lg">
                 <i className="fas fa-store"></i> Добавить галерею
               </a>
-              <a href="/how-it-works" className="btn btn-outline btn-lg">
-                <i className="fas fa-question-circle"></i> Как это работает?
-              </a>
             </div>
           </div>
           <div className="cta-image">
-          <img 
-              src="/images/cta/cta-art.jpg" 
+            <img
+              src="/images/cta/cta-art.jpg"
               alt="Организация выставки"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = "https://images.unsplash.com/photo-1563089145-599997674d42?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80";
+                e.target.src =
+                  "https://images.unsplash.com/photo-1563089145-599997674d42?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80";
               }}
             />
           </div>

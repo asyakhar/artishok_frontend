@@ -35,20 +35,20 @@ const ExhibitionCard = ({ event }) => {
     return defaultStatus[galleryId] || defaultStatus[6];
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "current":
-        return { bg: "#10b981", text: "Сейчас идёт" };
-      case "upcoming":
-        return { bg: "#3b82f6", text: "Скоро" };
-      case "featured":
-        return { bg: "#f59e0b", text: "Рекомендуем" };
-      default:
-        return { bg: "#6b7280", text: "Завершена" };
-    }
-  };
+  // const getStatusColor = (status) => {
+  //   switch (status) {
+  //     case "current":
+  //       return { bg: "#10b981", text: "Сейчас идёт" };
+  //     case "upcoming":
+  //       return { bg: "#3b82f6", text: "Скоро" };
+  //     case "featured":
+  //       return { bg: "#f59e0b", text: "Рекомендуем" };
+  //     default:
+  //       return { bg: "#6b7280", text: "Завершена" };
+  //   }
+  // };
 
-  const status = getStatusColor("current");
+  // const status = getStatusColor("current");
 
   return (
     <div className="exhibition-card">
