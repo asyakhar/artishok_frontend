@@ -39,7 +39,7 @@ const ExhibitionMapPage = () => {
   }, [exhibitionId]);
 
   const handleManualRefresh = () => {
-    console.log("🔄 Ручное обновление");
+    console.log("Ручное обновление");
     setManualRefreshKey((prev) => prev + 1);
   };
 
@@ -199,11 +199,11 @@ const ExhibitionMapPage = () => {
       // Сразу обновляем состояние стендов
       setStands((prev) => prev.filter((stand) => stand.id !== standId));
 
-      alert("✅ Стенд успешно удален");
+      // alert("Стенд успешно удален");
     } catch (error) {
       console.error("Ошибка удаления стенда:", error);
       alert(
-        "❌ Ошибка удаления: " + (error.response?.data?.error || error.message)
+        "Ошибка удаления: " + (error.response?.data?.error || error.message)
       );
     }
   };
@@ -559,10 +559,10 @@ const ExhibitionMapPage = () => {
       await refreshStands();
       await loadBookings();
 
-      alert("✅ Бронирование подтверждено!");
+      alert("Бронирование подтверждено!");
     } catch (error) {
       console.error("Ошибка подтверждения:", error);
-      alert(`❌ Ошибка: ${error.response?.data?.error || error.message}`);
+      alert(`Ошибка: ${error.response?.data?.error || error.message}`);
     }
   };
 
@@ -597,10 +597,10 @@ const ExhibitionMapPage = () => {
       await ownerApi.rejectBooking(booking.id, reason);
       await refreshStands();
       await loadBookings();
-      alert("❌ Бронирование отклонено!");
+      alert("Бронирование отклонено!");
     } catch (error) {
       console.error("Ошибка отклонения:", error);
-      alert(`❌ Ошибка: ${error.response?.data?.error || error.message}`);
+      alert(`Ошибка: ${error.response?.data?.error || error.message}`);
     }
   };
 
@@ -633,7 +633,7 @@ const ExhibitionMapPage = () => {
       });
 
       if (booking) {
-        console.log(`✅ Найден художник для стенда ${stand.standNumber}:`, {
+        console.log(`Найден художник для стенда ${stand.standNumber}:`, {
           художник: booking.artistName,
           email: booking.artistEmail,
         });

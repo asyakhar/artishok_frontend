@@ -233,9 +233,9 @@ const ExhibitionsSection = () => {
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">Текущие выставки</h2>
-            <Link to="/exhibition-events" className="section-link">
+            {/* <Link to="/exhibition-events" className="section-link">
               Все выставки <i className="fas fa-arrow-right"></i>
-            </Link>
+            </Link> */}
           </div>
           <div className="loading-state">
             <div className="spinner">
@@ -254,9 +254,9 @@ const ExhibitionsSection = () => {
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">Текущие выставки</h2>
-            <Link to="/exhibition-events" className="section-link">
+            {/* <Link to="/exhibition-events" className="section-link">
               Все выставки <i className="fas fa-arrow-right"></i>
-            </Link>
+            </Link> */}
           </div>
           <div className="error-state">
             <i className="fas fa-exclamation-triangle"></i>
@@ -278,9 +278,9 @@ const ExhibitionsSection = () => {
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">Текущие выставки</h2>
-            <Link to="/exhibition-events" className="section-link">
+            {/* <Link to="/exhibition-events" className="section-link">
               Все выставки <i className="fas fa-arrow-right"></i>
-            </Link>
+            </Link> */}
           </div>
           <div className="no-results">
             <i className="fas fa-calendar-times"></i>
@@ -301,9 +301,9 @@ const ExhibitionsSection = () => {
       <div className="container">
         <div className="section-header">
           <h2 className="section-title">Текущие выставки</h2>
-          <Link to="/exhibition-events" className="section-link">
+          {/* <Link to="/exhibition-events" className="section-link">
             Все выставки <i className="fas fa-arrow-right"></i>
-          </Link>
+          </Link> */}
         </div>
 
         <div className="exhibitions-filters">

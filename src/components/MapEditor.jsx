@@ -67,8 +67,8 @@ const MapEditor = ({
     if (window.toast && window.toast.success) {
       window.toast.success(message, 4000);
     } else {
-      console.log("✅", message);
-      alert("✅ " + message);
+      console.log("", message);
+      alert(" " + message);
     }
   };
 
@@ -86,7 +86,7 @@ const MapEditor = ({
       window.toast.info(message, 3000);
     } else {
       console.info("", message);
-      alert("ℹ " + message);
+      alert(" " + message);
     }
   };
   useEffect(() => {
@@ -222,7 +222,7 @@ const MapEditor = ({
     });
     mapInstance.current.whenReady(() => {
       setIsMapReady(true);
-      console.log("✅ Карта Leaflet полностью готова");
+      console.log("Карта Leaflet полностью готова");
     });
     return () => {
       setIsMapReady(false);
@@ -290,7 +290,7 @@ const MapEditor = ({
           const checkMap = () => {
             attempts++;
             if (mapInstance.current && isMapReady) {
-              console.log("✅ Карта готова через", attempts * 100, "мс");
+              console.log(" Карта готова через", attempts * 100, "мс");
               resolve(true);
             } else if (attempts < 30) {
               // 30 попыток * 100мс = 3 секунды
@@ -461,7 +461,7 @@ const MapEditor = ({
     return new Promise((resolve, reject) => {
       try {
         if (!mapInstance.current) {
-          console.log("⏳ Карта не создана, ждем 300мс...");
+          console.log("Карта не создана, ждем 300мс...");
           setTimeout(() => {
             loadImageToMap(imageUrl).then(resolve).catch(reject);
           }, 300);
@@ -815,7 +815,7 @@ const MapEditor = ({
             margin-top: 10px;
           ">
             <h5 style="margin: 0 0 8px 0; color: #856404; font-size: 14px;">
-              🎨 Запрос на бронирование
+              Запрос на бронирование
             </h5>
             <p style="margin: 5px 0; font-size: 13px;">
               <strong>Художник:</strong> ${stand.artistName}
@@ -858,7 +858,7 @@ const MapEditor = ({
             margin-top: 10px;
           ">
             <h5 style="margin: 0 0 8px 0; color: #155724; font-size: 14px;">
-              ✅ Забронирован
+              Забронирован
             </h5>
             <p style="margin: 5px 0; font-size: 13px;">
               <strong>Художник:</strong> ${stand.artistName}
@@ -917,7 +917,7 @@ const MapEditor = ({
                     font-weight: bold;
                   "
                 >
-                  ✅ Подтвердить
+                   Подтвердить
                 </button>
                 <button 
                   onclick="if(confirm('Отклонить бронирование стенда ${
@@ -940,7 +940,7 @@ const MapEditor = ({
                     font-weight: bold;
                   "
                 >
-                  ❌ Отклонить
+                   Отклонить
                 </button>
               </div>`
                 : ""
@@ -963,7 +963,7 @@ const MapEditor = ({
                 font-weight: bold;
               "
             >
-              🗑️ Удалить стенд
+              Удалить стенд
             </button>
           </div>`
             : ""
@@ -989,7 +989,7 @@ const MapEditor = ({
               font-weight: bold;
             "
           >
-            📝 Забронировать
+             Забронировать
           </button>`
             : ""
         }
@@ -1004,7 +1004,7 @@ const MapEditor = ({
             text-align: center;
             font-weight: bold;
           ">
-            ⏳ Ожидает подтверждения
+             Ожидает подтверждения
           </div>`
             : ""
         }
@@ -1019,7 +1019,7 @@ const MapEditor = ({
             text-align: center;
             font-weight: bold;
           ">
-            ✅ Забронировано
+             Забронировано
           </div>`
             : ""
         }
@@ -1133,9 +1133,9 @@ const MapEditor = ({
 
   const getTypeText = (type) => {
     const types = {
-      WALL: "🎨 Стена для живописи",
-      BOOTH: "🗿 Будка для скульптур",
-      OPEN_SPACE: "📷 Открытое пространство",
+      WALL: "Стена для живописи",
+      BOOTH: "Будка для скульптур",
+      OPEN_SPACE: "Открытое пространство",
     };
     return types[type] || type;
   };
@@ -1607,7 +1607,7 @@ const MapEditor = ({
                   <h5
                     style={{ marginTop: 0, color: "#007bff", fontSize: "18px" }}
                   >
-                    📝 Новый стенд
+                    Новый стенд
                   </h5>
 
                   <div style={{ marginBottom: "15px" }}>
@@ -1667,11 +1667,9 @@ const MapEditor = ({
                         })
                       }
                     >
-                      <option value="WALL">🎨 Стена для живописи</option>
-                      <option value="BOOTH">🗿 Будка для скульптур</option>
-                      <option value="OPEN_SPACE">
-                        📷 Открытое пространство
-                      </option>
+                      <option value="WALL">Стена для живописи</option>
+                      <option value="BOOTH">Будка для скульптур</option>
+                      <option value="OPEN_SPACE">Открытое пространство</option>
                     </select>
                   </div>
 
@@ -1780,7 +1778,7 @@ const MapEditor = ({
                         (e.target.style.transform = "translateY(0)")
                       }
                     >
-                      ✅ Сохранить стенд
+                      Сохранить стенд
                     </button>
                     <button
                       onClick={() => {
@@ -1807,7 +1805,7 @@ const MapEditor = ({
                         (e.target.style.transform = "translateY(0)")
                       }
                     >
-                      ❌ Отмена
+                      Отмена
                     </button>
                   </div>
                 </div>
@@ -2045,10 +2043,10 @@ const MapEditor = ({
                                 }}
                               >
                                 {(stand.type || stand.standType) === "WALL"
-                                  ? "🎨 Стена"
+                                  ? "Стена"
                                   : (stand.type || stand.standType) === "BOOTH"
-                                  ? "🗿 Будка"
-                                  : "📷 Открытое"}
+                                  ? "Будка"
+                                  : "Открытое"}
                               </span>
                             </div>
 

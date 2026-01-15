@@ -543,7 +543,7 @@ const RegisterPage = () => {
             )}
           </div>
 
-          {formData.role === "GALLERY_OWNER" && (
+          {/* {formData.role === "GALLERY_OWNER" && (
             <div className="gallery-owner-info">
               <div className="info-card">
                 <div className="info-icon">
@@ -577,7 +577,7 @@ const RegisterPage = () => {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
 
           <div className="success-instructions">
             <p className="instruction-text">
@@ -656,8 +656,9 @@ const RegisterPage = () => {
                   <button
                     key={option.value}
                     type="button"
-                    className={`option-button ${formData.role === option.value ? "selected" : ""
-                      }`}
+                    className={`option-button ${
+                      formData.role === option.value ? "selected" : ""
+                    }`}
                     onClick={() => handleOptionSelect(option.value)}
                   >
                     <div className="option-content">
@@ -747,14 +748,14 @@ const RegisterPage = () => {
                   currentStep.field === "email"
                     ? "100"
                     : currentStep.field === "fullName"
-                      ? "100"
-                      : currentStep.field === "password"
-                        ? "50"
-                        : currentStep.field === "confirmPassword"
-                          ? "50"
-                          : currentStep.field === "phoneNumber"
-                            ? "18"
-                            : ""
+                    ? "100"
+                    : currentStep.field === "password"
+                    ? "50"
+                    : currentStep.field === "confirmPassword"
+                    ? "50"
+                    : currentStep.field === "phoneNumber"
+                    ? "18"
+                    : ""
                 }
               />
             )}
