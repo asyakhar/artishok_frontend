@@ -370,6 +370,8 @@ body {
     text-decoration: none;
     font-weight: 500;
     transition: all 0.3s;
+    text-align: center;
+    
 }
 
 .section-link:hover {

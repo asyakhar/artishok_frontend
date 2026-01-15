@@ -1,14 +1,21 @@
-import GalleryCard from './GalleryCard';
-import './GalleriesSection.css';
+import GalleryCard from "./GalleryCard";
+import "./GalleriesSection.css";
 
 const GalleriesSection = ({ galleries, loading }) => {
+  // Фильтруем галереи, оставляем только одобренные (APPROVED)
+  const approvedGalleries = galleries.filter(
+    (gallery) => gallery.status === "APPROVED"
+  );
+
   if (loading) {
     return (
       <section id="galleries" className="section galleries-section">
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">Популярные галереи</h2>
-            <p className="section-subtitle">Лучшие площадки для выставок современного искусства</p>
+            <p className="section-subtitle">
+              Лучшие площадки для выставок современного искусства
+            </p>
           </div>
           <div className="loading-state">
             <div className="spinner">
@@ -21,16 +28,37 @@ const GalleriesSection = ({ galleries, loading }) => {
     );
   }
 
+  // Проверка, есть ли одобренные галереи
+  if (approvedGalleries.length === 0) {
+    return (
+      <section id="galleries" className="section galleries-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Популярные галереи</h2>
+            <p className="section-subtitle">
+              Лучшие площадки для выставок современного искусства
+            </p>
+          </div>
+          <div className="no-galleries-message">
+            <p>На данный момент нет доступных галерей.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="galleries" className="section galleries-section">
       <div className="container">
         <div className="section-header">
           <h2 className="section-title">Популярные галереи</h2>
-          <p className="section-subtitle">Лучшие площадки для выставок современного искусства</p>
+          <p className="section-subtitle">
+            Лучшие площадки для выставок современного искусства
+          </p>
         </div>
 
         <div className="galleries-grid">
-          {galleries.map((gallery, index) => (
+          {approvedGalleries.map((gallery, index) => (
             <GalleryCard key={index} gallery={gallery} />
           ))}
         </div>
