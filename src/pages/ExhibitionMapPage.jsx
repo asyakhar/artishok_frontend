@@ -91,10 +91,7 @@ const ExhibitionMapPage = () => {
         // Загружаем стенды только если их нет в карте
         if (firstMap.exhibitionStands && firstMap.exhibitionStands.length > 0) {
           const validStands = filterValidStands(firstMap.exhibitionStands);
-          console.log(
-            "Стенды загружены вместе с картой:",
-            validStands.length
-          );
+          console.log("Стенды загружены вместе с картой:", validStands.length);
           setStands(validStands);
         } else {
           // Загружаем отдельно, но с защитой от пустых ответов
@@ -130,14 +127,18 @@ const ExhibitionMapPage = () => {
       if (Array.isArray(standsData)) {
         // Проверяем, не пустой ли это массив объектов
         if (standsData.length > 0) {
-          const isEmptyObjects = standsData.every(item => {
-            return item === null ||
-              typeof item !== 'object' ||
-              Object.keys(item).length === 0;
+          const isEmptyObjects = standsData.every((item) => {
+            return (
+              item === null ||
+              typeof item !== "object" ||
+              Object.keys(item).length === 0
+            );
           });
 
           if (isEmptyObjects) {
-            console.warn("⚠️ API вернул массив пустых объектов. Не обновляем стенды.");
+            console.warn(
+              "⚠️ API вернул массив пустых объектов. Не обновляем стенды."
+            );
             return; // Не обновляем состояние
           }
         }
@@ -148,11 +149,14 @@ const ExhibitionMapPage = () => {
 
       if (Array.isArray(standsData)) {
         actualStands = standsData;
-      } else if (standsData && typeof standsData === 'object') {
+      } else if (standsData && typeof standsData === "object") {
         // Проверяем различные возможные структуры
         if (standsData.stands && Array.isArray(standsData.stands)) {
           actualStands = standsData.stands;
-        } else if (standsData.exhibitionStands && Array.isArray(standsData.exhibitionStands)) {
+        } else if (
+          standsData.exhibitionStands &&
+          Array.isArray(standsData.exhibitionStands)
+        ) {
           actualStands = standsData.exhibitionStands;
         } else if (standsData.content && Array.isArray(standsData.content)) {
           actualStands = standsData.content;
@@ -228,46 +232,149 @@ const ExhibitionMapPage = () => {
   //     throw new Error(err.response?.data?.error || "Ошибка загрузки карты");
   //   }
   // };
-  const handleUploadHallMap = async (imageFile, name = "Карта зала") => {
-    try {
-      // Создаем объект для API
-      const requestData = {
-        name: name,
-        exhibitionEventId: Number(exhibitionId), // Преобразуем в число
-        mapImage: imageFile,
-      };
+  // const handleUploadHallMap = async (imageFile, name = "Карта зала") => {
+  //   try {
+  //     // Создаем объект для API
+  //     const requestData = {
+  //       name: name,
+  //       exhibitionEventId: Number(exhibitionId), // Преобразуем в число
+  //       mapImage: imageFile,
+  //     };
 
-      console.log("📤 Отправка данных для создания карты:", {
-        name: requestData.name,
-        exhibitionEventId: requestData.exhibitionEventId,
-        hasImage: !!requestData.mapImage,
+  //     console.log("📤 Отправка данных для создания карты:", {
+  //       name: requestData.name,
+  //       exhibitionEventId: requestData.exhibitionEventId,
+  //       hasImage: !!requestData.mapImage,
+  //     });
+
+  //     // Используем правильную функцию
+  //     const response = await ownerApi.createHallMapWithImage(requestData);
+
+  //     console.log(" Карта успешно создана:", response);
+
+  //     // Обновляем данные
+  //     const mapsData = await commonApi.getHallMapsByEvent(exhibitionId);
+  //     setHallMaps(mapsData);
+
+  //     if (mapsData.length > 0) {
+  //       const newMap = mapsData[mapsData.length - 1];
+  //       setSelectedMap(newMap);
+  //       await loadStandsForMap(newMap.id);
+  //       setManualRefreshKey((prev) => prev + 1);
+  //     }
+
+  //     return response;
+  //   } catch (err) {
+  //     console.error("Ошибка создания карты:", err);
+  //     throw new Error(
+  //       err.response?.data?.error ||
+  //         err.response?.data?.message ||
+  //         err.message ||
+  //         "Ошибка создания карты"
+  //     );
+  //   }
+  // };
+  const handleUploadHallMap = async (newHallMapData) => {
+    try {
+      console.log("Получены данные карты от MapEditor:", {
+        id: newHallMapData.id,
+        name: newHallMapData.name,
+        hasImage: !!newHallMapData.mapImageUrl,
       });
 
-      // Используем правильную функцию
-      const response = await ownerApi.createHallMapWithImage(requestData);
+      // Если карта уже имеет ID (передан из MapEditor), значит она уже создана
+      if (newHallMapData.id) {
+        console.log("Карта уже создана, ID:", newHallMapData.id);
 
-      console.log("✅ Карта успешно создана:", response);
+        // Обновляем состояние
+        const updatedMaps = hallMaps.map((map) =>
+          map.id === newHallMapData.id ? { ...map, ...newHallMapData } : map
+        );
+        setHallMaps(updatedMaps);
+
+        // Если это текущая выбранная карта, обновляем ее
+        if (selectedMap?.id === newHallMapData.id) {
+          setSelectedMap(newHallMapData);
+        }
+
+        return newHallMapData;
+      }
+
+      // Если нет ID - это новая карта, но сначала проверяем, есть ли уже карты
+      if (hallMaps.length > 0) {
+        // Есть выбор: либо использовать существующую карту, либо создать новую
+        const useExisting = window.confirm(
+          "Для этой выставки уже есть карта зала.\n\n" +
+            "Использовать существующую карту или создать новую?\n\n" +
+            "OK - обновить существующую\n" +
+            "Отмена - создать новую карту"
+        );
+
+        if (useExisting && selectedMap) {
+          // Обновляем существующую карту
+          console.log("Обновляем существующую карту:", selectedMap.id);
+          const updatedMap = await ownerApi.updateHallMap(selectedMap.id, {
+            name: newHallMapData.name || selectedMap.name,
+          });
+
+          // Если есть изображение, загружаем его
+          if (newHallMapData.mapImage) {
+            await ownerApi.uploadHallMapImage(
+              selectedMap.id,
+              newHallMapData.mapImage
+            );
+          }
+
+          // Перезагружаем данные
+          await loadExhibitionData();
+          return updatedMap;
+        }
+      }
+
+      // Создаем новую карту
+      console.log("Создаем новую карту");
+      const requestData = {
+        name:
+          newHallMapData.name || `План зала ${new Date().toLocaleDateString()}`,
+        exhibitionEventId: Number(exhibitionId),
+        mapImage: newHallMapData.mapImage,
+      };
+
+      const response = await ownerApi.createHallMapWithImage(requestData);
+      console.log("Новая карта создана:", response);
 
       // Обновляем данные
-      const mapsData = await commonApi.getHallMapsByEvent(exhibitionId);
-      setHallMaps(mapsData);
-
-      if (mapsData.length > 0) {
-        const newMap = mapsData[mapsData.length - 1];
-        setSelectedMap(newMap);
-        await loadStandsForMap(newMap.id);
-        setManualRefreshKey((prev) => prev + 1);
-      }
+      await loadExhibitionData();
 
       return response;
     } catch (err) {
-      console.error("❌ Ошибка создания карты:", err);
+      console.error("Ошибка обработки карты:", err);
       throw new Error(
         err.response?.data?.error ||
-        err.response?.data?.message ||
-        err.message ||
-        "Ошибка создания карты"
+          err.response?.data?.message ||
+          err.message ||
+          "Ошибка загрузки карты"
       );
+    }
+  };
+  // Обработчик для обновления изображения существующей карты
+  const handleMapImageUpload = async (hallMapId, imageUrl) => {
+    try {
+      console.log("Обновление изображения карты:", { hallMapId, imageUrl });
+
+      // Обновляем состояние карты
+      setHallMaps((prev) =>
+        prev.map((map) =>
+          map.id === hallMapId ? { ...map, mapImageUrl: imageUrl } : map
+        )
+      );
+
+      if (selectedMap?.id === hallMapId) {
+        setSelectedMap((prev) => ({ ...prev, mapImageUrl: imageUrl }));
+      }
+    } catch (error) {
+      console.error("Ошибка обновления карты:", error);
+      throw error;
     }
   };
   const handleCreateStand = async (standData) => {
@@ -304,13 +411,10 @@ const ExhibitionMapPage = () => {
           type: standData.type,
           status: standData.status || "AVAILABLE",
           exhibitionHallMapId: selectedMap.id,
-          isTemp: true // Флаг для временного стенда
+          isTemp: true, // Флаг для временного стенда
         };
 
-        setStands((prev) => [
-          ...filterValidStands(prev),
-          tempStand,
-        ]);
+        setStands((prev) => [...filterValidStands(prev), tempStand]);
 
         // Обновляем данные с сервера
         setTimeout(() => {
@@ -332,10 +436,7 @@ const ExhibitionMapPage = () => {
           exhibitionHallMapId: newStand.exhibitionHallMapId || selectedMap.id,
         };
 
-        setStands((prev) => [
-          ...filterValidStands(prev),
-          standToAdd,
-        ]);
+        setStands((prev) => [...filterValidStands(prev), standToAdd]);
 
         return standToAdd;
       }
@@ -357,8 +458,8 @@ const ExhibitionMapPage = () => {
   const filterValidStands = (standsArray) => {
     if (!standsArray || !Array.isArray(standsArray)) return [];
 
-    return standsArray.filter(stand => {
-      if (!stand || typeof stand !== 'object') return false;
+    return standsArray.filter((stand) => {
+      if (!stand || typeof stand !== "object") return false;
 
       // Проверяем, не пустой ли это объект
       const keys = Object.keys(stand);
@@ -371,7 +472,8 @@ const ExhibitionMapPage = () => {
       if (stand.isTemp) return true;
 
       // Проверяем координаты
-      const hasCoords = stand.positionX !== undefined && stand.positionY !== undefined;
+      const hasCoords =
+        stand.positionX !== undefined && stand.positionY !== undefined;
 
       return hasStandNumber && hasCoords;
     });
@@ -442,9 +544,9 @@ const ExhibitionMapPage = () => {
       if (!booking) {
         alert(
           "Бронирование для этого стенда не найдено.\n\n" +
-          "Убедитесь, что:\n" +
-          "- Вы владелец этой выставки\n" +
-          "- Бронирование ещё не подтверждено или отклонено"
+            "Убедитесь, что:\n" +
+            "- Вы владелец этой выставки\n" +
+            "- Бронирование ещё не подтверждено или отклонено"
         );
         return;
       }
@@ -518,14 +620,16 @@ const ExhibitionMapPage = () => {
     console.log("Объединяем стенды и бронирования:", {
       "исходные стенды": standsData?.length || 0,
       "валидные стенды": validStands.length,
-      "бронирований": bookingsData.length,
+      бронирований: bookingsData.length,
     });
 
     return validStands.map((stand) => {
       const booking = bookingsData.find((b) => {
         // Несколько способов поиска соответствия
-        return b.exhibitionStandId == stand.id || // ID бронирования
-          (b.standNumber && b.standNumber === stand.standNumber); // по номеру стенда
+        return (
+          b.exhibitionStandId == stand.id || // ID бронирования
+          (b.standNumber && b.standNumber === stand.standNumber)
+        ); // по номеру стенда
       });
 
       if (booking) {
@@ -670,6 +774,7 @@ const ExhibitionMapPage = () => {
           onChangeStandStatus={handleChangeStandStatus}
           // Обработчики для художника
           onBookStand={handleBookStand}
+          onMapImageUpload={handleMapImageUpload}
           onDeleteStand={handleDeleteStand}
           onRefreshStands={refreshStands}
           onApproveBooking={handleApproveBooking}

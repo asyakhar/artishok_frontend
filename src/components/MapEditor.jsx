@@ -22,11 +22,11 @@ const MapEditor = ({
   onUploadHallMap,
   onCreateStand,
   onBookStand,
-  onDeleteStand = () => { },
+  onDeleteStand = () => {},
   onMapImageUpload,
-  onRefreshStands = () => { },
-  onApproveBooking = () => { },
-  onRejectBooking = () => { },
+  onRefreshStands = () => {},
+  onApproveBooking = () => {},
+  onRejectBooking = () => {},
 }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -52,6 +52,7 @@ const MapEditor = ({
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   const [hallMapId, setHallMapId] = useState(hallMap?.id || null);
   const [hasShownMapLoaded, setHasShownMapLoaded] = useState(false);
+  const [isMapReady, setIsMapReady] = useState(false);
   const showError = (message, title = "Ошибка") => {
     if (window.toast && window.toast.error) {
       window.toast.error(`${title}: ${message}`, 6000);
@@ -219,8 +220,12 @@ const MapEditor = ({
         setMapScale(mapInstance.current.getZoom());
       }
     });
-
+    mapInstance.current.whenReady(() => {
+      setIsMapReady(true);
+      console.log("✅ Карта Leaflet полностью готова");
+    });
     return () => {
+      setIsMapReady(false);
       if (mapInstance.current) {
         mapInstance.current.off("click", handleMapClick);
         mapInstance.current.off("zoom");
@@ -247,11 +252,23 @@ const MapEditor = ({
   }, [isDrawing, mode]);
 
   useEffect(() => {
-    if (hallMap?.mapImageUrl) {
+    // Ждем пока карта будет готова
+    if (hallMap?.mapImageUrl && isMapReady) {
+      console.log("Загружаем изображение карты, карта готова");
       loadHallMapImage(hallMap.mapImageUrl);
       setHallMapId(hallMap.id);
+    } else if (hallMap?.mapImageUrl && !isMapReady) {
+      console.log("Изображение есть, но карта не готова. Ждем...");
+      // Создаем таймер для повторной попытки
+      const timer = setTimeout(() => {
+        if (isMapReady && hallMap?.mapImageUrl) {
+          loadHallMapImage(hallMap.mapImageUrl);
+          setHallMapId(hallMap.id);
+        }
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [hallMap]);
+  }, [hallMap, isMapReady]); // Добавьте isMapReady в зависимости
 
   useEffect(() => {
     renderStands();
@@ -328,124 +345,361 @@ const MapEditor = ({
   //     e.target.value = "";
   //   }
   // };
+  // const handleImageUpload = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file) return;
+
+  //   if (!file.type.includes("image")) {
+  //     showWarning("Пожалуйста, выберите файл изображения (JPG, PNG, GIF)");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+  //     setUploadProgress(10);
+
+  //     // Показать информационное уведомление о начале загрузки
+  //     const loadingToast = toast.info("Начинаем загрузку изображения...", 0);
+
+  //     let uploadedUrl = null;
+  //     let mapId = hallMapId;
+
+  //     if (file.size > 10 * 1024 * 1024) {
+  //       showError(
+  //         "Файл слишком большой! Максимальный размер 10MB.",
+  //         "Превышен размер"
+  //       );
+  //       setLoading(false);
+
+  //       return;
+  //     }
+
+  //     // Проверка минимального размера
+  //     const img = new Image();
+  //     img.src = URL.createObjectURL(file);
+  //     img.onload = async () => {
+  //       if (img.width < 500 || img.height < 500) {
+  //         showWarning(
+  //           "Рекомендуемый размер изображения не менее 500×500 пикселей"
+  //         );
+  //       }
+
+  //       URL.revokeObjectURL(img.src);
+
+  //       try {
+  //         if (hallMapId) {
+  //           setUploadProgress(30);
+
+  //           toast.info("Обновляем существующую карту...", 3000);
+
+  //           const result = await ownerApi.uploadHallMapImage(hallMapId, file);
+  //           uploadedUrl = result.mapImageUrl;
+  //           setUploadProgress(70);
+
+  //           if (onMapImageUpload) {
+  //             await onMapImageUpload(hallMapId, uploadedUrl);
+  //           }
+  //         } else {
+  //           setUploadProgress(30);
+
+  //           toast.info("Создаем новую карту зала...", 3000);
+
+  //           const mapData = {
+  //             name: `План зала ${new Date().toLocaleDateString()}`,
+  //             exhibitionEventId: exhibitionId,
+  //             mapImage: file,
+  //           };
+
+  //           const result = await ownerApi.createHallMapWithImage(mapData);
+  //           uploadedUrl = result.mapImageUrl;
+  //           mapId = result.id;
+  //           setHallMapId(result.id);
+  //           setUploadProgress(70);
+
+  //           if (onUploadHallMap) {
+  //             await onUploadHallMap(result);
+  //           }
+  //         }
+
+  //         if (uploadedUrl) {
+  //           setUploadedImageUrl(uploadedUrl);
+  //           await loadImageToMap(uploadedUrl);
+  //           setUploadProgress(100);
+
+  //           setTimeout(() => {
+  //             setUploadProgress(0);
+  //           }, 500);
+  //         }
+  //       } catch (error) {
+  //         console.error("Ошибка загрузки:", error);
+
+  //         const errorMessage =
+  //           error.response?.data?.error ||
+  //           error.response?.data?.message ||
+  //           error.message ||
+  //           "Неизвестная ошибка";
+
+  //         showError(errorMessage, "Ошибка загрузки");
+
+  //         // Дополнительная информация для разработчика
+  //         if (process.env.NODE_ENV === "development") {
+  //           console.error("Полная ошибка:", error);
+  //         }
+
+  //         setImageError(true);
+  //       } finally {
+  //         setLoading(false);
+  //         e.target.value = "";
+  //       }
+  //     };
+
+  //     img.onerror = () => {
+  //       showError("Не удалось прочитать файл изображения", "Ошибка файла");
+  //       setLoading(false);
+  //     };
+  //   } catch (error) {
+  //     showError("Непредвиденная ошибка при обработке файла", "Ошибка");
+  //     setLoading(false);
+  //     e.target.value = "";
+  //   }
+  // };
+  // const handleImageUpload = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file) return;
+
+  //   // ВАЖНО: Проверяем, создана ли карта
+  //   if (!mapInstance.current) {
+  //     console.error("Карта еще не создана!");
+  //     showError("Пожалуйста, подождите. Карта загружается...");
+
+  //     // Ждем 1 секунду и пробуем снова
+  //     setTimeout(() => {
+  //       if (mapInstance.current) {
+  //         console.log("Карта готова, пробуем снова...");
+  //         // Программно триггерим загрузку снова
+  //         document.getElementById("mapUpload").click();
+  //       } else {
+  //         showError(
+  //           "Не удалось загрузить карту. Пожалуйста, обновите страницу."
+  //         );
+  //       }
+  //     }, 1000);
+
+  //     e.target.value = "";
+  //     return;
+  //   }
+  //   try {
+  //     setLoading(true);
+  //     setUploadProgress(10);
+
+  //     const fileName = file.name;
+
+  //     // Всегда проверяем, есть ли уже карта
+  //     if (hallMapId || hallMap?.id) {
+  //       // Есть существующая карта - обновляем ее
+  //       console.log("Обновляем существующую карту:", hallMapId || hallMap?.id);
+
+  //       setUploadProgress(30);
+  //       const result = await ownerApi.uploadHallMapImage(
+  //         hallMapId || hallMap?.id,
+  //         file
+  //       );
+  //       const uploadedUrl = result.mapImageUrl;
+  //       setUploadProgress(70);
+
+  //       // Обновляем карту через родительский компонент
+  //       if (onMapImageUpload) {
+  //         await onMapImageUpload(hallMapId || hallMap?.id, uploadedUrl);
+  //       }
+
+  //       // Загружаем изображение на карту
+  //       setUploadedImageUrl(uploadedUrl);
+  //       await loadImageToMap(uploadedUrl);
+  //       setUploadProgress(100);
+
+  //       // Сохраняем в localStorage
+  //       const mapKey = `hall_map_${exhibitionId}_${hallMapId || hallMap?.id}`;
+  //       localStorage.setItem(
+  //         mapKey,
+  //         JSON.stringify({
+  //           id: hallMapId || hallMap?.id,
+  //           mapImageUrl: uploadedUrl,
+  //           exhibitionId: exhibitionId,
+  //           name: fileName,
+  //           timestamp: Date.now(),
+  //         })
+  //       );
+
+  //       showSuccess(`Карта "${fileName}" успешно обновлена!`);
+  //     } else {
+  //       // Нет карты - создаем новую
+  //       console.log("Создаем новую карту");
+
+  //       const mapData = {
+  //         name: fileName || `План зала ${new Date().toLocaleDateString()}`,
+  //         exhibitionEventId: exhibitionId,
+  //         mapImage: file,
+  //       };
+
+  //       setUploadProgress(30);
+
+  //       // Создаем через родительский компонент
+  //       if (onUploadHallMap) {
+  //         const result = await onUploadHallMap(mapData);
+
+  //         if (result && result.id) {
+  //           setHallMapId(result.id);
+  //           setUploadProgress(70);
+
+  //           if (result.mapImageUrl) {
+  //             setUploadedImageUrl(result.mapImageUrl);
+  //             await loadImageToMap(result.mapImageUrl);
+  //           }
+
+  //           setUploadProgress(100);
+  //           showSuccess(`Карта "${fileName}" успешно создана!`);
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Ошибка загрузки:", error);
+  //     const errorMessage =
+  //       error.response?.data?.error ||
+  //       error.response?.data?.message ||
+  //       error.message ||
+  //       "Неизвестная ошибка";
+  //     showError(errorMessage, "Ошибка загрузки");
+  //     setImageError(true);
+  //   } finally {
+  //     setLoading(false);
+  //     e.target.value = "";
+  //     setTimeout(() => setUploadProgress(0), 500);
+  //   }
+  // };
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    // ВАЖНО: Проверяем, создана ли карта и готова ли она
+    if (!mapInstance.current || !isMapReady) {
+      console.warn("Карта не готова, ожидаем...");
+      showInfo("Подождите, карта загружается...");
 
-    if (!file.type.includes("image")) {
-      showWarning("Пожалуйста, выберите файл изображения (JPG, PNG, GIF)");
-      return;
+      // Ждем до 3 секунд пока карта не будет готова
+      const waitForMap = () => {
+        return new Promise((resolve) => {
+          let attempts = 0;
+          const checkMap = () => {
+            attempts++;
+            if (mapInstance.current && isMapReady) {
+              console.log("✅ Карта готова через", attempts * 100, "мс");
+              resolve(true);
+            } else if (attempts < 30) {
+              // 30 попыток * 100мс = 3 секунды
+              setTimeout(checkMap, 100);
+            } else {
+              console.error("Карта не загрузилась за 3 секунды");
+              resolve(false);
+            }
+          };
+          checkMap();
+        });
+      };
+
+      const mapReady = await waitForMap();
+      if (!mapReady) {
+        showError("Не удалось загрузить карту. Пожалуйста, обновите страницу.");
+        e.target.value = "";
+        return;
+      }
     }
 
     try {
       setLoading(true);
       setUploadProgress(10);
 
-      // Показать информационное уведомление о начале загрузки
-      const loadingToast = toast.info("Начинаем загрузку изображения...", 0);
+      const fileName = file.name;
 
-      let uploadedUrl = null;
-      let mapId = hallMapId;
+      // Всегда проверяем, есть ли уже карта
+      if (hallMapId || hallMap?.id) {
+        // Есть существующая карта - обновляем ее
+        console.log("Обновляем существующую карту:", hallMapId || hallMap?.id);
 
-      if (file.size > 10 * 1024 * 1024) {
-        showError(
-          "Файл слишком большой! Максимальный размер 10MB.",
-          "Превышен размер"
+        setUploadProgress(30);
+        const result = await ownerApi.uploadHallMapImage(
+          hallMapId || hallMap?.id,
+          file
         );
-        setLoading(false);
+        const uploadedUrl = result.mapImageUrl;
+        setUploadProgress(70);
 
-        return;
-      }
-
-      // Проверка минимального размера
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-      img.onload = async () => {
-        if (img.width < 500 || img.height < 500) {
-          showWarning(
-            "Рекомендуемый размер изображения не менее 500×500 пикселей"
-          );
+        // Обновляем карту через родительский компонент
+        if (onMapImageUpload) {
+          await onMapImageUpload(hallMapId || hallMap?.id, uploadedUrl);
         }
 
-        URL.revokeObjectURL(img.src);
+        // Загружаем изображение на карту
+        setUploadedImageUrl(uploadedUrl);
+        await loadImageToMap(uploadedUrl);
+        setUploadProgress(100);
 
-        try {
-          if (hallMapId) {
-            setUploadProgress(30);
+        // Сохраняем в localStorage
+        const mapKey = `hall_map_${exhibitionId}_${hallMapId || hallMap?.id}`;
+        localStorage.setItem(
+          mapKey,
+          JSON.stringify({
+            id: hallMapId || hallMap?.id,
+            mapImageUrl: uploadedUrl,
+            exhibitionId: exhibitionId,
+            name: fileName,
+            timestamp: Date.now(),
+          })
+        );
 
-            toast.info("Обновляем существующую карту...", 3000);
+        showSuccess(`Карта "${fileName}" успешно обновлена!`);
+      } else {
+        // Нет карты - создаем новую
+        console.log("Создаем новую карту");
 
-            const result = await ownerApi.uploadHallMapImage(hallMapId, file);
-            uploadedUrl = result.mapImageUrl;
-            setUploadProgress(70);
+        const mapData = {
+          name: fileName || `План зала ${new Date().toLocaleDateString()}`,
+          exhibitionEventId: exhibitionId,
+          mapImage: file,
+        };
 
-            if (onMapImageUpload) {
-              await onMapImageUpload(hallMapId, uploadedUrl);
-            }
-          } else {
-            setUploadProgress(30);
+        setUploadProgress(30);
 
-            toast.info("Создаем новую карту зала...", 3000);
+        // Создаем через родительский компонент
+        if (onUploadHallMap) {
+          const result = await onUploadHallMap(mapData);
 
-            const mapData = {
-              name: `План зала ${new Date().toLocaleDateString()}`,
-              exhibitionEventId: exhibitionId,
-              mapImage: file,
-            };
-
-            const result = await ownerApi.createHallMapWithImage(mapData);
-            uploadedUrl = result.mapImageUrl;
-            mapId = result.id;
+          if (result && result.id) {
             setHallMapId(result.id);
             setUploadProgress(70);
 
-            if (onUploadHallMap) {
-              await onUploadHallMap(result);
+            if (result.mapImageUrl) {
+              setUploadedImageUrl(result.mapImageUrl);
+              await loadImageToMap(result.mapImageUrl);
             }
-          }
 
-          if (uploadedUrl) {
-            setUploadedImageUrl(uploadedUrl);
-            await loadImageToMap(uploadedUrl);
             setUploadProgress(100);
-
-            showSuccess("✅ Изображение успешно загружено на сервер!");
-
-            setTimeout(() => {
-              setUploadProgress(0);
-            }, 500);
+            showSuccess(`Карта "${fileName}" успешно создана!`);
           }
-        } catch (error) {
-          console.error("Ошибка загрузки:", error);
-
-          const errorMessage =
-            error.response?.data?.error ||
-            error.response?.data?.message ||
-            error.message ||
-            "Неизвестная ошибка";
-
-          showError(errorMessage, "Ошибка загрузки");
-
-          // Дополнительная информация для разработчика
-          if (process.env.NODE_ENV === "development") {
-            console.error("Полная ошибка:", error);
-          }
-
-          setImageError(true);
-        } finally {
-          setLoading(false);
-          e.target.value = "";
         }
-      };
-
-      img.onerror = () => {
-        showError("Не удалось прочитать файл изображения", "Ошибка файла");
-        setLoading(false);
-      };
+      }
     } catch (error) {
-      showError("Непредвиденная ошибка при обработке файла", "Ошибка");
+      console.error("Ошибка загрузки:", error);
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        "Неизвестная ошибка";
+      showError(errorMessage, "Ошибка загрузки");
+      setImageError(true);
+    } finally {
       setLoading(false);
       e.target.value = "";
+      setTimeout(() => setUploadProgress(0), 500);
     }
   };
   const loadHallMapImage = (imageUrl) => {
@@ -490,7 +744,7 @@ const MapEditor = ({
         renderStands();
       }, 200);
       if (!hasShownMapLoaded) {
-        showSuccess("Карта зала успешно загружена");
+        // showSuccess("Карта зала успешно загружена");
         setHasShownMapLoaded(true);
       }
     };
@@ -505,55 +759,174 @@ const MapEditor = ({
     img.src = imageUrl;
   };
 
+  // const loadImageToMap = (imageUrl) => {
+  //   return new Promise((resolve, reject) => {
+  //     if (!mapInstance.current || !imageUrl) {
+  //       reject("Нет карты или изображения");
+  //       return;
+  //     }
+
+  //     const img = new Image();
+  //     img.crossOrigin = "anonymous";
+
+  //     img.onload = function () {
+  //       const width = this.width;
+  //       const height = this.height;
+  //       const bounds = [
+  //         [0, 0],
+  //         [height, width],
+  //       ];
+
+  //       if (imageOverlayRef.current) {
+  //         mapInstance.current.removeLayer(imageOverlayRef.current);
+  //         imageOverlayRef.current = null;
+  //       }
+
+  //       imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
+  //         interactive: false,
+  //         className: "hall-map-image",
+  //       }).addTo(mapInstance.current);
+
+  //       mapInstance.current.fitBounds(bounds);
+
+  //       setTimeout(() => {
+  //         const currentZoom = mapInstance.current.getZoom();
+  //         if (currentZoom > 0) {
+  //           mapInstance.current.setZoom(currentZoom - 1);
+  //         }
+  //       }, 100);
+
+  //       setImageError(false);
+  //       setMapImage(imageUrl);
+  //       resolve();
+  //     };
+
+  //     img.onerror = function () {
+  //       console.error("Ошибка загрузки изображения");
+  //       setImageError(true);
+  //       reject("Ошибка загрузки изображения");
+  //     };
+
+  //     img.src = imageUrl;
+  //   });
+  // };
   const loadImageToMap = (imageUrl) => {
     return new Promise((resolve, reject) => {
-      if (!mapInstance.current || !imageUrl) {
-        reject("Нет карты или изображения");
-        return;
-      }
-
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-
-      img.onload = function () {
-        const width = this.width;
-        const height = this.height;
-        const bounds = [
-          [0, 0],
-          [height, width],
-        ];
-
-        if (imageOverlayRef.current) {
-          mapInstance.current.removeLayer(imageOverlayRef.current);
-          imageOverlayRef.current = null;
+      try {
+        // if (!mapInstance.current || !isMapReady) {
+        //   console.error("Карта не инициализирована или не готова");
+        //   console.log({
+        //     mapInstanceExists: !!mapInstance.current,
+        //     isMapReady: isMapReady,
+        //   });
+        //   reject("Карта не инициализирована");
+        //   return;
+        // }
+        if (!mapInstance.current) {
+          console.log("⏳ Карта не создана, ждем 300мс...");
+          setTimeout(() => {
+            loadImageToMap(imageUrl).then(resolve).catch(reject);
+          }, 300);
+          return;
         }
 
-        imageOverlayRef.current = L.imageOverlay(imageUrl, bounds, {
-          interactive: false,
-          className: "hall-map-image",
-        }).addTo(mapInstance.current);
+        if (!imageUrl) {
+          console.error("URL изображения не предоставлен:", imageUrl);
+          reject("URL изображения не предоставлен");
+          return;
+        }
 
-        mapInstance.current.fitBounds(bounds);
+        // Проверяем, является ли imageUrl валидным URL
+        let urlToUse = imageUrl;
+        if (typeof imageUrl === "object" && imageUrl.url) {
+          // Если передан объект с полем url
+          urlToUse = imageUrl.url;
+        } else if (imageUrl.mapImageUrl) {
+          // Если передан объект с полем mapImageUrl
+          urlToUse = imageUrl.mapImageUrl;
+        }
 
-        setTimeout(() => {
-          const currentZoom = mapInstance.current.getZoom();
-          if (currentZoom > 0) {
-            mapInstance.current.setZoom(currentZoom - 1);
+        if (
+          !urlToUse ||
+          typeof urlToUse !== "string" ||
+          urlToUse.trim() === ""
+        ) {
+          console.error("Невалидный URL изображения:", urlToUse);
+          reject("Невалидный URL изображения");
+          return;
+        }
+
+        console.log("Загрузка изображения в карту:", {
+          originalUrl: imageUrl,
+          urlToUse: urlToUse,
+          mapInstanceExists: !!mapInstance.current,
+        });
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+
+        img.onload = function () {
+          try {
+            const width = this.width;
+            const height = this.height;
+            console.log("Изображение загружено:", {
+              width,
+              height,
+              url: urlToUse,
+            });
+
+            const bounds = [
+              [0, 0],
+              [height, width],
+            ];
+
+            // Очищаем предыдущее изображение, если есть
+            if (imageOverlayRef.current) {
+              mapInstance.current.removeLayer(imageOverlayRef.current);
+              imageOverlayRef.current = null;
+            }
+
+            // Создаем новое изображение
+            imageOverlayRef.current = L.imageOverlay(urlToUse, bounds, {
+              interactive: false,
+              className: "hall-map-image",
+            }).addTo(mapInstance.current);
+
+            // Настраиваем вид карты
+            mapInstance.current.fitBounds(bounds);
+
+            setTimeout(() => {
+              const currentZoom = mapInstance.current.getZoom();
+              if (currentZoom > 0) {
+                mapInstance.current.setZoom(currentZoom - 1);
+              }
+            }, 100);
+
+            setImageError(false);
+            setMapImage(urlToUse);
+
+            console.log("Изображение успешно добавлено на карту");
+            resolve();
+          } catch (innerError) {
+            console.error(
+              "Ошибка при обработке загруженного изображения:",
+              innerError
+            );
+            reject("Ошибка обработки изображения: " + innerError.message);
           }
-        }, 100);
+        };
 
-        setImageError(false);
-        setMapImage(imageUrl);
-        resolve();
-      };
+        img.onerror = function () {
+          console.error("Ошибка загрузки изображения:", urlToUse);
+          setImageError(true);
+          reject("Ошибка загрузки изображения по URL: " + urlToUse);
+        };
 
-      img.onerror = function () {
-        console.error("Ошибка загрузки изображения");
-        setImageError(true);
-        reject("Ошибка загрузки изображения");
-      };
-
-      img.src = imageUrl;
+        img.src = urlToUse;
+      } catch (error) {
+        console.error("Критическая ошибка в loadImageToMap:", error);
+        reject("Критическая ошибка: " + error.message);
+      }
     });
   };
   const showPlaceholder = () => {
@@ -714,14 +1087,20 @@ const MapEditor = ({
     const positionY = stand.positionY ?? stand.position?.lat;
 
     if (positionX === undefined || positionY === undefined) {
-      console.warn(`Пропускаем стенд ${stand.standNumber || stand.id}: нет координат`, stand);
+      console.warn(
+        `Пропускаем стенд ${stand.standNumber || stand.id}: нет координат`,
+        stand
+      );
       return null;
     }
     const x = Number(positionX);
     const y = Number(positionY);
 
     if (isNaN(x) || isNaN(y)) {
-      console.warn(`Пропускаем стенд ${stand.standNumber}: некорректные координаты`, stand);
+      console.warn(
+        `Пропускаем стенд ${stand.standNumber}: некорректные координаты`,
+        stand
+      );
       return null;
     }
 
@@ -774,21 +1153,24 @@ const MapEditor = ({
       
       <div style="margin-bottom: 15px;">
         <p style="margin: 5px 0;"><strong>Тип:</strong> ${getTypeText(
-      stand.type || stand.standType
-    )}</p>
-        <p style="margin: 5px 0;"><strong>Размер:</strong> ${stand.width}×${stand.height
-      } см</p>
+          stand.type || stand.standType
+        )}</p>
+        <p style="margin: 5px 0;"><strong>Размер:</strong> ${stand.width}×${
+      stand.height
+    } см</p>
         <p style="margin: 5px 0;"><strong>Статус:</strong> 
           <span style="color: ${color}; font-weight: bold;">
             ${statusText}
           </span>
         </p>
-        <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${stand.positionX
-      }, Y:${stand.positionY}</p>
+        <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${
+          stand.positionX
+        }, Y:${stand.positionY}</p>
         
-        ${(stand.status === "PENDING" || stand.standStatus === "PENDING") &&
-        stand.artistName
-        ? `
+        ${
+          (stand.status === "PENDING" || stand.standStatus === "PENDING") &&
+          stand.artistName
+            ? `
           <div style="
             background: linear-gradient(135deg, #fff3cd, #ffeaa7);
             border: 2px solid #ffc107;
@@ -805,30 +1187,33 @@ const MapEditor = ({
             <p style="margin: 5px 0; font-size: 13px;">
               <strong>Email:</strong> ${stand.artistEmail}
             </p>
-            ${stand.bookingDate
-          ? `
+            ${
+              stand.bookingDate
+                ? `
               <p style="margin: 5px 0; font-size: 12px; color: #6c757d;">
                 <strong>Дата запроса:</strong> ${formatDate(stand.bookingDate)}
               </p>
             `
-          : ""
-        }
-            ${stand.exhibitionTitle
-          ? `
+                : ""
+            }
+            ${
+              stand.exhibitionTitle
+                ? `
               <p style="margin: 5px 0; font-size: 12px;">
                 <strong>Выставка:</strong> ${stand.exhibitionTitle}
               </p>
             `
-          : ""
-        }
+                : ""
+            }
           </div>
         `
-        : ""
-      }
+            : ""
+        }
         
-        ${(stand.status === "BOOKED" || stand.standStatus === "BOOKED") &&
-        stand.artistName
-        ? `
+        ${
+          (stand.status === "BOOKED" || stand.standStatus === "BOOKED") &&
+          stand.artistName
+            ? `
           <div style="
             background: linear-gradient(135deg, #d4edda, #c3e6cb);
             border: 2px solid #28a745;
@@ -842,40 +1227,47 @@ const MapEditor = ({
             <p style="margin: 5px 0; font-size: 13px;">
               <strong>Художник:</strong> ${stand.artistName}
             </p>
-            ${stand.artistEmail
-          ? `
+            ${
+              stand.artistEmail
+                ? `
               <p style="margin: 5px 0; font-size: 13px;">
                 <strong>Email:</strong> ${stand.artistEmail}
               </p>
             `
-          : ""
-        }
-            ${stand.exhibitionTitle
-          ? `
+                : ""
+            }
+            ${
+              stand.exhibitionTitle
+                ? `
               <p style="margin: 5px 0; font-size: 12px;">
                 <strong>Выставка:</strong> ${stand.exhibitionTitle}
               </p>
             `
-          : ""
-        }
+                : ""
+            }
           </div>
         `
-        : ""
-      }
+            : ""
+        }
       </div>
       
       <div style="display: flex; flex-direction: column; gap: 8px;">
-        ${mode === "owner"
-        ? `<div style="display: flex; flex-direction: column; gap: 8px;">
-            ${stand.status === "PENDING" || stand.standStatus === "PENDING"
-          ? `<div style="display: flex; gap: 8px;">
+        ${
+          mode === "owner"
+            ? `<div style="display: flex; flex-direction: column; gap: 8px;">
+            ${
+              stand.status === "PENDING" || stand.standStatus === "PENDING"
+                ? `<div style="display: flex; gap: 8px;">
                 <button 
-                  onclick="if(confirm('Подтвердить бронирование стенда ${stand.standNumber
-          } для художника ${stand.artistName} (${stand.artistEmail
-          })?')) { 
+                  onclick="if(confirm('Подтвердить бронирование стенда ${
+                    stand.standNumber
+                  } для художника ${stand.artistName} (${
+                    stand.artistEmail
+                  })?')) { 
                     if(window.handleApproveBooking) { 
-                      window.handleApproveBooking('${stand.exhibitionStandId || stand.id
-          }', '${stand.standNumber}'); 
+                      window.handleApproveBooking('${
+                        stand.exhibitionStandId || stand.id
+                      }', '${stand.standNumber}'); 
                     }
                   }" 
                   style="
@@ -892,11 +1284,13 @@ const MapEditor = ({
                   ✅ Подтвердить
                 </button>
                 <button 
-                  onclick="if(confirm('Отклонить бронирование стенда ${stand.standNumber
-          } от художника ${stand.artistName}?')) { 
+                  onclick="if(confirm('Отклонить бронирование стенда ${
+                    stand.standNumber
+                  } от художника ${stand.artistName}?')) { 
                     if(window.handleRejectBooking) { 
-                      window.handleRejectBooking('${stand.exhibitionStandId || stand.id
-          }', '${stand.standNumber}'); 
+                      window.handleRejectBooking('${
+                        stand.exhibitionStandId || stand.id
+                      }', '${stand.standNumber}'); 
                     }
                   }" 
                   style="
@@ -913,13 +1307,14 @@ const MapEditor = ({
                   ❌ Отклонить
                 </button>
               </div>`
-          : ""
-        }
+                : ""
+            }
             <button 
               onclick="if(confirm('Удалить стенд ${stand.standNumber}?')) { 
                 if(window.handleDeleteStand) { 
-                  window.handleDeleteStand('${stand.exhibitionStandId || stand.id
-        }', '${stand.standNumber}'); 
+                  window.handleDeleteStand('${
+                    stand.exhibitionStandId || stand.id
+                  }', '${stand.standNumber}'); 
                 }
               }" 
               style="
@@ -935,15 +1330,17 @@ const MapEditor = ({
               🗑️ Удалить стенд
             </button>
           </div>`
-        : ""
-      }
-        ${mode === "artist" &&
-        (stand.status === "AVAILABLE" || stand.standStatus === "AVAILABLE")
-        ? `<button 
+            : ""
+        }
+        ${
+          mode === "artist" &&
+          (stand.status === "AVAILABLE" || stand.standStatus === "AVAILABLE")
+            ? `<button 
             onclick="if(confirm('Забронировать стенд ${stand.standNumber}?')) { 
               if(window.handleBookStand) { 
-                window.handleBookStand('${stand.exhibitionStandId || stand.id
-        }', '${stand.standNumber}'); 
+                window.handleBookStand('${
+                  stand.exhibitionStandId || stand.id
+                }', '${stand.standNumber}'); 
               }
             }" 
             style="
@@ -958,11 +1355,12 @@ const MapEditor = ({
           >
             📝 Забронировать
           </button>`
-        : ""
-      }
-        ${mode === "artist" &&
-        (stand.status === "PENDING" || stand.standStatus === "PENDING")
-        ? `<div style="
+            : ""
+        }
+        ${
+          mode === "artist" &&
+          (stand.status === "PENDING" || stand.standStatus === "PENDING")
+            ? `<div style="
             padding: 10px; 
             background: linear-gradient(135deg, #ff9800, #f57c00); 
             color: white; 
@@ -972,11 +1370,12 @@ const MapEditor = ({
           ">
             ⏳ Ожидает подтверждения
           </div>`
-        : ""
-      }
-        ${mode === "artist" &&
-        (stand.status === "BOOKED" || stand.standStatus === "BOOKED")
-        ? `<div style="
+            : ""
+        }
+        ${
+          mode === "artist" &&
+          (stand.status === "BOOKED" || stand.standStatus === "BOOKED")
+            ? `<div style="
             padding: 10px; 
             background: linear-gradient(135deg, #dc3545, #c82333); 
             color: white; 
@@ -986,8 +1385,8 @@ const MapEditor = ({
           ">
             ✅ Забронировано
           </div>`
-        : ""
-      }
+            : ""
+        }
       </div>
     </div>
   `;
@@ -1023,13 +1422,14 @@ const MapEditor = ({
     }
 
     // Фильтруем валидные стенды с ПРАВИЛЬНЫМИ координатами
-    const validStands = stands.filter(stand => {
+    const validStands = stands.filter((stand) => {
       if (!stand) return false;
 
       // Проверяем разные варианты структуры данных
       const hasValidCoords =
         (stand.positionX !== undefined && stand.positionY !== undefined) || // ваша структура
-        (stand.position?.lng !== undefined && stand.position?.lat !== undefined); // альтернативная
+        (stand.position?.lng !== undefined &&
+          stand.position?.lat !== undefined); // альтернативная
 
       const hasStandNumber = stand.standNumber !== undefined;
 
@@ -1041,10 +1441,14 @@ const MapEditor = ({
       return true;
     });
 
-    console.log("Валидные стенды для рендеринга:", validStands.length, validStands);
+    console.log(
+      "Валидные стенды для рендеринга:",
+      validStands.length,
+      validStands
+    );
 
     // Создаем маркеры
-    validStands.forEach(stand => {
+    validStands.forEach((stand) => {
       createStandMarker(stand);
     });
   };
@@ -1316,7 +1720,7 @@ const MapEditor = ({
                 )}
 
                 {/* Информация о загруженном изображении */}
-                {uploadedImageUrl && !loading && (
+                {/* {uploadedImageUrl && !loading && (
                   <div
                     style={{
                       backgroundColor: "#d4edda",
@@ -1330,7 +1734,6 @@ const MapEditor = ({
                       gap: "10px",
                     }}
                   >
-                    <span style={{ fontSize: "18px" }}>✅</span>
                     <div>
                       <div>
                         <strong>Изображение загружено на сервер</strong>
@@ -1346,7 +1749,7 @@ const MapEditor = ({
                       </div>
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {mapImage && !imageError && !loading && (
                   <div
@@ -1388,7 +1791,7 @@ const MapEditor = ({
               </div>
 
               {/* Информация о карте */}
-              {hallMapId && (
+              {/* {hallMapId && (
                 <div
                   style={{
                     backgroundColor: "#fff3cd",
@@ -1416,7 +1819,7 @@ const MapEditor = ({
                     {hallMap?.name && `Название: ${hallMap.name}`}
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
             {/* СЕКЦИЯ ДОБАВЛЕНИЯ СТЕНДОВ */}
             <div
@@ -1951,8 +2354,8 @@ const MapEditor = ({
                           transition: "all 0.2s",
                         }}
                         onMouseOver={(e) =>
-                        (e.target.style.boxShadow =
-                          "0 4px 12px rgba(255,193,7,0.2)")
+                          (e.target.style.boxShadow =
+                            "0 4px 12px rgba(255,193,7,0.2)")
                         }
                         onMouseOut={(e) => (e.target.style.boxShadow = "none")}
                         onClick={() => {
@@ -1999,8 +2402,8 @@ const MapEditor = ({
                                       ? "#007bff"
                                       : (stand.type || stand.standType) ===
                                         "BOOTH"
-                                        ? "#6f42c1"
-                                        : "#17a2b8",
+                                      ? "#6f42c1"
+                                      : "#17a2b8",
                                   color: "white",
                                   borderRadius: "12px",
                                 }}
@@ -2008,8 +2411,8 @@ const MapEditor = ({
                                 {(stand.type || stand.standType) === "WALL"
                                   ? "🎨 Стена"
                                   : (stand.type || stand.standType) === "BOOTH"
-                                    ? "🗿 Будка"
-                                    : "📷 Открытое"}
+                                  ? "🗿 Будка"
+                                  : "📷 Открытое"}
                               </span>
                             </div>
 
@@ -2167,12 +2570,13 @@ const MapEditor = ({
                       borderRadius: "10px",
                       marginBottom: "20px",
                       border: "2px solid #007bff",
-                      borderLeft: `8px solid ${selectedStand.status === "BOOKED"
-                        ? "#dc3545"
-                        : selectedStand.status === "PENDING"
+                      borderLeft: `8px solid ${
+                        selectedStand.status === "BOOKED"
+                          ? "#dc3545"
+                          : selectedStand.status === "PENDING"
                           ? "#ff9800"
                           : "#28a745"
-                        }`,
+                      }`,
                       boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                     }}
                   >
@@ -2191,8 +2595,8 @@ const MapEditor = ({
                             selectedStand.status === "BOOKED"
                               ? "#dc3545"
                               : selectedStand.status === "PENDING"
-                                ? "#ff9800"
-                                : "#28a745",
+                              ? "#ff9800"
+                              : "#28a745",
                           borderRadius: "50%",
                           display: "flex",
                           alignItems: "center",
@@ -2285,8 +2689,8 @@ const MapEditor = ({
                             selectedStand.status === "BOOKED"
                               ? "#f8d7da"
                               : selectedStand.status === "PENDING"
-                                ? "#fff3cd"
-                                : "#d4edda",
+                              ? "#fff3cd"
+                              : "#d4edda",
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
@@ -2303,15 +2707,15 @@ const MapEditor = ({
                               selectedStand.status === "BOOKED"
                                 ? "#721c24"
                                 : selectedStand.status === "PENDING"
-                                  ? "#856404"
-                                  : "#155724",
+                                ? "#856404"
+                                : "#155724",
                           }}
                         >
                           {selectedStand.status === "BOOKED"
                             ? "Забронирован"
                             : selectedStand.status === "PENDING"
-                              ? "Ожидает подтверждения"
-                              : "Свободен"}
+                            ? "Ожидает подтверждения"
+                            : "Свободен"}
                         </span>
                       </div>
                     </div>

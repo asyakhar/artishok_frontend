@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './GalleryOwnerDashboard.css';
-import AddExhibitionModal from './AddExhibitionModal';
-import AddGalleryModal from './AddGalleryModal';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./GalleryOwnerDashboard.css";
+import AddExhibitionModal from "./AddExhibitionModal";
+import AddGalleryModal from "./AddGalleryModal";
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = "http://localhost:8080";
 
 const GalleryOwnerDashboard = () => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const GalleryOwnerDashboard = () => {
     profile: true,
     galleries: true,
     exhibitions: true,
-    bookings: true
+    bookings: true,
   });
   const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
   const [showAddExhibitionModal, setShowAddExhibitionModal] = useState(false);
@@ -29,16 +29,16 @@ const GalleryOwnerDashboard = () => {
   const [editingGallery, setEditingGallery] = useState(null);
 
   useEffect(() => {
-    const token = sessionStorage.getItem('authToken');
-    const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+    const token = sessionStorage.getItem("authToken");
+    const user = JSON.parse(sessionStorage.getItem("user") || "null");
 
     if (!token || !user) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
-    if (user.role !== 'GALLERY_OWNER') {
-      navigate('/');
+    if (user.role !== "GALLERY_OWNER") {
+      navigate("/");
       return;
     }
 
@@ -48,9 +48,9 @@ const GalleryOwnerDashboard = () => {
 
   const fetchOwnerGalleries = async (token) => {
     try {
-      setLoading(prev => ({ ...prev, galleries: true }));
+      setLoading((prev) => ({ ...prev, galleries: true }));
       const response = await fetch(`${API_BASE_URL}/gallery-owner/galleries`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.ok) {
@@ -67,18 +67,18 @@ const GalleryOwnerDashboard = () => {
         }
       }
     } catch (error) {
-      console.error('Ошибка загрузки галерей:', error);
+      console.error("Ошибка загрузки галерей:", error);
     } finally {
-      setLoading(prev => ({ ...prev, galleries: false, profile: false }));
+      setLoading((prev) => ({ ...prev, galleries: false, profile: false }));
     }
   };
 
   const fetchGalleryExhibitions = async (galleryId, token) => {
     try {
-      setLoading(prev => ({ ...prev, exhibitions: true }));
+      setLoading((prev) => ({ ...prev, exhibitions: true }));
       const response = await fetch(
         `${API_BASE_URL}/gallery-owner/exhibitions?galleryId=${galleryId}`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.ok) {
@@ -88,18 +88,18 @@ const GalleryOwnerDashboard = () => {
         }
       }
     } catch (error) {
-      console.error('Ошибка загрузки выставок:', error);
+      console.error("Ошибка загрузки выставок:", error);
     } finally {
-      setLoading(prev => ({ ...prev, exhibitions: false }));
+      setLoading((prev) => ({ ...prev, exhibitions: false }));
     }
   };
 
   const fetchExhibitionBookings = async (exhibitionId, token) => {
     try {
-      setLoading(prev => ({ ...prev, bookings: true }));
+      setLoading((prev) => ({ ...prev, bookings: true }));
       const response = await fetch(
         `${API_BASE_URL}/gallery-owner/bookings?exhibitionId=${exhibitionId}`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.ok) {
@@ -109,42 +109,45 @@ const GalleryOwnerDashboard = () => {
         }
       }
     } catch (error) {
-      console.error('Ошибка загрузки бронирований:', error);
+      console.error("Ошибка загрузки бронирований:", error);
     } finally {
-      setLoading(prev => ({ ...prev, bookings: false }));
+      setLoading((prev) => ({ ...prev, bookings: false }));
     }
   };
 
   const handleCreateGallery = async (galleryData) => {
     try {
-      const token = sessionStorage.getItem('authToken');
-      const response = await fetch(`${API_BASE_URL}/gallery-owner/create-gallery`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(galleryData)
-      });
+      const token = sessionStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/gallery-owner/create-gallery`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(galleryData),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        alert('Галерея создана и отправлена на модерацию!');
+        alert("Галерея создана и отправлена на модерацию!");
         fetchOwnerGalleries(token);
         return { success: true, gallery: data.gallery };
       } else {
-        throw new Error(data.error || 'Ошибка при создании галереи');
+        throw new Error(data.error || "Ошибка при создании галереи");
       }
     } catch (error) {
-      console.error('Ошибка создания галереи:', error);
+      console.error("Ошибка создания галереи:", error);
       return { success: false, error: error.message };
     }
   };
 
   const handleGallerySelect = (gallery) => {
     setSelectedGallery(gallery);
-    const token = sessionStorage.getItem('authToken');
+    const token = sessionStorage.getItem("authToken");
     fetchGalleryExhibitions(gallery.id, token);
   };
 
@@ -154,39 +157,39 @@ const GalleryOwnerDashboard = () => {
   };
 
   const handleUpdateGallery = async (galleryData) => {
-    if (!editingGallery) return { success: false, error: 'Галерея не выбрана' };
+    if (!editingGallery) return { success: false, error: "Галерея не выбрана" };
 
     try {
-      const token = sessionStorage.getItem('authToken');
+      const token = sessionStorage.getItem("authToken");
       const response = await fetch(
         `${API_BASE_URL}/gallery-owner/galleries/${editingGallery.id}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(galleryData)
+          body: JSON.stringify(galleryData),
         }
       );
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        alert('Информация о галерее обновлена и отправлена на модерацию!');
+        alert("Информация о галерее обновлена и отправлена на модерацию!");
         fetchOwnerGalleries(token);
         return { success: true, gallery: data.gallery };
       } else {
-        throw new Error(data.error || 'Ошибка при обновлении галереи');
+        throw new Error(data.error || "Ошибка при обновлении галереи");
       }
     } catch (error) {
-      console.error('Ошибка обновления галереи:', error);
+      console.error("Ошибка обновления галереи:", error);
       return { success: false, error: error.message };
     }
   };
 
   const handleGallerySuccess = () => {
-    const token = sessionStorage.getItem('authToken');
+    const token = sessionStorage.getItem("authToken");
     fetchOwnerGalleries(token);
     setShowAddGalleryModal(false);
     setShowEditGalleryModal(false);
@@ -195,27 +198,32 @@ const GalleryOwnerDashboard = () => {
 
   const handleViewBookings = (exhibition) => {
     setSelectedExhibition(exhibition);
-    const token = sessionStorage.getItem('authToken');
+    const token = sessionStorage.getItem("authToken");
     fetchExhibitionBookings(exhibition.id, token);
     setShowBookingsModal(true);
   };
 
   const handleConfirmBooking = async (bookingId) => {
-    if (!window.confirm('Подтвердить бронирование?')) return;
+    if (!window.confirm("Подтвердить бронирование?")) return;
 
     try {
-      const token = sessionStorage.getItem('authToken');
-      const response = await fetch(`${API_BASE_URL}/gallery-owner/bookings/${bookingId}/confirm`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ message: 'Бронирование подтверждено владельцем галереи' })
-      });
+      const token = sessionStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/gallery-owner/bookings/${bookingId}/confirm`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: "Бронирование подтверждено владельцем галереи",
+          }),
+        }
+      );
 
       if (response.ok) {
-        alert('Бронирование подтверждено!');
+        alert("Бронирование подтверждено!");
         if (selectedExhibition) {
           fetchExhibitionBookings(selectedExhibition.id, token);
         }
@@ -224,30 +232,34 @@ const GalleryOwnerDashboard = () => {
         alert(`Ошибка: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Ошибка подтверждения бронирования:', error);
-      alert('Произошла ошибка при подтверждении бронирования');
+      console.error("Ошибка подтверждения бронирования:", error);
+      alert("Произошла ошибка при подтверждении бронирования");
     }
   };
 
   const handleRejectBooking = async (bookingId) => {
     // Убираем prompt и используем стандартное сообщение
-    if (!window.confirm('Вы действительно хотите отклонить бронирование?')) return;
+    if (!window.confirm("Вы действительно хотите отклонить бронирование?"))
+      return;
 
     const reason = "Бронирование отклонено владельцем галереи"; // Стандартная причина
 
     try {
-      const token = sessionStorage.getItem('authToken');
-      const response = await fetch(`${API_BASE_URL}/gallery-owner/bookings/${bookingId}/reject`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ reason }) // Отправляем стандартную причину
-      });
+      const token = sessionStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/gallery-owner/bookings/${bookingId}/reject`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ reason }), // Отправляем стандартную причину
+        }
+      );
 
       if (response.ok) {
-        alert('Бронирование отклонено!');
+        alert("Бронирование отклонено!");
         if (selectedExhibition) {
           fetchExhibitionBookings(selectedExhibition.id, token);
         }
@@ -256,8 +268,8 @@ const GalleryOwnerDashboard = () => {
         alert(`Ошибка: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Ошибка отклонения бронирования:', error);
-      alert('Произошла ошибка при отклонении бронирования');
+      console.error("Ошибка отклонения бронирования:", error);
+      alert("Произошла ошибка при отклонении бронирования");
     }
   };
 
@@ -276,24 +288,31 @@ const GalleryOwnerDashboard = () => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    return date.toLocaleDateString("ru-RU", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   };
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case 'ACTIVE': return 'owner-status-badge owner-status-active';
-      case 'APPROVED': return 'owner-status-badge owner-status-approved';
-      case 'PENDING': return 'owner-status-badge owner-status-pending';
-      case 'DRAFT': return 'owner-status-badge owner-status-draft';
-      case 'CONFIRMED': return 'owner-status-badge owner-status-confirmed';
-      case 'CANCELLED': return 'owner-status-badge owner-status-cancelled';
-      default: return 'owner-status-badge';
+      case "ACTIVE":
+        return "owner-status-badge owner-status-active";
+      case "APPROVED":
+        return "owner-status-badge owner-status-approved";
+      case "PENDING":
+        return "owner-status-badge owner-status-pending";
+      case "DRAFT":
+        return "owner-status-badge owner-status-draft";
+      case "CONFIRMED":
+        return "owner-status-badge owner-status-confirmed";
+      case "CANCELLED":
+        return "owner-status-badge owner-status-cancelled";
+      default:
+        return "owner-status-badge";
     }
   };
 
@@ -313,7 +332,11 @@ const GalleryOwnerDashboard = () => {
         <div className="owner-profile-card">
           <div className="owner-profile-avatar">
             {userData?.avatarUrl ? (
-              <img src={userData.avatarUrl} alt="Аватар" className="owner-avatar-image" />
+              <img
+                src={userData.avatarUrl}
+                alt="Аватар"
+                className="owner-avatar-image"
+              />
             ) : (
               <div className="owner-avatar-placeholder">
                 <i className="fas fa-building"></i>
@@ -321,23 +344,27 @@ const GalleryOwnerDashboard = () => {
             )}
           </div>
           <div className="owner-profile-info">
-            <h1 className="owner-profile-name">{userData?.fullName || 'Владелец галереи'}</h1>
+            <h1 className="owner-profile-name">
+              {userData?.fullName || "Владелец галереи"}
+            </h1>
             <div className="owner-profile-details">
               <div className="owner-detail-item">
                 <i className="fas fa-envelope"></i>
-                <span>{userData?.email || 'Email не указан'}</span>
+                <span>{userData?.email || "Email не указан"}</span>
               </div>
               <div className="owner-detail-item">
                 <i className="fas fa-phone"></i>
-                <span>{userData?.phoneNumber || 'Телефон не указан'}</span>
+                <span>{userData?.phoneNumber || "Телефон не указан"}</span>
               </div>
               <div className="owner-detail-item">
                 <i className="fas fa-user-tag"></i>
-                <span className="owner-role-badge owner-role-owner">Владелец галереи</span>
+                <span className="owner-role-badge owner-role-owner">
+                  Владелец галереи
+                </span>
               </div>
             </div>
             <p className="owner-profile-bio">
-              {userData?.bio || 'Описание профиля пока не добавлено'}
+              {userData?.bio || "Описание профиля пока не добавлено"}
             </p>
           </div>
         </div>
@@ -351,7 +378,8 @@ const GalleryOwnerDashboard = () => {
             className="owner-btn owner-btn-primary"
             onClick={() => setShowAddGalleryModal(true)}
           >
-            <i className="fas fa-plus"></i> Новая галерея
+            <i className="fas fa-plus" style={{ color: "white" }}></i> Новая
+            галерея
           </button>
         </div>
 
@@ -386,30 +414,44 @@ const GalleryOwnerDashboard = () => {
               )}
             </div>
 
-            <select
-              id="gallery-select"
-              className="owner-gallery-dropdown"
-              value={selectedGallery?.id || ''}
-              onChange={(e) => {
-                const gallery = galleries.find(g => g.id == e.target.value);
-                if (gallery) handleGallerySelect(gallery);
-              }}
-            >
-              {galleries.map(gallery => (
-                <option key={gallery.id} value={gallery.id}>
-                  {gallery.name} ({gallery.address})
-                </option>
-              ))}
-            </select>
+            <div className="owner-select-wrapper">
+              <select
+                id="gallery-select"
+                className="owner-gallery-dropdown"
+                value={selectedGallery?.id || ""}
+                onChange={(e) => {
+                  const gallery = galleries.find((g) => g.id == e.target.value);
+                  if (gallery) handleGallerySelect(gallery);
+                }}
+              >
+                {galleries.map((gallery) => (
+                  <option key={gallery.id} value={gallery.id}>
+                    {gallery.name} ({gallery.address})
+                  </option>
+                ))}
+              </select>
+              <div className="owner-select-arrow">
+                <i className="fas fa-chevron-down"></i>
+              </div>
+            </div>
 
             {selectedGallery && (
               <div className="owner-selected-gallery-info">
                 <h3>{selectedGallery.name}</h3>
-                <p><i className="fas fa-map-marker-alt"></i> {selectedGallery.address}</p>
-                <p><i className="fas fa-phone"></i> {selectedGallery.contactPhone || 'Телефон не указан'}</p>
+                <p>
+                  <i className="fas fa-map-marker-alt"></i>{" "}
+                  {selectedGallery.address}
+                </p>
+                <p>
+                  <i className="fas fa-phone"></i>{" "}
+                  {selectedGallery.contactPhone || "Телефон не указан"}
+                </p>
                 <span className={getStatusBadgeClass(selectedGallery.status)}>
-                  {selectedGallery.status === 'APPROVED' ? 'Одобрена' :
-                    selectedGallery.status === 'PENDING' ? 'На модерации' : 'Отклонена'}
+                  {selectedGallery.status === "APPROVED"
+                    ? "Одобрена"
+                    : selectedGallery.status === "PENDING"
+                    ? "На модерации"
+                    : "Отклонена"}
                 </span>
               </div>
             )}
@@ -436,7 +478,6 @@ const GalleryOwnerDashboard = () => {
         editData={editingGallery}
       />
 
-
       {selectedGallery && (
         <div className="owner-dashboard-content">
           <div className="owner-section-header">
@@ -444,10 +485,15 @@ const GalleryOwnerDashboard = () => {
             <button
               className="owner-btn owner-btn-primary"
               onClick={handleCreateExhibition}
-              disabled={selectedGallery.status !== 'APPROVED'}
-              title={selectedGallery.status !== 'APPROVED' ? 'Галерея должна быть одобрена' : ''}
+              disabled={selectedGallery.status !== "APPROVED"}
+              title={
+                selectedGallery.status !== "APPROVED"
+                  ? "Галерея должна быть одобрена"
+                  : ""
+              }
             >
-              <i className="fas fa-plus"></i> Новая выставка
+              <i className="fas fa-plus" style={{ color: "white" }}></i> Новая
+              выставка
             </button>
           </div>
 
@@ -460,7 +506,7 @@ const GalleryOwnerDashboard = () => {
             <div className="owner-empty-state">
               <i className="fas fa-calendar-plus"></i>
               <p>Нет выставок в этой галерее</p>
-              {selectedGallery.status === 'APPROVED' && (
+              {selectedGallery.status === "APPROVED" && (
                 <button
                   className="owner-btn owner-btn-outline"
                   onClick={handleCreateExhibition}
@@ -482,23 +528,29 @@ const GalleryOwnerDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {exhibitions.map(exhibition => (
+                  {exhibitions.map((exhibition) => (
                     <tr key={exhibition.id}>
                       <td>
                         <strong>{exhibition.title}</strong>
                       </td>
                       <td>
                         <div className="owner-description-cell">
-                          {exhibition.description || 'Без описания'}
+                          {exhibition.description || "Без описания"}
                         </div>
                       </td>
                       <td>
-                        {formatDate(exhibition.startDate)} - {formatDate(exhibition.endDate)}
+                        {formatDate(exhibition.startDate)} -{" "}
+                        {formatDate(exhibition.endDate)}
                       </td>
                       <td>
-                        <span className={getStatusBadgeClass(exhibition.status)}>
-                          {exhibition.status === 'ACTIVE' ? 'Активна' :
-                            exhibition.status === 'DRAFT' ? 'Черновик' : 'Завершена'}
+                        <span
+                          className={getStatusBadgeClass(exhibition.status)}
+                        >
+                          {exhibition.status === "ACTIVE"
+                            ? "Активна"
+                            : exhibition.status === "DRAFT"
+                            ? "Черновик"
+                            : "Завершена"}
                         </span>
                       </td>
                       <td>
@@ -540,10 +592,11 @@ const GalleryOwnerDashboard = () => {
         <div className="owner-modal-overlay">
           <div className="owner-modal-content">
             <div className="owner-modal-header">
-              <h2>
-                Бронирования выставки "{selectedExhibition.title}"
-              </h2>
-              <button className="owner-modal-close" onClick={() => setShowBookingsModal(false)}>
+              <h2>Бронирования выставки "{selectedExhibition.title}"</h2>
+              <button
+                className="owner-modal-close"
+                onClick={() => setShowBookingsModal(false)}
+              >
                 <i className="fas fa-times"></i>
               </button>
             </div>
@@ -573,7 +626,7 @@ const GalleryOwnerDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {bookings.map(booking => (
+                      {bookings.map((booking) => (
                         <tr key={booking.id}>
                           <td>#{booking.id}</td>
                           <td>
@@ -586,36 +639,46 @@ const GalleryOwnerDashboard = () => {
                           <td>
                             Стенд #{booking.standNumber}
                             <br />
-                            <small>{booking.width}×{booking.height} см</small>
+                            <small>
+                              {booking.width}×{booking.height} см
+                            </small>
                           </td>
                           <td>{formatDate(booking.bookingDate)}</td>
                           <td>
-                            <span className={getStatusBadgeClass(booking.status)}>
-                              {booking.status === 'PENDING' ? 'Ожидает' :
-                                booking.status === 'CONFIRMED' ? 'Подтверждено' : 'Отменено'}
+                            <span
+                              className={getStatusBadgeClass(booking.status)}
+                            >
+                              {booking.status === "PENDING"
+                                ? "Ожидает"
+                                : booking.status === "CONFIRMED"
+                                ? "Подтверждено"
+                                : "Отменено"}
                             </span>
                           </td>
                           <td>
                             <div className="owner-table-actions">
-                              {booking.status === 'PENDING' && (
+                              {booking.status === "PENDING" && (
                                 <>
                                   <button
                                     className="owner-btn owner-btn-success owner-btn-sm"
-                                    onClick={() => handleConfirmBooking(booking.id)}
+                                    onClick={() =>
+                                      handleConfirmBooking(booking.id)
+                                    }
                                     title="Подтвердить"
                                   >
                                     <i className="fas fa-check"></i>
                                   </button>
                                   <button
                                     className="owner-btn owner-btn-danger owner-btn-sm"
-                                    onClick={() => handleRejectBooking(booking.id)}
+                                    onClick={() =>
+                                      handleRejectBooking(booking.id)
+                                    }
                                     title="Отклонить"
                                   >
                                     <i className="fas fa-times"></i>
                                   </button>
                                 </>
                               )}
-
                             </div>
                           </td>
                         </tr>
@@ -675,7 +738,7 @@ const GalleryOwnerDashboard = () => {
             <i className="fas fa-clock"></i>
           </div>
           <div className="owner-stat-content">
-            <h3>{bookings.filter(b => b.status === 'PENDING').length}</h3>
+            <h3>{bookings.filter((b) => b.status === "PENDING").length}</h3>
             <p>Ожидают одобрения</p>
           </div>
         </div>
@@ -691,7 +754,7 @@ const GalleryOwnerDashboard = () => {
             setEditingExhibition(null);
           }}
           onSuccess={() => {
-            const token = sessionStorage.getItem('authToken');
+            const token = sessionStorage.getItem("authToken");
             fetchGalleryExhibitions(selectedGallery.id, token);
           }}
           selectedGallery={selectedGallery}
