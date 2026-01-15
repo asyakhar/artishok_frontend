@@ -165,9 +165,7 @@
   }
 }
 
-/* Добавьте эти стили в существующий файл Header.css */
 
-/* Стили для кнопки личного кабинета */
 .btn-dashboard {
   position: relative;
   display: flex;
@@ -181,7 +179,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Стили для выпадающего меню (опционально) */
 .user-menu {
   position: relative;
   display: inline-block;
@@ -230,7 +227,7 @@
   margin: 4px 0;
 }
 
-/* Медиа-запросы для адаптивности */
+
 @media (max-width: 768px) {
   .navbar-actions {
     flex-direction: column;

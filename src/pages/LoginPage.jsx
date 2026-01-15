@@ -92,7 +92,6 @@ const LoginPage = () => {
   return (
     <div className="minimal-login-page">
       <div className="minimal-login-container">
-        {/* Декоративные элементы */}
         <div className="login-decoration">
           <div className="login-brush-stroke"></div>
           <div className="login-palette-dot"></div>
@@ -171,13 +170,11 @@ const LoginPage = () => {
           </div>
         </form>
 
-        {/* Ссылка на регистрацию */}
         <div className="login-register-prompt">
           <span>Нет аккаунта?</span>
           <Link to="/register">Зарегистрироваться</Link>
         </div>
 
-        {/* Тестовые аккаунты (только для разработки) */}
         <div className="login-test">
           <p
             style={{
@@ -223,7 +220,6 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Декоративные элементы внизу */}
         <div className="login-art-elements">
           <div className="login-art-element login-paint-tube">
             <i className="fas fa-fill-drip"></i>

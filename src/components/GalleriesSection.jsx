@@ -2,7 +2,6 @@ import GalleryCard from "./GalleryCard";
 import "./GalleriesSection.css";
 
 const GalleriesSection = ({ galleries, loading }) => {
-  // Фильтруем галереи, оставляем только одобренные (APPROVED)
   const approvedGalleries = galleries.filter(
     (gallery) => gallery.status === "APPROVED"
   );
@@ -28,7 +27,6 @@ const GalleriesSection = ({ galleries, loading }) => {
     );
   }
 
-  // Проверка, есть ли одобренные галереи
   if (approvedGalleries.length === 0) {
     return (
       <section id="galleries" className="section galleries-section">

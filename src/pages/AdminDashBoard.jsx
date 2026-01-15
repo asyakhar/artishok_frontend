@@ -230,7 +230,7 @@ const AdminDashboard = () => {
                     };
                 }
             } else if (activeTab === 'exhibitions') {
-                // Здесь будет логика для выставок
+
             }
 
             if (!url) {
@@ -252,7 +252,6 @@ const AdminDashboard = () => {
             if (response.ok && data.success) {
                 alert(data.message || 'Действие выполнено успешно');
 
-                // Обновляем данные
                 if (activeTab === 'users') {
                     fetchUsers(token);
                 } else if (activeTab === 'galleries') {
@@ -261,7 +260,6 @@ const AdminDashboard = () => {
                     fetchExhibitions(token);
                 }
 
-                // Закрываем модалку
                 if (activeTab === 'users') setShowUserModal(false);
                 if (activeTab === 'galleries') setShowGalleryModal(false);
                 if (activeTab === 'exhibitions') setShowExhibitionModal(false);
@@ -333,7 +331,6 @@ const AdminDashboard = () => {
 
     return (
         <div className="admin-dashboard">
-            {/* Шапка профиля */}
             <div className="admin-dashboard-header">
                 <button
                     onClick={() => {
@@ -388,7 +385,6 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            {/* Статистика */}
             {statistics && (
                 <div className="admin-dashboard-stats">
                     <div className="admin-stat-card">
@@ -453,7 +449,6 @@ const AdminDashboard = () => {
                 </div>
             )}
 
-            {/* Табы */}
             <div className="admin-dashboard-tabs">
                 <button
                     className={`admin-tab-btn ${activeTab === 'users' ? 'admin-active' : ''}`}
@@ -483,7 +478,6 @@ const AdminDashboard = () => {
 
 
             <div className="admin-dashboard-content">
-                {/* Таблица пользователей */}
                 {activeTab === 'users' && (
                     <div>
                         <div className="admin-section-header">
@@ -510,7 +504,7 @@ const AdminDashboard = () => {
                                         <tr>
                                             <th>ID</th>
                                             <th>Имя</th>
-                                            <th>Email</th>
+                                            <th>Телефон</th>
                                             <th>Роль</th>
                                             <th>Статус</th>
                                             <th>Действия</th>
@@ -533,7 +527,7 @@ const AdminDashboard = () => {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td>{user.email}</td>
+                                                <td>{user.phoneNumber}</td>
                                                 <td>
                                                     <span className={getRoleBadgeClass(user.role)}>
                                                         {user.role === 'GALLERY_OWNER' ? 'Владелец галереи' :
@@ -574,7 +568,6 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
-                {/* Таблица галерей */}
                 {activeTab === 'galleries' && (
                     <div>
                         <div className="admin-section-header">
@@ -677,7 +670,6 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
-                {/* Таблица выставок */}
                 {activeTab === 'exhibitions' && (
                     <div>
                         <div className="admin-section-header">
@@ -707,7 +699,6 @@ const AdminDashboard = () => {
                                             <th>Галерея</th>
                                             <th>Даты проведения</th>
                                             <th>Статус</th>
-                                            <th>Действия</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -732,24 +723,7 @@ const AdminDashboard = () => {
                                                             exhibition.status === 'DRAFT' ? 'Черновик' : 'Завершена'}
                                                     </span>
                                                 </td>
-                                                <td>
-                                                    <div className="admin-table-actions">
-                                                        <button
-                                                            className="admin-btn admin-btn-primary admin-btn-sm"
-                                                            onClick={() => navigate(`/exhibitions/${exhibition.id}`)}
-                                                            title="Просмотреть"
-                                                        >
-                                                            <i className="fas fa-eye"></i>
-                                                        </button>
-                                                        <button
-                                                            className="admin-btn admin-btn-warning admin-btn-sm"
-                                                            onClick={() => handleExhibitionAction(exhibition, 'edit')}
-                                                            title="Редактировать"
-                                                        >
-                                                            <i className="fas fa-edit"></i>
-                                                        </button>
-                                                    </div>
-                                                </td>
+
                                             </tr>
                                         ))}
                                     </tbody>
@@ -759,7 +733,6 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
-                {/* Логи */}
                 {activeTab === 'logs' && (
                     <div>
                         <div className="admin-section-header">
@@ -825,7 +798,6 @@ const AdminDashboard = () => {
                 )}
             </div>
 
-            {/* Модальное окно для пользователей */}
             {showUserModal && selectedItem && (
                 <div className="admin-modal-overlay">
                     <div className="admin-modal-content">
@@ -889,7 +861,6 @@ const AdminDashboard = () => {
                 </div>
             )}
 
-            {/* Модальное окно для галерей */}
             {showGalleryModal && selectedItem && (
                 <div className="admin-modal-overlay">
                     <div className="admin-modal-content">

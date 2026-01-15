@@ -25,7 +25,6 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
 
     const modalTitle = isEditMode ? `Редактировать картину "${editData?.title || ''}"` : 'Добавить новую картину';
 
-    // Сброс состояния при открытии/закрытии
     if (!isOpen) return null;
 
     const handleChange = (e) => {
@@ -39,13 +38,11 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Проверяем размер файла (макс. 10MB)
             if (file.size > 10 * 1024 * 1024) {
                 setImageUploadError('Файл слишком большой (макс. 10MB)');
                 return;
             }
 
-            // Проверяем тип файла
             if (!file.type.startsWith('image/')) {
                 setImageUploadError('Пожалуйста, выберите файл изображения (JPG, PNG, GIF)');
                 return;
@@ -78,12 +75,10 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
 
             let imageUrl = '';
 
-            // 1. Загружаем изображение, если есть файл
             if (imageFile) {
                 const imageFormData = new FormData();
                 imageFormData.append('file', imageFile);
                 imageFormData.append('category', 'artwork');
-                // Можно передать bookingId или artworkId если редактирование
                 if (isEditMode && editData?.id) {
                     imageFormData.append('entityId', editData.id);
                 }
@@ -104,17 +99,14 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
 
                 imageUrl = uploadData.url;
             } else if (isEditMode && editData?.imageUrl) {
-                // При редактировании оставляем старое изображение, если не выбрали новое
                 imageUrl = editData.imageUrl;
             }
-
-            // 2. Подготавливаем данные картины
             const artworkData = {
                 title: formData.title,
                 description: formData.description,
                 creationYear: formData.creationYear ? parseInt(formData.creationYear) : null,
                 technique: formData.technique,
-                imageUrl: imageUrl, // Используем загруженный URL
+                imageUrl: imageUrl,
                 status: formData.status
             };
 
@@ -122,7 +114,6 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
             let url;
 
             if (isEditMode && editData?.id) {
-                // Режим редактирования
                 url = `${API_BASE_URL}/artworks/${editData.id}`;
                 response = await fetch(url, {
                     method: 'PUT',
@@ -133,7 +124,6 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                     body: JSON.stringify(artworkData)
                 });
             } else {
-                // Режим создания
                 url = `${API_BASE_URL}/artworks?bookingId=${formData.bookingId}`;
                 response = await fetch(url, {
                     method: 'POST',
@@ -149,7 +139,7 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
 
             if (response.ok) {
                 alert(isEditMode ? 'Картина успешно обновлена!' : 'Картина успешно добавлена!');
-                onSuccess(); // Закрываем модалку и обновляем список
+                onSuccess();
                 onClose();
             } else {
                 setError(data.error || (isEditMode ? 'Ошибка при обновлении картины' : 'Ошибка при добавлении картины'));
@@ -195,7 +185,6 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                             </div>
                         )}
 
-                        {/* Выбор бронирования */}
                         <div className="artist-form-group">
                             <label htmlFor="bookingId">Выберите бронирование *</label>
                             <select
@@ -237,7 +226,6 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                             )}
                         </div>
 
-                        {/* Название */}
                         <div className="artist-form-group">
                             <label htmlFor="title">Название картины *</label>
                             <input
@@ -250,8 +238,6 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                                 placeholder="Например: 'Звездная ночь'"
                             />
                         </div>
-
-                        {/* Описание */}
                         <div className="artist-form-group">
                             <label htmlFor="description">Описание</label>
                             <textarea
@@ -265,7 +251,6 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                         </div>
 
                         <div className="artist-form-row">
-                            {/* Год создания */}
                             <div className="artist-form-group">
                                 <label htmlFor="creationYear">Год создания</label>
                                 <input
@@ -280,7 +265,6 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                                 />
                             </div>
 
-                            {/* Техника исполнения */}
                             <div className="artist-form-group">
                                 <label htmlFor="technique">Техника исполнения</label>
                                 <input
@@ -294,7 +278,6 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                             </div>
                         </div>
 
-                        {/* Загрузка изображения */}
                         <div className="artist-form-group">
                             <label>Изображение картины *</label>
                             <div className="artist-image-upload-container">
@@ -371,7 +354,6 @@ const AddArtworkModal = ({ isOpen, onClose, onSuccess, bookings, artistId, editD
                             </div>
                         </div>
 
-                        {/* Статус */}
                         <div className="artist-form-group">
                             <label htmlFor="status">Статус</label>
                             <select

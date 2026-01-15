@@ -17,7 +17,6 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
 
     useEffect(() => {
         if (editData && isEditMode) {
-            // Заполняем форму данными для редактирования
             setFormData({
                 title: editData.title || '',
                 description: editData.description || '',
@@ -26,7 +25,6 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
                 status: editData.status || 'DRAFT'
             });
         } else if (!isEditMode) {
-            // Сбрасываем форму для создания новой выставки
             const now = new Date();
             const tomorrow = new Date(now);
             tomorrow.setDate(tomorrow.getDate() + 1);
@@ -52,7 +50,6 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Валидация...
 
         setLoading(true);
         setError('');
@@ -60,7 +57,6 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
         try {
             const token = sessionStorage.getItem('authToken');
 
-            // Форматируем даты (добавляем секунды если нужно)
             const formatDateForServer = (dateString) => {
                 if (!dateString) return '';
                 const date = new Date(dateString);
@@ -82,11 +78,9 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
             let url;
 
             if (isEditMode && editData && editData.id) {
-                // РЕДАКТИРОВАНИЕ - используем PUT запрос
                 url = `${API_BASE_URL}/gallery-owner/exhibitions/${editData.id}`;
                 console.log('Редактирование выставки ID:', editData.id);
 
-                // Добавляем galleryId для редактирования
                 formattedData.galleryId = selectedGallery.id;
 
                 response = await fetch(url, {
@@ -98,11 +92,9 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
                     body: JSON.stringify(formattedData)
                 });
             } else {
-                // СОЗДАНИЕ - используем POST запрос
                 url = `${API_BASE_URL}/gallery-owner/exhibitions`;
                 console.log('Создание новой выставки');
 
-                // Добавляем galleryId для создания
                 formattedData.galleryId = selectedGallery.id;
 
                 response = await fetch(url, {
@@ -173,7 +165,6 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
                             </div>
                         )}
 
-                        {/* Информация о галерее */}
                         <div className="form-group">
                             <label>Галерея</label>
                             <div className="gallery-info">
@@ -182,7 +173,6 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
                             </div>
                         </div>
 
-                        {/* Название выставки */}
                         <div className="form-group">
                             <label htmlFor="title">Название выставки</label>
                             <input
@@ -238,7 +228,6 @@ const AddExhibitionModal = ({ isOpen, onClose, onSuccess, selectedGallery, isEdi
                             </div>
                         </div>
 
-                        {/* Статус (только для редактирования) */}
                         {isEditMode && (
                             <div className="form-group">
                                 <label htmlFor="status">Статус</label>

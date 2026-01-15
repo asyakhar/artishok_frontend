@@ -19,7 +19,6 @@
   overflow: hidden;
 }
 
-/* Декоративные элементы */
 .art-decoration {
   position: absolute;
   top: -50px;
@@ -58,7 +57,6 @@
   left: 20px;
 }
 
-/* Заголовок */
 .register-header {
   text-align: center;
   margin-bottom: 30px;
@@ -72,7 +70,6 @@
   align-items: center;
   gap: 8px;
   color: #E63946;
-  /* Красный цвет вместо синего */
   text-decoration: none;
   font-size: 14px;
   transition: color 0.3s;
@@ -84,24 +81,20 @@
 
 .back-home:hover {
   color: #c1121f;
-  /* Темнее красный */
 }
 
 .register-title {
   font-size: 28px;
   font-weight: 700;
   color: #1D3557;
-  /* Темно-синий из ваших стилей */
   margin: 10px 0 5px;
 }
 
 .register-subtitle {
   color: #6c757d;
-  /* Серый из ваших стилей */
   font-size: 16px;
 }
 
-/* Прогресс бар */
 .progress-container {
   margin-bottom: 30px;
 }
@@ -109,7 +102,6 @@
 .progress-track {
   height: 6px;
   background: #e9ecef;
-  /* Серый из ваших стилей */
   border-radius: 3px;
   overflow: hidden;
   margin-bottom: 10px;
@@ -118,7 +110,6 @@
 .progress-bar {
   height: 100%;
   background: linear-gradient(90deg, #E63946, #c1121f);
-  /* Красный градиент */
   transition: width 0.3s ease;
 }
 
@@ -131,7 +122,6 @@
 .step-title {
   font-weight: 600;
   color: #457B9D;
-  /* Вторичный синий */
   font-size: 14px;
 }
 
@@ -143,10 +133,8 @@
 .current-step {
   font-weight: 700;
   color: #E63946;
-  /* Красный */
 }
 
-/* Карточка вопроса */
 .question-card {
   background: #f8f9fa;
   border-radius: 15px;
@@ -166,7 +154,6 @@
   width: 36px;
   height: 36px;
   background: linear-gradient(135deg, #E63946, #c1121f);
-  /* Красный градиент */
   color: white;
   border-radius: 50%;
   display: flex;
@@ -180,7 +167,6 @@
   font-size: 20px;
   font-weight: 600;
   color: #1D3557;
-  /* Темно-синий */
   margin: 0;
 }
 
@@ -190,20 +176,17 @@
   margin-bottom: 20px;
 }
 
-/* Поля ввода */
 .form-input,
 .form-textarea {
   width: 100%;
   padding: 15px;
   border: 2px solid #dee2e6;
-  /* Более светлый серый */
   border-radius: 10px;
   font-size: 16px;
   transition: all 0.3s;
   box-sizing: border-box;
   background-color: white;
   color: #212529;
-  /* Темный текст */
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -211,9 +194,7 @@
 .form-textarea:focus {
   outline: none;
   border-color: #E63946;
-  /* Красный при фокусе */
   box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
-  /* Красная тень */
   background-color: white;
 }
 
@@ -223,7 +204,6 @@
   font-family: inherit;
 }
 
-/* Опции выбора */
 .options-container {
   display: flex;
   flex-direction: column;
@@ -246,15 +226,12 @@
 
 .option-button:hover {
   border-color: #E63946;
-  /* Красный при наведении */
   background: rgba(230, 57, 70, 0.05);
-  /* Очень светлый красный */
 }
 
 .option-button.selected {
   border-color: #E63946;
   background: rgba(230, 57, 70, 0.1);
-  /* Светло-красный */
 }
 
 .option-emoji {
@@ -270,7 +247,6 @@
 .option-title {
   font-weight: 600;
   color: #1D3557;
-  /* Темно-синий */
   font-size: 16px;
 }
 
@@ -282,11 +258,9 @@
 
 .check-icon {
   color: #E63946;
-  /* Красный */
   font-size: 18px;
 }
 
-/* Кнопки навигации */
 .navigation-buttons {
   display: flex;
   justify-content: space-between;
@@ -302,7 +276,6 @@
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  /* --radius-md */
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
@@ -323,7 +296,6 @@
 .btn-outline {
   background-color: transparent;
   color: #E63946;
-  /* Красный */
   border-color: #E63946;
 }
 
@@ -332,28 +304,23 @@
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  /* --shadow-md */
 }
 
 .btn-primary {
   background-color: #E63946;
-  /* Красный */
   color: white;
   border-color: #E63946;
 }
 
 .btn-primary:hover:not(:disabled) {
   background-color: #c1121f;
-  /* Темнее красный */
   border-color: #c1121f;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  /* --shadow-md */
 }
 
 .btn-success {
   background-color: #E63946;
-  /* Красный вместо зеленого */
   color: white;
   border-color: #E63946;
 }
@@ -365,7 +332,6 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Спиннер */
 .spinner {
   display: inline-block;
   width: 20px;
@@ -382,12 +348,11 @@
   }
 }
 
-/* Сообщения */
 .error-message {
   background: rgba(230, 57, 70, 0.1);
-  /* Светло-красный */
+
   color: #E63946;
-  /* Красный */
+
   padding: 12px 15px;
   border-radius: 8px;
   margin-top: 15px;
@@ -400,9 +365,8 @@
 
 .success-message {
   background: rgba(29, 53, 87, 0.1);
-  /* Светло-синий */
+
   color: #1D3557;
-  /* Темно-синий */
   padding: 12px 15px;
   border-radius: 8px;
   margin-top: 15px;
@@ -422,7 +386,7 @@
 
 .login-prompt a {
   color: #E63946;
-  /* Красный */
+
   text-decoration: none;
   font-weight: 600;
 }
@@ -432,7 +396,6 @@
   color: #c1121f;
 }
 
-/* Декоративные элементы */
 .art-elements {
   display: flex;
   justify-content: center;
@@ -456,21 +419,16 @@
   color: white;
 }
 
-/* Красный */
 .brush {
   background: #457B9D;
   color: white;
 }
 
-/* Вторичный синий */
 .palette {
   background: #A8DADC;
   color: #1D3557;
 }
 
-/* Акцентный цвет */
-
-/* Экран успеха */
 .success-container {
   text-align: center;
   padding: 50px 40px;
@@ -479,7 +437,7 @@
 .success-icon {
   font-size: 80px;
   color: #E63946;
-  /* Красный */
+
   margin-bottom: 20px;
 }
 
@@ -532,7 +490,7 @@
   margin-bottom: 5px;
 }
 
-/* Стили для формы галереи */
+
 .gallery-form {
   margin-top: 20px;
 }
@@ -580,7 +538,6 @@
   justify-content: center;
 }
 
-/* Улучшаем видимость placeholder'ов */
 .form-input::placeholder {
   color: #adb5bd;
   opacity: 1;
@@ -591,13 +548,12 @@
   opacity: 1;
 }
 
-/* Для текстовых полей тоже белый фон */
 .form-textarea {
   background-color: white;
   color: #212529;
 }
 
-/* Адаптивность */
+
 @media (max-width: 576px) {
   .minimal-register-container {
     padding: 25px;
@@ -694,6 +650,7 @@
   margin-bottom: 5px;
   line-height: 1.4;
 }
+
 .field-error-message {
   margin-top: 10px;
   padding: 10px 15px;
@@ -718,12 +675,13 @@
   margin-top: 5px;
 }
 
-/* Для телефона добавь дополнительный стиль */
+
 .form-input:focus {
   border-color: #4d96ff;
   box-shadow: 0 0 0 2px rgba(77, 150, 255, 0.2);
 }
-/* Стили для экрана успеха */
+
+
 .success-container {
   text-align: center;
   max-width: 500px;
@@ -745,7 +703,8 @@
   border: 1px solid #e9ecef;
   display: flex;
   flex-direction: column;
-  align-items: center; /* Центрируем содержимое */
+  align-items: center;
+
 }
 
 .success-role-title {
@@ -754,16 +713,18 @@
   margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 2px solid #e9ecef;
-  width: 100%; /* Растягиваем на всю ширину */
+  width: 100%;
+
 }
 
 .email-confirmation-section {
   display: flex;
-  flex-direction: column; /* Колонка вместо строки */
+  flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 15px;
-  width: 100%; /* Занимаем всю ширину */
+  width: 100%;
+
 }
 
 .email-icon {
@@ -789,9 +750,9 @@
 }
 
 .email-address {
-  display: inline-flex; /* Чтобы контейнер подстраивался под содержимое */
+  display: inline-flex;
   align-items: center;
-  justify-content: center; /* Центрируем содержимое внутри */
+  justify-content: center;
   gap: 10px;
   padding: 12px 20px;
   background: white;
@@ -800,15 +761,14 @@
   font-size: 16px;
   font-weight: 500;
   color: #333;
-  margin: 0 auto; /* Центрируем блок */
-  min-width: 200px; /* Минимальная ширина для красивого отображения */
+  margin: 0 auto;
+  min-width: 200px;
 }
 
 .email-address i {
   color: #4285f4;
 }
 
-/* Остальные стили остаются без изменений */
 .gallery-owner-info {
   margin: 25px 0;
 }
@@ -966,20 +926,300 @@
     text-align: center;
     gap: 15px;
   }
-  
+
   .info-card {
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .success-actions {
     flex-direction: column;
   }
-  
+
   .email-address {
     justify-content: center;
-    min-width: auto; /* На мобильных убираем минимальную ширину */
-    width: 100%; /* На мобильных занимаем всю ширину */
-    max-width: 300px; /* Но ограничиваем максимальную ширину */
+    min-width: auto;
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+
+.avatar-preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.avatar-frame {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 3px solid #E63946;
+  overflow: hidden;
+  position: relative;
+  background: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #6c757d;
+  cursor: pointer;
+}
+
+.avatar-placeholder i {
+  font-size: 36px;
+  opacity: 0.7;
+}
+
+.avatar-placeholder span {
+  font-size: 13px;
+  text-align: center;
+  padding: 0 10px;
+}
+
+.avatar-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.avatar-actions .btn {
+  padding: 8px 15px;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+.avatar-actions .btn-outline {
+  background: white;
+  border: 1.5px solid #E63946;
+  color: #E63946;
+}
+
+.avatar-actions .btn-danger {
+  background: #ff4757;
+  color: white;
+  border: none;
+}
+
+.avatar-actions .btn:hover {
+  transform: translateY(-1px);
+}
+
+.upload-hint {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #E63946;
+  color: #E63946;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.remove-btn:hover {
+  background: #E63946;
+  color: white;
+}
+
+.avatar-step-container {
+  width: 100%;
+}
+
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+}
+
+.avatar-frame-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.avatar-frame.bordered-frame {
+  width: 180px;
+  height: 180px;
+  border: 3px solid #E63946;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  background: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.avatar-frame.bordered-frame:hover {
+  border-color: #c1121f;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 20px;
+  text-align: center;
+}
+
+.avatar-placeholder:hover {
+  background: rgba(230, 57, 70, 0.05);
+}
+
+.avatar-placeholder i {
+  font-size: 48px;
+  opacity: 0.8;
+  color: #E63946;
+}
+
+.avatar-placeholder span {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+
+.avatar-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-avatar-control {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-avatar-control i {
+  font-size: 14px;
+}
+
+
+.avatar-hint {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 5px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  max-width: 300px;
+}
+
+.avatar-hint i {
+  color: #457B9D;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #E63946;
+  color: #E63946;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.remove-btn:hover {
+  background: #E63946;
+  color: white;
+  transform: scale(1.1);
+}
+
+@media (max-width: 576px) {
+  .avatar-frame.bordered-frame {
+    width: 150px;
+    height: 150px;
+  }
+
+  .avatar-placeholder i {
+    font-size: 36px;
+  }
+
+  .avatar-placeholder span {
+    font-size: 12px;
+  }
+
+  .avatar-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-avatar-control {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .avatar-hint {
+    font-size: 11px;
+    max-width: 100%;
+    text-align: center;
   }
 }

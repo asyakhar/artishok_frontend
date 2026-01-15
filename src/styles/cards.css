@@ -1,6 +1,3 @@
-/* cards.css */
-
-/* Сетка выставок */
 .exhibitions-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -8,7 +5,7 @@
     margin-bottom: 3rem;
 }
 
-/* Карточка выставки */
+
 .event-card {
     background: var(--white);
     border-radius: var(--radius);
@@ -42,7 +39,6 @@
     opacity: 1;
 }
 
-/* Изображение в карточке */
 .event-card-image {
     position: relative;
     height: 220px;
@@ -60,7 +56,7 @@
     transform: scale(1.1);
 }
 
-/* Бейдж статуса */
+
 .event-card-badge {
     position: absolute;
     top: 1rem;
@@ -100,7 +96,7 @@
     background: linear-gradient(135deg, #ffc107, #fd7e14);
 }
 
-/* Содержимое карточки */
+
 .event-card-content {
     padding: 1.8rem;
     flex: 1;
@@ -165,7 +161,6 @@
     overflow: hidden;
 }
 
-/* Футер карточки */
 .event-card-footer {
     display: flex;
     justify-content: space-between;
@@ -236,12 +231,13 @@
     box-shadow: 0 6px 20px rgba(230, 57, 70, 0.3);
 }
 
-/* Анимация при появлении */
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -252,13 +248,27 @@
     animation: fadeInUp 0.6s ease forwards;
 }
 
-.event-card:nth-child(2) { animation-delay: 0.1s; }
-.event-card:nth-child(3) { animation-delay: 0.2s; }
-.event-card:nth-child(4) { animation-delay: 0.3s; }
-.event-card:nth-child(5) { animation-delay: 0.4s; }
-.event-card:nth-child(6) { animation-delay: 0.5s; }
+.event-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
 
-/* Сетка галерей */
+.event-card:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.event-card:nth-child(4) {
+    animation-delay: 0.3s;
+}
+
+.event-card:nth-child(5) {
+    animation-delay: 0.4s;
+}
+
+.event-card:nth-child(6) {
+    animation-delay: 0.5s;
+}
+
+
 .galleries-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -336,7 +346,7 @@
     font-size: 0.85rem;
 }
 
-/* Состояния */
+
 .empty-state {
     grid-column: 1 / -1;
     text-align: center;
@@ -367,7 +377,7 @@
     margin-bottom: 1rem;
 }
 
-/* Кнопка "Показать еще" */
+
 .load-more-container {
     text-align: center;
     margin-top: 2rem;
@@ -378,22 +388,21 @@
     font-size: 1.1rem;
 }
 
-/* Адаптивность карточек */
 @media (max-width: 768px) {
     .exhibitions-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .galleries-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .event-card-footer {
         flex-direction: column;
         gap: 1rem;
         align-items: stretch;
     }
-    
+
     .event-card-actions {
         justify-content: center;
     }

@@ -8,7 +8,7 @@ const Hero = () => {
   const [imagesLoaded, setImagesLoaded] = useState({});
   const slidesRef = useRef([]);
 
-  
+
   const slides = [
     {
       id: 1,
@@ -32,7 +32,7 @@ const Hero = () => {
     }
   ];
 
-  
+
   useEffect(() => {
     const loadImages = async () => {
       const promises = slides.map((slide, index) => {
@@ -58,7 +58,7 @@ const Hero = () => {
     loadImages();
   }, []);
 
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       handleNextSlide();
@@ -69,40 +69,40 @@ const Hero = () => {
 
   const handleNextSlide = () => {
     if (isTransitioning) return;
-    
+
     setIsTransitioning(true);
     const nextIndex = (currentSlide + 1) % slides.length;
     setNextSlide(nextIndex);
-    
-    
+
+
     slidesRef.current[nextIndex]?.classList.add('next');
-    
+
     setTimeout(() => {
       setCurrentSlide(nextIndex);
       setIsTransitioning(false);
-      
-      
+
+
       slidesRef.current.forEach((slide, index) => {
         if (slide) {
           slide.classList.remove('next');
         }
       });
-    }, 1500); 
+    }, 1500);
   };
 
   const handlePrevSlide = () => {
     if (isTransitioning) return;
-    
+
     setIsTransitioning(true);
     const prevIndex = (currentSlide - 1 + slides.length) % slides.length;
     setNextSlide(prevIndex);
-    
+
     slidesRef.current[prevIndex]?.classList.add('next');
-    
+
     setTimeout(() => {
       setCurrentSlide(prevIndex);
       setIsTransitioning(false);
-      
+
       slidesRef.current.forEach((slide, index) => {
         if (slide) {
           slide.classList.remove('next');
@@ -113,16 +113,16 @@ const Hero = () => {
 
   const goToSlide = (index) => {
     if (isTransitioning || index === currentSlide) return;
-    
+
     setIsTransitioning(true);
     setNextSlide(index);
-    
+
     slidesRef.current[index]?.classList.add('next');
-    
+
     setTimeout(() => {
       setCurrentSlide(index);
       setIsTransitioning(false);
-      
+
       slidesRef.current.forEach((slide, i) => {
         if (slide) {
           slide.classList.remove('next');
@@ -133,7 +133,6 @@ const Hero = () => {
 
   return (
     <section className="hero" id="home">
-      {/* Карусель с локальными изображениями */}
       <div className="hero-carousel">
         {slides.map((slide, index) => (
           <div
@@ -146,8 +145,8 @@ const Hero = () => {
           >
             {imagesLoaded[index] ? (
               <>
-                <img 
-                  src={slide.image} 
+                <img
+                  src={slide.image}
                   alt={slide.alt}
                   className="slide-image"
                   loading={index === 0 ? "eager" : "lazy"}
@@ -156,7 +155,7 @@ const Hero = () => {
                 <div className="slide-overlay"></div>
               </>
             ) : (
-              
+
               <div style={{
                 width: '100%',
                 height: '100%',
@@ -172,7 +171,6 @@ const Hero = () => {
         ))}
       </div>
 
-      {/* Контент поверх карусели */}
       <div className="container">
         <div className="hero-content">
           <div className="hero-text">
@@ -189,9 +187,6 @@ const Hero = () => {
         </div>
       </div>
 
-     
-
-      {/* Скролл индикатор */}
       <div className="hero-scroll-indicator">
         <a href="#exhibitions" className="scroll-down">
           <i className="fas fa-chevron-down"></i>

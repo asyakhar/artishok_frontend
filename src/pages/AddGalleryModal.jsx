@@ -21,7 +21,6 @@ const AddGalleryModal = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Состояния для загрузки логотипа
     const [logoFile, setLogoFile] = useState(null);
     const [logoPreview, setLogoPreview] = useState('');
     const [logoUploadError, setLogoUploadError] = useState('');
@@ -29,7 +28,6 @@ const AddGalleryModal = ({
 
     useEffect(() => {
         if (isEditMode && editData) {
-            // Заполняем форму данными для редактирования
             setGalleryData({
                 name: editData.name || '',
                 description: editData.description || '',
@@ -39,12 +37,10 @@ const AddGalleryModal = ({
                 logoUrl: editData.logoUrl || ''
             });
 
-            // Если есть ссылка на логотип, показываем превью
             if (editData.logoUrl) {
                 setLogoPreview(editData.logoUrl);
             }
         } else {
-            // Сбрасываем форму для создания
             setGalleryData({
                 name: '',
                 description: '',
@@ -68,13 +64,11 @@ const AddGalleryModal = ({
     const handleLogoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Проверяем размер файла (макс. 10MB)
             if (file.size > 10 * 1024 * 1024) {
                 setLogoUploadError('Файл слишком большой (макс. 10MB)');
                 return;
             }
 
-            // Проверяем тип файла
             if (!file.type.startsWith('image/')) {
                 setLogoUploadError('Пожалуйста, выберите файл изображения (JPG, PNG)');
                 return;
@@ -83,7 +77,7 @@ const AddGalleryModal = ({
             setLogoFile(file);
             setLogoPreview(URL.createObjectURL(file));
             setLogoUploadError('');
-            setGalleryData(prev => ({ ...prev, logoUrl: '' })); // Очищаем URL, если выбрали файл
+            setGalleryData(prev => ({ ...prev, logoUrl: '' }));
         }
     };
 
@@ -127,30 +121,23 @@ const AddGalleryModal = ({
             if (!token) {
                 throw new Error('Токен авторизации отсутствует');
             }
-
-            // Определяем URL и метод
             const endpoint = isEditMode && editData && editData.id
                 ? `${API_BASE_URL}/gallery-owner/galleries/${editData.id}`
                 : `${API_BASE_URL}/gallery-owner/create-gallery`;
 
             const method = isEditMode ? 'PUT' : 'POST';
 
-            // Проверяем, есть ли файл логотипа для загрузки
             if (logoFile) {
-                // Для загрузки с файлом используем FormData
                 const formData = new FormData();
 
-                // Добавляем текстовые поля
                 Object.keys(galleryData).forEach(key => {
-                    if (key !== 'logoUrl' || !galleryData[key]) { // Не добавляем logoUrl если он пустой
+                    if (key !== 'logoUrl' || !galleryData[key]) {
                         formData.append(key, galleryData[key] || '');
                     }
                 });
 
-                // Добавляем файл
                 formData.append('logoFile', logoFile);
 
-                // Отправляем запрос с FormData
                 const response = await fetch(endpoint, {
                     method: method,
                     headers: {
@@ -173,7 +160,6 @@ const AddGalleryModal = ({
                     setError(data.error || data.message || `Ошибка ${response.status} при сохранении галереи`);
                 }
             } else {
-                // Если нет файла, отправляем JSON
                 const response = await fetch(endpoint, {
                     method: method,
                     headers: {

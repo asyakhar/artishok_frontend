@@ -241,7 +241,7 @@ const GalleryOwnerDashboard = () => {
     if (!window.confirm("Вы действительно хотите отклонить бронирование?"))
       return;
 
-    const reason = "Бронирование отклонено владельцем галереи"; // Стандартная причина
+    const reason = "Бронирование отклонено владельцем галереи";
 
     try {
       const token = sessionStorage.getItem("authToken");
@@ -253,7 +253,7 @@ const GalleryOwnerDashboard = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ reason }), // Отправляем стандартную причину
+          body: JSON.stringify({ reason }),
         }
       );
 
@@ -326,7 +326,6 @@ const GalleryOwnerDashboard = () => {
 
   return (
     <div className="owner-dashboard">
-      {/* Шапка профиля */}
       <div className="owner-dashboard-header">
         <div className="owner-profile-card">
           <div className="owner-profile-avatar">
@@ -369,7 +368,6 @@ const GalleryOwnerDashboard = () => {
         </div>
       </div>
 
-      {/* Выбор галереи */}
       <div className="owner-dashboard-content">
         <div className="owner-section-header">
           <h2>Мои галереи</h2>
@@ -458,7 +456,6 @@ const GalleryOwnerDashboard = () => {
         )}
       </div>
 
-      {/* Модальные окна для галереи */}
       <AddGalleryModal
         show={showAddGalleryModal}
         onClose={() => setShowAddGalleryModal(false)}
@@ -586,7 +583,6 @@ const GalleryOwnerDashboard = () => {
         </div>
       )}
 
-      {/* Модальное окно бронирований */}
       {showBookingsModal && selectedExhibition && (
         <div className="owner-modal-overlay">
           <div className="owner-modal-content">
@@ -700,7 +696,6 @@ const GalleryOwnerDashboard = () => {
         </div>
       )}
 
-      {/* Статистика */}
       <div className="owner-dashboard-stats">
         <div className="owner-stat-card">
           <div className="owner-stat-icon owner-stat-gallery">
@@ -743,7 +738,6 @@ const GalleryOwnerDashboard = () => {
         </div>
       </div>
 
-      {/* Модальное окно выставки */}
       {showAddExhibitionModal && selectedGallery && (
         <AddExhibitionModal
           isOpen={showAddExhibitionModal}

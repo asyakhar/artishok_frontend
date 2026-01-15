@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import ToastNotification from "./ToastNotification";
 
-// Глобальная переменная для хранения функции
 let addToastFunction = null;
 
 export const ToastContainer = () => {
@@ -17,11 +16,9 @@ export const ToastContainer = () => {
     return id;
   }, []);
 
-  // Устанавливаем глобальную функцию когда компонент монтируется
   useEffect(() => {
     addToastFunction = addToast;
 
-    // Создаем глобальный объект toast
     window.toast = {
       success: (message, duration = 5000) =>
         addToastFunction?.(message, "success", duration),
@@ -33,7 +30,6 @@ export const ToastContainer = () => {
         addToastFunction?.(message, "info", duration),
     };
 
-    // Очистка при размонтировании
     return () => {
       addToastFunction = null;
       delete window.toast;

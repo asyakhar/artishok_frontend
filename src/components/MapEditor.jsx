@@ -22,11 +22,11 @@ const MapEditor = ({
   onUploadHallMap,
   onCreateStand,
   onBookStand,
-  onDeleteStand = () => {},
+  onDeleteStand = () => { },
   onMapImageUpload,
-  onRefreshStands = () => {},
-  onApproveBooking = () => {},
-  onRejectBooking = () => {},
+  onRefreshStands = () => { },
+  onApproveBooking = () => { },
+  onRejectBooking = () => { },
 }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -58,7 +58,6 @@ const MapEditor = ({
       window.toast.error(`${title}: ${message}`, 6000);
     } else {
       console.error(`${title}: ${message}`);
-      // Fallback на стандартный alert
       alert(`${title}: ${message}`);
     }
   };
@@ -209,9 +208,6 @@ const MapEditor = ({
       scrollWheelZoom: true,
     });
 
-    // const defaultBounds = [[-250, -250], [250, 250]];
-    // mapInstance.current.setMaxBounds(defaultBounds);
-
     L.control.zoom({ position: "topright" }).addTo(mapInstance.current);
     mapInstance.current.setView([0, 0], 0);
     mapInstance.current.on("click", handleMapClick);
@@ -252,14 +248,12 @@ const MapEditor = ({
   }, [isDrawing, mode]);
 
   useEffect(() => {
-    // Ждем пока карта будет готова
     if (hallMap?.mapImageUrl && isMapReady) {
       console.log("Загружаем изображение карты, карта готова");
       loadHallMapImage(hallMap.mapImageUrl);
       setHallMapId(hallMap.id);
     } else if (hallMap?.mapImageUrl && !isMapReady) {
       console.log("Изображение есть, но карта не готова. Ждем...");
-      // Создаем таймер для повторной попытки
       const timer = setTimeout(() => {
         if (isMapReady && hallMap?.mapImageUrl) {
           loadHallMapImage(hallMap.mapImageUrl);
@@ -268,7 +262,7 @@ const MapEditor = ({
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [hallMap, isMapReady]); // Добавьте isMapReady в зависимости
+  }, [hallMap, isMapReady]);
 
   useEffect(() => {
     renderStands();
@@ -278,12 +272,9 @@ const MapEditor = ({
     const file = e.target.files[0];
     if (!file) return;
     await new Promise((resolve) => setTimeout(resolve, 300));
-    // ВАЖНО: Проверяем, создана ли карта и готова ли она
     if (!mapInstance.current || !isMapReady) {
       console.warn("Карта не готова, ожидаем...");
       showInfo("Подождите, карта загружается...");
-
-      // Ждем до 3 секунд пока карта не будет готова
       const waitForMap = () => {
         return new Promise((resolve) => {
           let attempts = 0;
@@ -293,7 +284,6 @@ const MapEditor = ({
               console.log(" Карта готова через", attempts * 100, "мс");
               resolve(true);
             } else if (attempts < 30) {
-              // 30 попыток * 100мс = 3 секунды
               setTimeout(checkMap, 100);
             } else {
               console.error("Карта не загрузилась за 3 секунды");
@@ -318,9 +308,7 @@ const MapEditor = ({
 
       const fileName = file.name;
 
-      // Всегда проверяем, есть ли уже карта
       if (hallMapId || hallMap?.id) {
-        // Есть существующая карта - обновляем ее
         console.log("Обновляем существующую карту:", hallMapId || hallMap?.id);
 
         setUploadProgress(30);
@@ -331,17 +319,14 @@ const MapEditor = ({
         const uploadedUrl = result.mapImageUrl;
         setUploadProgress(70);
 
-        // Обновляем карту через родительский компонент
         if (onMapImageUpload) {
           await onMapImageUpload(hallMapId || hallMap?.id, uploadedUrl);
         }
 
-        // Загружаем изображение на карту
         setUploadedImageUrl(uploadedUrl);
         await loadImageToMap(uploadedUrl);
         setUploadProgress(100);
 
-        // Сохраняем в localStorage
         const mapKey = `hall_map_${exhibitionId}_${hallMapId || hallMap?.id}`;
         localStorage.setItem(
           mapKey,
@@ -356,7 +341,6 @@ const MapEditor = ({
 
         showSuccess(`Карта "${fileName}" успешно обновлена!`);
       } else {
-        // Нет карты - создаем новую
         console.log("Создаем новую карту");
 
         const mapData = {
@@ -366,8 +350,6 @@ const MapEditor = ({
         };
 
         setUploadProgress(30);
-
-        // Создаем через родительский компонент
         if (onUploadHallMap) {
           const result = await onUploadHallMap(mapData);
 
@@ -442,7 +424,6 @@ const MapEditor = ({
         renderStands();
       }, 200);
       if (!hasShownMapLoaded) {
-        // showSuccess("Карта зала успешно загружена");
         setHasShownMapLoaded(true);
       }
     };
@@ -474,13 +455,10 @@ const MapEditor = ({
           return;
         }
 
-        // Проверяем, является ли imageUrl валидным URL
         let urlToUse = imageUrl;
         if (typeof imageUrl === "object" && imageUrl.url) {
-          // Если передан объект с полем url
           urlToUse = imageUrl.url;
         } else if (imageUrl.mapImageUrl) {
-          // Если передан объект с полем mapImageUrl
           urlToUse = imageUrl.mapImageUrl;
         }
 
@@ -518,19 +496,16 @@ const MapEditor = ({
               [height, width],
             ];
 
-            // Очищаем предыдущее изображение, если есть
             if (imageOverlayRef.current) {
               mapInstance.current.removeLayer(imageOverlayRef.current);
               imageOverlayRef.current = null;
             }
 
-            // Создаем новое изображение
             imageOverlayRef.current = L.imageOverlay(urlToUse, bounds, {
               interactive: false,
               className: "hall-map-image",
             }).addTo(mapInstance.current);
 
-            // Настраиваем вид карты
             mapInstance.current.fitBounds(bounds);
 
             setTimeout(() => {
@@ -740,7 +715,6 @@ const MapEditor = ({
       return null;
     }
 
-    // Определяем цвет по статусу
     let color = "#28a745";
     let statusText = "Свободен";
 
@@ -779,7 +753,6 @@ const MapEditor = ({
       }),
     }).addTo(mapInstance.current);
 
-    // Полный popupContent с информацией о художнике
     const popupContent = `
     <div style="padding: 15px; min-width: 300px;">
       <div style="display: flex; align-items: center; margin-bottom: 10px;">
@@ -789,24 +762,21 @@ const MapEditor = ({
       
       <div style="margin-bottom: 15px;">
         <p style="margin: 5px 0;"><strong>Тип:</strong> ${getTypeText(
-          stand.type || stand.standType
-        )}</p>
-        <p style="margin: 5px 0;"><strong>Размер:</strong> ${stand.width}×${
-      stand.height
-    } см</p>
+      stand.type || stand.standType
+    )}</p>
+        <p style="margin: 5px 0;"><strong>Размер:</strong> ${stand.width}×${stand.height
+      } см</p>
         <p style="margin: 5px 0;"><strong>Статус:</strong> 
           <span style="color: ${color}; font-weight: bold;">
             ${statusText}
           </span>
         </p>
-        <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${
-          stand.positionX
-        }, Y:${stand.positionY}</p>
+        <p style="margin: 5px 0;"><strong>Координаты:</strong> X:${stand.positionX
+      }, Y:${stand.positionY}</p>
         
-        ${
-          (stand.status === "PENDING" || stand.standStatus === "PENDING") &&
-          stand.artistName
-            ? `
+        ${(stand.status === "PENDING" || stand.standStatus === "PENDING") &&
+        stand.artistName
+        ? `
           <div style="
             background: linear-gradient(135deg, #fff3cd, #ffeaa7);
             border: 2px solid #ffc107;
@@ -823,33 +793,30 @@ const MapEditor = ({
             <p style="margin: 5px 0; font-size: 13px;">
               <strong>Email:</strong> ${stand.artistEmail}
             </p>
-            ${
-              stand.bookingDate
-                ? `
+            ${stand.bookingDate
+          ? `
               <p style="margin: 5px 0; font-size: 12px; color: #6c757d;">
                 <strong>Дата запроса:</strong> ${formatDate(stand.bookingDate)}
               </p>
             `
-                : ""
-            }
-            ${
-              stand.exhibitionTitle
-                ? `
+          : ""
+        }
+            ${stand.exhibitionTitle
+          ? `
               <p style="margin: 5px 0; font-size: 12px;">
                 <strong>Выставка:</strong> ${stand.exhibitionTitle}
               </p>
             `
-                : ""
-            }
+          : ""
+        }
           </div>
         `
-            : ""
-        }
+        : ""
+      }
         
-        ${
-          (stand.status === "BOOKED" || stand.standStatus === "BOOKED") &&
-          stand.artistName
-            ? `
+        ${(stand.status === "BOOKED" || stand.standStatus === "BOOKED") &&
+        stand.artistName
+        ? `
           <div style="
             background: linear-gradient(135deg, #d4edda, #c3e6cb);
             border: 2px solid #28a745;
@@ -863,47 +830,40 @@ const MapEditor = ({
             <p style="margin: 5px 0; font-size: 13px;">
               <strong>Художник:</strong> ${stand.artistName}
             </p>
-            ${
-              stand.artistEmail
-                ? `
+            ${stand.artistEmail
+          ? `
               <p style="margin: 5px 0; font-size: 13px;">
                 <strong>Email:</strong> ${stand.artistEmail}
               </p>
             `
-                : ""
-            }
-            ${
-              stand.exhibitionTitle
-                ? `
+          : ""
+        }
+            ${stand.exhibitionTitle
+          ? `
               <p style="margin: 5px 0; font-size: 12px;">
                 <strong>Выставка:</strong> ${stand.exhibitionTitle}
               </p>
             `
-                : ""
-            }
+          : ""
+        }
           </div>
         `
-            : ""
-        }
+        : ""
+      }
       </div>
       
       <div style="display: flex; flex-direction: column; gap: 8px;">
-        ${
-          mode === "owner"
-            ? `<div style="display: flex; flex-direction: column; gap: 8px;">
-            ${
-              stand.status === "PENDING" || stand.standStatus === "PENDING"
-                ? `<div style="display: flex; gap: 8px;">
+        ${mode === "owner"
+        ? `<div style="display: flex; flex-direction: column; gap: 8px;">
+            ${stand.status === "PENDING" || stand.standStatus === "PENDING"
+          ? `<div style="display: flex; gap: 8px;">
                 <button 
-                  onclick="if(confirm('Подтвердить бронирование стенда ${
-                    stand.standNumber
-                  } для художника ${stand.artistName} (${
-                    stand.artistEmail
-                  })?')) { 
+                  onclick="if(confirm('Подтвердить бронирование стенда ${stand.standNumber
+          } для художника ${stand.artistName} (${stand.artistEmail
+          })?')) { 
                     if(window.handleApproveBooking) { 
-                      window.handleApproveBooking('${
-                        stand.exhibitionStandId || stand.id
-                      }', '${stand.standNumber}'); 
+                      window.handleApproveBooking('${stand.exhibitionStandId || stand.id
+          }', '${stand.standNumber}'); 
                     }
                   }" 
                   style="
@@ -920,13 +880,11 @@ const MapEditor = ({
                    Подтвердить
                 </button>
                 <button 
-                  onclick="if(confirm('Отклонить бронирование стенда ${
-                    stand.standNumber
-                  } от художника ${stand.artistName}?')) { 
+                  onclick="if(confirm('Отклонить бронирование стенда ${stand.standNumber
+          } от художника ${stand.artistName}?')) { 
                     if(window.handleRejectBooking) { 
-                      window.handleRejectBooking('${
-                        stand.exhibitionStandId || stand.id
-                      }', '${stand.standNumber}'); 
+                      window.handleRejectBooking('${stand.exhibitionStandId || stand.id
+          }', '${stand.standNumber}'); 
                     }
                   }" 
                   style="
@@ -943,14 +901,13 @@ const MapEditor = ({
                    Отклонить
                 </button>
               </div>`
-                : ""
-            }
+          : ""
+        }
             <button 
               onclick="if(confirm('Удалить стенд ${stand.standNumber}?')) { 
                 if(window.handleDeleteStand) { 
-                  window.handleDeleteStand('${
-                    stand.exhibitionStandId || stand.id
-                  }', '${stand.standNumber}'); 
+                  window.handleDeleteStand('${stand.exhibitionStandId || stand.id
+        }', '${stand.standNumber}'); 
                 }
               }" 
               style="
@@ -966,17 +923,15 @@ const MapEditor = ({
               Удалить стенд
             </button>
           </div>`
-            : ""
-        }
-        ${
-          mode === "artist" &&
-          (stand.status === "AVAILABLE" || stand.standStatus === "AVAILABLE")
-            ? `<button 
+        : ""
+      }
+        ${mode === "artist" &&
+        (stand.status === "AVAILABLE" || stand.standStatus === "AVAILABLE")
+        ? `<button 
             onclick="if(confirm('Забронировать стенд ${stand.standNumber}?')) { 
               if(window.handleBookStand) { 
-                window.handleBookStand('${
-                  stand.exhibitionStandId || stand.id
-                }', '${stand.standNumber}'); 
+                window.handleBookStand('${stand.exhibitionStandId || stand.id
+        }', '${stand.standNumber}'); 
               }
             }" 
             style="
@@ -991,12 +946,11 @@ const MapEditor = ({
           >
              Забронировать
           </button>`
-            : ""
-        }
-        ${
-          mode === "artist" &&
-          (stand.status === "PENDING" || stand.standStatus === "PENDING")
-            ? `<div style="
+        : ""
+      }
+        ${mode === "artist" &&
+        (stand.status === "PENDING" || stand.standStatus === "PENDING")
+        ? `<div style="
             padding: 10px; 
             background: linear-gradient(135deg, #ff9800, #f57c00); 
             color: white; 
@@ -1006,12 +960,11 @@ const MapEditor = ({
           ">
              Ожидает подтверждения
           </div>`
-            : ""
-        }
-        ${
-          mode === "artist" &&
-          (stand.status === "BOOKED" || stand.standStatus === "BOOKED")
-            ? `<div style="
+        : ""
+      }
+        ${mode === "artist" &&
+        (stand.status === "BOOKED" || stand.standStatus === "BOOKED")
+        ? `<div style="
             padding: 10px; 
             background: linear-gradient(135deg, #dc3545, #c82333); 
             color: white; 
@@ -1021,8 +974,8 @@ const MapEditor = ({
           ">
              Забронировано
           </div>`
-            : ""
-        }
+        : ""
+      }
       </div>
     </div>
   `;
@@ -1041,7 +994,6 @@ const MapEditor = ({
   const renderStands = () => {
     if (!mapInstance.current) return;
 
-    // Удаляем существующие маркеры стендов
     mapInstance.current.eachLayer((layer) => {
       if (layer instanceof L.Marker && layer.standData) {
         mapInstance.current.removeLayer(layer);
@@ -1051,21 +1003,18 @@ const MapEditor = ({
     console.log("Рендерим стенды из пропсов:", stands?.length || 0);
     console.log("Детали стендов:", stands);
 
-    // ДОБАВЬТЕ ЭТУ ПРОВЕРКУ:
     if (!stands || !Array.isArray(stands)) {
       console.warn("Stands is not an array or is undefined:", stands);
       return;
     }
 
-    // Фильтруем валидные стенды с ПРАВИЛЬНЫМИ координатами
     const validStands = stands.filter((stand) => {
       if (!stand) return false;
 
-      // Проверяем разные варианты структуры данных
       const hasValidCoords =
-        (stand.positionX !== undefined && stand.positionY !== undefined) || // ваша структура
+        (stand.positionX !== undefined && stand.positionY !== undefined) ||
         (stand.position?.lng !== undefined &&
-          stand.position?.lat !== undefined); // альтернативная
+          stand.position?.lat !== undefined);
 
       const hasStandNumber = stand.standNumber !== undefined;
 
@@ -1083,7 +1032,6 @@ const MapEditor = ({
       validStands
     );
 
-    // Создаем маркеры
     validStands.forEach((stand) => {
       createStandMarker(stand);
     });
@@ -1111,8 +1059,6 @@ const MapEditor = ({
       if (onCreateStand) {
         await onCreateStand(newStand);
       }
-
-      // setTempStands([...tempStands, { ...newStand, id: Date.now() }]);
 
       setShowStandForm(false);
       setPendingStandPosition(null);
@@ -1181,7 +1127,6 @@ const MapEditor = ({
     navigate("/dashboard");
   };
 
-  // ========== RENDER ==========
   return (
     <div
       style={{
@@ -1192,7 +1137,6 @@ const MapEditor = ({
         paddingBottom: "80px",
       }}
     >
-      {/* ШАПКА С КНОПКАМИ */}
       <div
         style={{
           position: "absolute",
@@ -1228,7 +1172,6 @@ const MapEditor = ({
         </button>
       </div>
 
-      {/* ЛЕВАЯ ПАНЕЛЬ - УПРАВЛЕНИЕ */}
       <div
         style={{
           width: "320px",
@@ -1257,7 +1200,6 @@ const MapEditor = ({
 
         {mode === "owner" ? (
           <>
-            {/* СЕКЦИЯ ЗАГРУЗКИ КАРТЫ НА СЕРВЕР */}
             <div
               style={{
                 backgroundColor: "#f8f9fa",
@@ -1324,7 +1266,6 @@ const MapEditor = ({
                   {loading ? "Загрузка на сервер..." : "Загрузить"}
                 </label>
 
-                {/* Прогресс бар */}
                 {loading && uploadProgress > 0 && (
                   <div
                     style={{
@@ -1355,37 +1296,6 @@ const MapEditor = ({
                   </div>
                 )}
 
-                {/* Информация о загруженном изображении */}
-                {/* {uploadedImageUrl && !loading && (
-                  <div
-                    style={{
-                      backgroundColor: "#d4edda",
-                      color: "#155724",
-                      padding: "12px",
-                      borderRadius: "6px",
-                      marginTop: "15px",
-                      fontSize: "14px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    <div>
-                      <div>
-                        <strong>Изображение загружено на сервер</strong>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          opacity: 0.8,
-                          marginTop: "4px",
-                        }}
-                      >
-                        ID карты: {hallMapId || "новый"}
-                      </div>
-                    </div>
-                  </div>
-                )} */}
 
                 {mapImage && !imageError && !loading && (
                   <div
@@ -1426,7 +1336,6 @@ const MapEditor = ({
                 )}
               </div>
 
-              {/* Информация о карте */}
               {/* {hallMapId && (
                 <div
                   style={{
@@ -1457,7 +1366,6 @@ const MapEditor = ({
                 </div>
               )} */}
             </div>
-            {/* СЕКЦИЯ ДОБАВЛЕНИЯ СТЕНДОВ */}
             <div
               style={{
                 backgroundColor: "#f8f9fa",
@@ -1545,7 +1453,6 @@ const MapEditor = ({
                   </p>
                 </div>
 
-                {/* ВИЗУАЛЬНЫЙ ИНДИКАТОР РЕЖИМА */}
                 {isDrawing && (
                   <div
                     style={{
@@ -1574,7 +1481,7 @@ const MapEditor = ({
                         fontSize: "12px",
                       }}
                     >
-                      🎯
+                      
                     </div> */}
                     <div>
                       <strong>Режим добавления активен</strong>
@@ -1592,7 +1499,6 @@ const MapEditor = ({
                 )}
               </div>
 
-              {/* ФОРМА ДОБАВЛЕНИЯ СТЕНДА */}
               {showStandForm && (
                 <div
                   style={{
@@ -1812,7 +1718,6 @@ const MapEditor = ({
               )}
             </div>
 
-            {/* СТАТИСТИКА */}
             <div
               style={{
                 backgroundColor: "#f8f9fa",
@@ -1919,7 +1824,7 @@ const MapEditor = ({
                 </div>
               </div>
             </div>
-            {/* СЕКЦИЯ ОЖИДАЮЩИХ ПОДТВЕРЖДЕНИЯ */}
+
             {mode === "owner" && stats.pending > 0 && (
               <div
                 style={{
@@ -1988,8 +1893,8 @@ const MapEditor = ({
                           transition: "all 0.2s",
                         }}
                         onMouseOver={(e) =>
-                          (e.target.style.boxShadow =
-                            "0 4px 12px rgba(255,193,7,0.2)")
+                        (e.target.style.boxShadow =
+                          "0 4px 12px rgba(255,193,7,0.2)")
                         }
                         onMouseOut={(e) => (e.target.style.boxShadow = "none")}
                         onClick={() => {
@@ -2036,8 +1941,8 @@ const MapEditor = ({
                                       ? "#007bff"
                                       : (stand.type || stand.standType) ===
                                         "BOOTH"
-                                      ? "#6f42c1"
-                                      : "#17a2b8",
+                                        ? "#6f42c1"
+                                        : "#17a2b8",
                                   color: "white",
                                   borderRadius: "12px",
                                 }}
@@ -2045,8 +1950,8 @@ const MapEditor = ({
                                 {(stand.type || stand.standType) === "WALL"
                                   ? "Стена"
                                   : (stand.type || stand.standType) === "BOOTH"
-                                  ? "Будка"
-                                  : "Открытое"}
+                                    ? "Будка"
+                                    : "Открытое"}
                               </span>
                             </div>
 
@@ -2182,7 +2087,6 @@ const MapEditor = ({
             )}
           </>
         ) : (
-          /* ИНТЕРФЕЙС ХУДОЖНИКА */
           <>
             <div
               style={{
@@ -2204,13 +2108,12 @@ const MapEditor = ({
                       borderRadius: "10px",
                       marginBottom: "20px",
                       border: "2px solid #007bff",
-                      borderLeft: `8px solid ${
-                        selectedStand.status === "BOOKED"
-                          ? "#dc3545"
-                          : selectedStand.status === "PENDING"
+                      borderLeft: `8px solid ${selectedStand.status === "BOOKED"
+                        ? "#dc3545"
+                        : selectedStand.status === "PENDING"
                           ? "#ff9800"
                           : "#28a745"
-                      }`,
+                        }`,
                       boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                     }}
                   >
@@ -2229,8 +2132,8 @@ const MapEditor = ({
                             selectedStand.status === "BOOKED"
                               ? "#dc3545"
                               : selectedStand.status === "PENDING"
-                              ? "#ff9800"
-                              : "#28a745",
+                                ? "#ff9800"
+                                : "#28a745",
                           borderRadius: "50%",
                           display: "flex",
                           alignItems: "center",
@@ -2323,8 +2226,8 @@ const MapEditor = ({
                             selectedStand.status === "BOOKED"
                               ? "#f8d7da"
                               : selectedStand.status === "PENDING"
-                              ? "#fff3cd"
-                              : "#d4edda",
+                                ? "#fff3cd"
+                                : "#d4edda",
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
@@ -2341,15 +2244,15 @@ const MapEditor = ({
                               selectedStand.status === "BOOKED"
                                 ? "#721c24"
                                 : selectedStand.status === "PENDING"
-                                ? "#856404"
-                                : "#155724",
+                                  ? "#856404"
+                                  : "#155724",
                           }}
                         >
                           {selectedStand.status === "BOOKED"
                             ? "Забронирован"
                             : selectedStand.status === "PENDING"
-                            ? "Ожидает подтверждения"
-                            : "Свободен"}
+                              ? "Ожидает подтверждения"
+                              : "Свободен"}
                         </span>
                       </div>
                     </div>
@@ -2363,7 +2266,7 @@ const MapEditor = ({
                     padding: "30px 20px",
                     borderRadius: "10px",
                     textAlign: "center",
-                    color: "#ffffff", // Явно указываем белый цвет для всего контейнера
+                    color: "#ffffff",
                     width: "100%",
                     boxSizing: "border-box",
                     display: "flex",
@@ -2379,7 +2282,7 @@ const MapEditor = ({
                       fontSize: "20px",
                       fontWeight: "600",
                       lineHeight: "1.3",
-                      color: "#ffffff", // Явно белый для заголовка
+                      color: "#ffffff",
                     }}
                   >
                     Выберите стенд на карте
@@ -2387,7 +2290,7 @@ const MapEditor = ({
                   <p
                     style={{
                       fontSize: "14px",
-                      color: "rgba(255, 255, 255, 0.9)", // Полупрозрачный белый
+                      color: "rgba(255, 255, 255, 0.9)",
                       margin: "10px 0 0 0",
                       maxWidth: "300px",
                       lineHeight: "1.4",
@@ -2402,7 +2305,6 @@ const MapEditor = ({
         )}
       </div>
 
-      {/* ПРАВАЯ ПАНЕЛЬ - КАРТА */}
       <div
         style={{
           flex: 1,
@@ -2417,7 +2319,6 @@ const MapEditor = ({
           flexDirection: "column",
         }}
       >
-        {/* ЗАГОЛОВОК КАРТЫ */}
         <div
           style={{
             padding: "15px 20px",
@@ -2471,7 +2372,6 @@ const MapEditor = ({
           </div>
         </div>
 
-        {/* ОБЛАСТЬ КАРТЫ */}
         <div
           ref={mapRef}
           style={{
@@ -2481,7 +2381,6 @@ const MapEditor = ({
           }}
         />
 
-        {/* ПАНЕЛЬ ИНФОРМАЦИИ */}
         <div
           style={{
             padding: "15px 20px",

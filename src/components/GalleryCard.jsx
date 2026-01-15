@@ -47,12 +47,6 @@ const GalleryCard = ({ gallery }) => {
               "http://127.0.0.1:9001/api/v1/download-shared-object/aHR0cDovLzEyNy4wLjAuMTo5MDAwL2FydGlzaG9rLWltYWdlcy9nYWxsZXJ5L2dhbDAuanBnP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9STI5UzUzWFpISVE1WkdQNDhJSTAlMkYyMDI1MTIyNSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNTEyMjVUMTQyOTExWiZYLUFtei1FeHBpcmVzPTQzMjAwJlgtQW16LVNlY3VyaXR5LVRva2VuPWV5SmhiR2NpT2lKSVV6VXhNaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpoWTJObGMzTkxaWGtpT2lKSk1qbFROVE5ZV2toSlVUVmFSMUEwT0VsSk1DSXNJbVY0Y0NJNk1UYzJOamN4TkRVeE15d2ljR0Z5Wlc1MElqb2liV2x1YVc5aFpHMXBiaUo5LmZGQ1hoX1BSNVVJUzZOM3FUczloWWVlQ25OcWdIQTZqMmYzSVdobWZzMEtLN1k4NkdINUM2ckNoR09abXJYQmV5OVBjbk9VN1ktdVZ4cTlGeDNnWWVRJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZ2ZXJzaW9uSWQ9bnVsbCZYLUFtei1TaWduYXR1cmU9NDI1MTQ2MjAzMWFjMGYyOThjY2M3MjhkMTc2NGIwZWEzYjgwNTE1ZWJiOWVmMTM1MTE1ZjM0NGM2Nzc5MjUyZQ";
           }}
         />
-        {/* <div
-          className="gallery-status-badge"
-          style={{ backgroundColor: getStatusColor(gallery.status) }}
-        >
-          {getStatusText(gallery.status)}
-        </div> */}
       </div>
 
       <div className="gallery-content">

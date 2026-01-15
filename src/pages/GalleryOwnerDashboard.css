@@ -1,4 +1,3 @@
-/* Общие стили кабинета */
 .owner-dashboard {
   width: 100%;
   min-height: calc(100vh - 70px);
@@ -8,12 +7,11 @@
   background: #f8f9fa;
 }
 
-/* Учитываем высоту header */
 body {
   padding-top: 70px;
 }
 
-/* Шапка профиля (как у художника) */
+
 .owner-dashboard-header {
   background: #405bd4;
   padding: 40px 0;
@@ -121,7 +119,7 @@ body {
 }
 
 
-/* Контент секций */
+
 .owner-dashboard-content {
   max-width: 1200px;
   margin: 0 auto 30px;
@@ -155,7 +153,7 @@ body {
   color: #667eea;
 }
 
-/* Выбор галереи */
+
 .owner-gallery-selector {
   display: flex;
   flex-direction: column;
@@ -186,7 +184,7 @@ body {
   transition: all 0.3s ease;
   width: 100%;
 }
-/* ОБЯЗАТЕЛЬНЫЕ стили для Safari */
+
 .owner-select-wrapper {
   position: relative;
   width: 100%;
@@ -196,72 +194,73 @@ body {
 .owner-gallery-dropdown {
   width: 100%;
   padding: 12px 16px;
-  padding-right: 45px; /* Место для стрелки */
+  padding-right: 45px;
   border: 2px solid #e1e5e9;
   border-radius: 8px;
   font-size: 1rem;
   background: white;
   cursor: pointer;
   transition: all 0.3s ease;
-  appearance: none; /* Убираем стандартный вид */
-  -webkit-appearance: none; /* Для Safari */
-  -moz-appearance: none; /* Для Firefox */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
-/* Кастомная стрелка для всех браузеров */
+
 .owner-select-arrow {
   position: absolute;
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  pointer-events: none; /* Чтобы клик проходил сквозь стрелку */
+  pointer-events: none;
   color: #667eea;
   font-size: 0.9rem;
 }
 
-/* Для disabled состояния */
+
 .owner-gallery-dropdown:disabled {
   background-color: #f5f7fa;
   cursor: not-allowed;
   opacity: 0.7;
 }
 
-/* Для focus состояния */
+
 .owner-gallery-dropdown:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 
-/* Для hover состояния */
+
 .owner-gallery-dropdown:hover:not(:disabled) {
   border-color: #a0aec0;
 }
 
-/* Для option элементов */
+
 .owner-gallery-dropdown option {
   padding: 10px;
   font-size: 1rem;
 }
 
-/* Убираем синюю подсветку в Safari при фокусе */
+
 .owner-gallery-dropdown:focus {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Для мобильных устройств */
+
 @media (max-width: 768px) {
   .owner-gallery-dropdown {
     font-size: 0.95rem;
     padding: 10px 14px;
     padding-right: 40px;
   }
-  
+
   .owner-select-arrow {
     right: 14px;
     font-size: 0.85rem;
   }
 }
+
 .owner-gallery-dropdown:focus {
   outline: none;
   border-color: #667eea;
@@ -289,7 +288,7 @@ body {
   gap: 8px;
 }
 
-/* Таблица выставок */
+
 .owner-exhibitions-table-container {
   overflow-x: auto;
   width: 100%;
@@ -715,7 +714,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* Адаптивность */
+
 @media (max-width: 768px) {
   .owner-dashboard {
     min-height: calc(100vh - 60px);
@@ -817,7 +816,7 @@ body {
   }
 }
 
-/* Дополнительные стили */
+
 .owner-exhibition-info {
   background: #f8f9fa;
   border-radius: 8px;
@@ -872,7 +871,7 @@ body {
   font-size: 1.2rem;
 }
 
-/* Стили для модалки выставки (совместимые с текущей структурой) */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1116,7 +1115,7 @@ body {
   font-size: 1.2rem;
 }
 
-/* Кнопки (совместимые с текущими) */
+
 .btn {
   padding: 10px 20px;
   border: none;
@@ -1166,7 +1165,7 @@ body {
   cursor: not-allowed;
 }
 
-/* Стили для datetime-local */
+
 input[type="datetime-local"] {
   font-family: inherit;
   appearance: none;
@@ -1186,14 +1185,14 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   width: auto;
 }
 
-/* Дополнительные стили для формы */
+
 .form-group input::placeholder,
 .form-group textarea::placeholder {
   color: #adb5bd;
   opacity: 0.8;
 }
 
-/* Анимация загрузки */
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -1208,7 +1207,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   animation: spin 1s linear infinite;
 }
 
-/* Обязательные поля */
+
 .form-group label[for]:after {
   content: " *";
   color: #dc3545;

@@ -146,7 +146,6 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
-            {/* Главная страница */}
             <Route
               path="/"
               element={
@@ -161,7 +160,6 @@ function App() {
               }
             />
 
-            {/* Страница входа */}
             <Route
               path="/login"
               element={
@@ -171,7 +169,7 @@ function App() {
               }
             />
 
-            {/* Страница регистрации */}
+
             <Route
               path="/register"
               element={
@@ -190,7 +188,6 @@ function App() {
               }
             />
 
-            {/* Альтернативный путь */}
             <Route
               path="/map/:exhibitionId"
               element={
@@ -200,7 +197,6 @@ function App() {
               }
             />
 
-            {/* Личный кабинет художника */}
             <Route
               path="/artist/dashboard"
               element={
@@ -212,7 +208,6 @@ function App() {
               }
             />
 
-            {/* Кабинет владельца галереи */}
             <Route
               path="/gallery/dashboard"
               element={
@@ -224,7 +219,6 @@ function App() {
               }
             />
 
-            {/* Админ-панель */}
             <Route
               path="/admin/dashboard"
               element={
@@ -243,7 +237,7 @@ function App() {
                 </Layout>
               }
             />
-            {/* Автоматический редирект на дашборд */}
+
             <Route
               path="/dashboard"
               element={
@@ -255,7 +249,6 @@ function App() {
               }
             />
 
-            {/* 404 страница */}
             <Route
               path="*"
               element={

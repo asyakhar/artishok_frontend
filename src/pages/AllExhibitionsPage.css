@@ -3,7 +3,7 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
-/* Хедер страницы */
+
 .page-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -41,12 +41,11 @@
   margin-top: 1rem;
 }
 
-/* Контент страницы */
+
 .page-content {
   padding: 0 0 4rem;
 }
 
-/* Панель фильтров */
 .filters-panel {
   background: white;
   border-radius: 16px;
@@ -62,7 +61,7 @@
   margin-bottom: 2rem;
 }
 
-/* Поиск */
+
 .search-box {
   width: 100%;
 }
@@ -117,7 +116,7 @@
   color: #64748b;
 }
 
-/* Вкладки фильтров */
+
 .filters-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -164,7 +163,6 @@
   margin-left: 0.25rem;
 }
 
-/* Сортировка */
 .sorting-section {
   display: flex;
   justify-content: space-between;
@@ -270,7 +268,7 @@
   margin: 0;
 }
 
-/* Сетка выставок */
+
 .exhibitions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -310,8 +308,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Ошибка */
@@ -411,28 +414,27 @@
   font-size: 1.1rem;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
   .page-title {
     font-size: 2.25rem;
   }
-  
+
   .filters-tabs {
     flex-wrap: wrap;
   }
-  
+
   .filter-tab {
     flex: 1;
     min-width: 120px;
     justify-content: center;
     padding: 0.75rem;
   }
-  
+
   .exhibitions-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-  
+
   .sorting-section {
     flex-direction: column;
     align-items: stretch;
@@ -443,40 +445,58 @@
   .page-header {
     padding: 3rem 0 2rem;
   }
-  
+
   .page-title {
     font-size: 1.875rem;
   }
-  
+
   .filter-tab {
     min-width: 100px;
     font-size: 0.875rem;
     padding: 0.625rem;
   }
-  
+
   .filter-tab i {
     font-size: 0.875rem;
   }
 }
 
-/* Анимации */
+
 .exhibition-item-wrapper {
   animation: fadeInUp 0.5s ease forwards;
   opacity: 0;
 }
 
-.exhibition-item-wrapper:nth-child(1) { animation-delay: 0.1s; }
-.exhibition-item-wrapper:nth-child(2) { animation-delay: 0.2s; }
-.exhibition-item-wrapper:nth-child(3) { animation-delay: 0.3s; }
-.exhibition-item-wrapper:nth-child(4) { animation-delay: 0.4s; }
-.exhibition-item-wrapper:nth-child(5) { animation-delay: 0.5s; }
-.exhibition-item-wrapper:nth-child(6) { animation-delay: 0.6s; }
+.exhibition-item-wrapper:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.exhibition-item-wrapper:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.exhibition-item-wrapper:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.exhibition-item-wrapper:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.exhibition-item-wrapper:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.exhibition-item-wrapper:nth-child(6) {
+  animation-delay: 0.6s;
+}
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

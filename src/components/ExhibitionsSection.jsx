@@ -211,7 +211,6 @@ const ExhibitionsSection = () => {
 
   const handleCollapse = () => {
     setVisibleCount(6);
-    // Прокручиваем к началу секции для удобства
     const section = document.getElementById("exhibitions");
     if (section) {
       section.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -310,9 +309,8 @@ const ExhibitionsSection = () => {
           {filters.map((filter) => (
             <button
               key={filter.id}
-              className={`filter-btn ${
-                activeFilter === filter.id ? "active" : ""
-              }`}
+              className={`filter-btn ${activeFilter === filter.id ? "active" : ""
+                }`}
               onClick={() => setActiveFilter(filter.id)}
               title={filter.label}
             >
@@ -394,7 +392,6 @@ const ExhibitionsSection = () => {
                 </div>
               )}
 
-              {/* Показать/Скрыть */}
               {!hasMoreEvents &&
                 !allEventsShown &&
                 filteredEvents.length > 6 && (
@@ -415,8 +412,8 @@ const ExhibitionsSection = () => {
               {activeFilter === "current"
                 ? "В данный момент нет идущих выставок"
                 : activeFilter === "upcoming"
-                ? "Нет предстоящих выставок"
-                : "Нет прошедших выставок"}
+                  ? "Нет предстоящих выставок"
+                  : "Нет прошедших выставок"}
             </p>
             <div className="no-results-actions">
               <button

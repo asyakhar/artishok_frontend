@@ -13,7 +13,6 @@ const AllExhibitionsPage = () => {
   const [sortBy, setSortBy] = useState('newest');
   const navigate = useNavigate();
 
-  // Фильтры
   const filters = [
     { id: 'all', label: 'Все выставки', icon: 'fas fa-th-large' },
     { id: 'current', label: 'Идут сейчас', icon: 'fas fa-play-circle' },
@@ -22,7 +21,6 @@ const AllExhibitionsPage = () => {
     { id: 'featured', label: 'Рекомендуем', icon: 'fas fa-star' },
   ];
 
-  // Опции сортировки
   const sortOptions = [
     { id: 'newest', label: 'Сначала новые' },
     { id: 'oldest', label: 'Сначала старые' },
@@ -32,25 +30,20 @@ const AllExhibitionsPage = () => {
     { id: 'date-end', label: 'По дате окончания' },
   ];
 
-  // Базовый URL API
   const API_BASE_URL = 'http://localhost:8080';
 
-  // Функция для получения токена
   const getAuthToken = () => {
     return sessionStorage.getItem('authToken') || sessionStorage.getItem('auth_token');
   };
 
-  // Загрузка выставок
   useEffect(() => {
     fetchExhibitions();
   }, []);
 
-  // Фильтрация и сортировка при изменении параметров
   useEffect(() => {
     filterAndSortEvents();
   }, [events, activeFilter, searchQuery, sortBy]);
 
-  // Функция загрузки выставок
   const fetchExhibitions = async () => {
     try {
       setLoading(true);
@@ -84,12 +77,10 @@ const AllExhibitionsPage = () => {
     }
   };
 
-  // Функция фильтрации и сортировки
   const filterAndSortEvents = () => {
     let filtered = [...events];
     const now = new Date();
 
-    // Поиск по тексту
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(event => {
@@ -109,7 +100,6 @@ const AllExhibitionsPage = () => {
       });
     }
 
-    // Фильтрация по статусу
     switch (activeFilter) {
       case 'current':
         filtered = filtered.filter(event => {
@@ -151,11 +141,9 @@ const AllExhibitionsPage = () => {
         );
         break;
       default:
-        // 'all' - все выставки
         break;
     }
 
-    // Сортировка
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'newest':
@@ -188,7 +176,6 @@ const AllExhibitionsPage = () => {
     setFilteredEvents(filtered);
   };
 
-  // Обработчики
   const handleResetFilters = () => {
     setActiveFilter('all');
     setSearchQuery('');
@@ -214,7 +201,6 @@ const AllExhibitionsPage = () => {
     }
   };
 
-  // Загрузка
   if (loading) {
     return (
       <div className="all-exhibitions-page loading">
@@ -230,7 +216,6 @@ const AllExhibitionsPage = () => {
     );
   }
 
-  // Ошибка
   if (error) {
     return (
       <div className="all-exhibitions-page error">
@@ -254,10 +239,8 @@ const AllExhibitionsPage = () => {
 
       <main className="page-content">
         <div className="container">
-          {/* Панель фильтров и поиска */}
           <div className="filters-panel">
             <div className="filters-section">
-              {/* Поиск */}
               <div className="search-box">
                 <form onSubmit={handleSearch}>
                   <div className="search-input-group">
@@ -282,7 +265,6 @@ const AllExhibitionsPage = () => {
                 </form>
               </div>
 
-              {/* Фильтры */}
               <div className="filters-tabs">
                 {filters.map(filter => (
                   <button
@@ -299,7 +281,6 @@ const AllExhibitionsPage = () => {
                 ))}
               </div>
 
-              {/* Сортировка и сброс */}
               <div className="sorting-section">
                 <div className="sort-select">
                   <label htmlFor="sort-select">
@@ -332,7 +313,6 @@ const AllExhibitionsPage = () => {
               </div>
             </div>
 
-            {/* Информация о результатах */}
             <div className="results-info">
               <div className="results-count">
                 <i className="fas fa-filter"></i>
@@ -359,7 +339,6 @@ const AllExhibitionsPage = () => {
             </div>
           </div>
 
-          {/* Сетка выставок */}
           {filteredEvents.length > 0 ? (
             <>
               <div className="exhibitions-grid">
@@ -377,7 +356,6 @@ const AllExhibitionsPage = () => {
                 ))}
               </div>
 
-              {/* Пагинация */}
               {filteredEvents.length > 12 && (
                 <div className="load-more-section">
                   <p>Показано {Math.min(filteredEvents.length, 12)} из {filteredEvents.length} выставок</p>

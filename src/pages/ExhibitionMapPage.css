@@ -2,21 +2,21 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  max-height: 100vh; /* Добавлено */
+  max-height: 100vh;
   background-color: #f8f9fa;
-  overflow: hidden; /* Убираем скроллинг всей страницы */
+  overflow: hidden;
 }
 
 .map-header {
   background: white;
-  padding: 12px 20px; /* Еще уменьшил */
+  padding: 12px 20px;
   border-bottom: 1px solid #dee2e6;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   display: flex;
   justify-content: space-between;
-  align-items: center; /* Изменил на center для лучшего выравнивания */
+  align-items: center;
   flex-shrink: 0;
-  min-height: 60px; /* Уменьшил минимальную высоту */
+  min-height: 60px;
 }
 
 .exhibition-info {
@@ -26,31 +26,32 @@
 .exhibition-info h1 {
   margin: 0 0 4px 0;
   color: #2c3e50;
-  font-size: 18px; /* Еще уменьшил */
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .exhibition-info .details {
   display: flex;
-  flex-direction: row; /* Изменил на горизонтальное расположение */
-  gap: 20px; /* Расстояние между элементами */
+  flex-direction: row;
+  gap: 20px;
   color: #6c757d;
   font-size: 12px;
-  flex-wrap: wrap; /* Перенос на маленьких экранах */
+  flex-wrap: wrap;
 }
 
-.dates, .gallery {
+.dates,
+.gallery {
   display: flex;
   align-items: center;
   gap: 5px;
-  white-space: nowrap; /* Запрещаем перенос */
+  white-space: nowrap;
 }
 
 .header-controls {
   display: flex;
-  flex-direction: row; /* Горизонтальное расположение */
-  gap: 20px; /* Расстояние между элементами */
+  flex-direction: row;
+  gap: 20px;
   align-items: center;
   flex-shrink: 0;
 }
@@ -108,35 +109,33 @@
   color: #495057;
   min-width: 150px;
   font-size: 12px;
-  height: 28px; /* Уменьшил высоту */
+  height: 28px;
 }
 
 .map-container {
   flex: 1;
-  min-height: 0; /* Важно! Устраняет проблему с flex */
-  overflow: hidden; /* Убираем скроллинг контейнера */
+  min-height: 0;
+  overflow: hidden;
   position: relative;
-  margin: 12px; /* Уменьшил отступы */
+  margin: 12px;
   border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-/* Стили для внутреннего содержимого MapEditor */
-.map-container > div {
+.map-container>div {
   height: 100%;
   width: 100%;
   border-radius: 6px;
   overflow: hidden;
 }
 
-/* Стили для Leaflet карты */
+
 .leaflet-container {
   height: 100% !important;
   width: 100% !important;
   border-radius: 6px;
 }
 
-/* Loading state */
 .loading {
   display: flex;
   flex-direction: column;
@@ -156,11 +155,15 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-/* Error state */
 .error {
   padding: 30px;
   text-align: center;
@@ -168,7 +171,7 @@
   margin: 100px auto;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .error h2 {

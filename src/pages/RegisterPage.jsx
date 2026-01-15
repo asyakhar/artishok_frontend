@@ -11,7 +11,6 @@ const RegisterPage = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Аватар пользователя
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState("");
   const avatarFileInputRef = useRef(null);
@@ -110,22 +109,16 @@ const RegisterPage = () => {
       field: "avatar",
       type: "file",
       required: false,
-      description: "Максимальный размер 10MB",
     },
   ];
 
-  // Форматирование телефона в реальном времени
   const formatPhoneNumber = (value) => {
-    // Убираем все нецифровые символы
     const cleaned = value.replace(/\D/g, "");
-
-    // Если начинается с 8 или 7, приводим к +7
     let formatted = cleaned;
     if (cleaned.startsWith("8") || cleaned.startsWith("7")) {
       formatted = "7" + cleaned.slice(1);
     }
 
-    // Форматируем по маске
     const match = formatted.match(
       /^(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/
     );
@@ -144,7 +137,6 @@ const RegisterPage = () => {
     return result;
   };
 
-  // Валидация поля Full Name
   const validateFullName = (name) => {
     if (!name.trim()) {
       return "ФИО обязательно для заполнения";
@@ -161,7 +153,6 @@ const RegisterPage = () => {
     return "";
   };
 
-  // Валидация поля Email
   const validateEmail = (email) => {
     if (!email.trim()) {
       return "Email обязателен для заполнения";
@@ -176,7 +167,6 @@ const RegisterPage = () => {
     return "";
   };
 
-  // Валидация поля Password
   const validatePassword = (password) => {
     if (!password) {
       return "Пароль обязателен для заполнения";
@@ -190,7 +180,6 @@ const RegisterPage = () => {
     return "";
   };
 
-  // Валидация поля Confirm Password
   const validateConfirmPassword = (confirmPassword, password) => {
     if (!confirmPassword) {
       return "Подтверждение пароля обязательно";
@@ -201,26 +190,21 @@ const RegisterPage = () => {
     return "";
   };
 
-  // Валидация поля Phone Number
+
   const validatePhoneNumber = (phone) => {
     if (!phone.trim()) {
       return "Телефон обязателен для заполнения";
     }
 
-    // Получаем только цифры из отформатированного номера
     const cleaned = phone.replace(/\D/g, "");
-
-    // Проверяем, что номер содержит 11 цифр (для российских номеров)
     if (cleaned.length !== 11) {
       return "Номер телефона должен содержать 11 цифр";
     }
 
-    // Проверяем, что номер начинается с 7 или 8
     if (!cleaned.match(/^(7|8)/)) {
       return "Номер должен начинаться с +7 или 8";
     }
 
-    // Проверяем форматирование - должен быть полный шаблон
     const phoneRegex = /^\+7\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}$/;
     if (!phoneRegex.test(phone)) {
       return "Заполните телефон полностью в формате +7 (999) 999-99-99";
@@ -229,7 +213,6 @@ const RegisterPage = () => {
     return "";
   };
 
-  // Валидация поля Bio
   const validateBio = (bio) => {
     if (bio && bio.length > 500) {
       return "Биография не должна превышать 500 символов";
@@ -242,11 +225,8 @@ const RegisterPage = () => {
 
     let newValue = value;
 
-    // Специальная обработка для телефона
     if (name === "phoneNumber") {
       newValue = formatPhoneNumber(value);
-
-      // Ограничиваем максимальную длину
       if (newValue.length > 18) {
         return;
       }
@@ -256,8 +236,6 @@ const RegisterPage = () => {
       ...prev,
       [name]: newValue,
     }));
-
-    // Очищаем ошибку для этого поля при вводе
     if (fieldErrors[name]) {
       setFieldErrors((prev) => ({
         ...prev,
@@ -276,13 +254,11 @@ const RegisterPage = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Проверяем размер
       if (file.size > 10 * 1024 * 1024) {
         setError("Файл слишком большой (макс. 10MB)");
         return;
       }
 
-      // Проверяем тип
       if (!file.type.startsWith("image/")) {
         setError("Выберите файл изображения (JPG, PNG)");
         return;
@@ -330,7 +306,6 @@ const RegisterPage = () => {
         }
         break;
       case "avatar":
-        // Аватар не обязателен, но если выбран, проверяем
         if (avatarFile) {
           if (avatarFile.size > 10 * 1024 * 1024) {
             error = "Файл слишком большой (макс. 10MB)";
@@ -383,11 +358,8 @@ const RegisterPage = () => {
     setLoading(true);
     setError("");
     setFieldErrors({});
-
-    // Валидация всех полей перед отправкой
     const errors = {};
 
-    // Проверяем все обязательные поля
     steps.forEach((stepItem) => {
       if (stepItem.required) {
         const fieldValue = formData[stepItem.field];
@@ -424,12 +396,10 @@ const RegisterPage = () => {
       }
     });
 
-    // Если есть ошибки, показываем их и останавливаем отправку
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       setLoading(false);
 
-      // Переходим к первому полю с ошибкой
       const firstErrorField = Object.keys(errors)[0];
       const errorStepIndex = steps.findIndex(
         (step) => step.field === firstErrorField
@@ -448,7 +418,6 @@ const RegisterPage = () => {
       formDataToSend.append("fullName", formData.fullName.trim());
       formDataToSend.append("role", formData.role);
 
-      // Очищаем телефон от форматирования перед отправкой
       const cleanPhone = formData.phoneNumber.replace(/\D/g, "");
       formDataToSend.append("phoneNumber", cleanPhone);
 
@@ -473,10 +442,8 @@ const RegisterPage = () => {
       }
 
       if (data.success) {
-        // Успешная регистрация для всех ролей
         setStep(steps.length);
 
-        // Разные сообщения для разных ролей
         if (formData.role === "GALLERY_OWNER") {
           setSuccess(
             `Регистрация владельца галереи успешна! Мы отправили письмо с подтверждением на ${formData.email}. После подтверждения email вы сможете создать свою галерею в личном кабинете.`
@@ -501,10 +468,8 @@ const RegisterPage = () => {
   const currentStep = steps[step];
   const progress = ((step + 1) / steps.length) * 100;
 
-  // Получаем ошибку для текущего поля
   const currentFieldError = fieldErrors[currentStep?.field] || "";
 
-  // Если регистрация завершена, показываем финальный экран
   if (step === steps.length) {
     return (
       <div className="minimal-register-page">
@@ -543,41 +508,6 @@ const RegisterPage = () => {
             )}
           </div>
 
-          {/* {formData.role === "GALLERY_OWNER" && (
-            <div className="gallery-owner-info">
-              <div className="info-card">
-                <div className="info-icon">
-                  <i className="fas fa-info-circle"></i>
-                </div>
-                <div className="info-content">
-                  <h4>Что дальше?</h4>
-                  <p>После подтверждения email:</p>
-                  <ol className="next-steps-list">
-                    <li>
-                      <i className="fas fa-sign-in-alt"></i>
-                      <span>Войдите в свой аккаунт</span>
-                    </li>
-                    <li>
-                      <i className="fas fa-user-cog"></i>
-                      <span>Перейдите в личный кабинет</span>
-                    </li>
-                    <li>
-                      <i className="fas fa-plus-circle"></i>
-                      <span>Создайте свою первую галерею</span>
-                    </li>
-                    <li>
-                      <i className="fas fa-map-marked-alt"></i>
-                      <span>Настройте план галереи и места</span>
-                    </li>
-                    <li>
-                      <i className="fas fa-images"></i>
-                      <span>Начните организовывать выставки</span>
-                    </li>
-                  </ol>
-                </div>
-              </div>
-            </div>
-          )} */}
 
           <div className="success-instructions">
             <p className="instruction-text">
@@ -606,7 +536,6 @@ const RegisterPage = () => {
   return (
     <div className="minimal-register-page">
       <div className="minimal-register-container">
-        {/* Декоративный элемент */}
         <div className="art-decoration">
           <div className="brush-stroke"></div>
           <div className="palette-dot"></div>
@@ -622,7 +551,6 @@ const RegisterPage = () => {
           <p className="register-subtitle">Давайте создадим ваш профиль</p>
         </div>
 
-        {/* Прогресс */}
         <div className="progress-container">
           <div className="progress-track">
             <div
@@ -639,7 +567,7 @@ const RegisterPage = () => {
           </div>
         </div>
 
-        {/* Форма с вопросами */}
+
         <form onSubmit={handleSubmit} className="question-form">
           <div className="question-card">
             <div className="question-header">
@@ -649,16 +577,14 @@ const RegisterPage = () => {
 
             <p className="question-description">{currentStep.description}</p>
 
-            {/* Поле ввода */}
             {currentStep.type === "select" ? (
               <div className="options-container">
                 {currentStep.options.map((option) => (
                   <button
                     key={option.value}
                     type="button"
-                    className={`option-button ${
-                      formData.role === option.value ? "selected" : ""
-                    }`}
+                    className={`option-button ${formData.role === option.value ? "selected" : ""
+                      }`}
                     onClick={() => handleOptionSelect(option.value)}
                   >
                     <div className="option-content">
@@ -689,7 +615,7 @@ const RegisterPage = () => {
                 </div>
               </>
             ) : currentStep.type === "file" ? (
-              <div className="file-upload-container">
+              <div className="avatar-step-container">
                 <input
                   type="file"
                   name="avatarFile"
@@ -700,40 +626,58 @@ const RegisterPage = () => {
                   style={{ display: "none" }}
                 />
 
-                <div className="avatar-preview-container">
-                  {avatarPreview ? (
-                    <div className="avatar-preview">
-                      <img src={avatarPreview} alt="Preview" />
-                      <button
-                        type="button"
-                        className="remove-avatar"
-                        onClick={() => {
-                          setAvatarFile(null);
-                          setAvatarPreview("");
-                        }}
-                      >
-                        <i className="fas fa-times"></i>
-                      </button>
+                <div className="avatar-section">
+                  <div className="avatar-frame-wrapper">
+                    <div className="avatar-frame bordered-frame">
+                      {avatarPreview ? (
+                        <>
+                          <img
+                            src={avatarPreview}
+                            alt="Аватар"
+                            className="avatar-preview-image"
+                          />
+                          <button
+                            type="button"
+                            className="remove-btn"
+                            onClick={() => {
+                              setAvatarFile(null);
+                              setAvatarPreview("");
+                            }}
+                            title="Удалить"
+                          >
+                            <i className="fas fa-times"></i>
+                          </button>
+                        </>
+                      ) : (
+                        <div
+                          className="avatar-placeholder"
+                          onClick={() => avatarFileInputRef.current.click()}
+                        >
+                          <i className="fas fa-user-circle"></i>
+                          <span>Загрузите фото профиля</span>
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div
-                      className="avatar-placeholder"
+                  </div>
+
+                  <div className="avatar-controls">
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-avatar-control"
                       onClick={() => avatarFileInputRef.current.click()}
                     >
-                      <i className="fas fa-user-plus"></i>
-                      <span>Нажмите для загрузки</span>
-                    </div>
-                  )}
-                </div>
+                      <i className="fas fa-upload"></i>
+                      {avatarPreview ? "Изменить фото" : "Выбрать фото"}
+                    </button>
 
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={() => avatarFileInputRef.current.click()}
-                >
-                  <i className="fas fa-upload"></i>
-                  Выбрать файл
-                </button>
+
+                  </div>
+
+                  <div className="avatar-hint">
+
+                    Рекомендуемый размер: 400×400 px, максимум 10MB
+                  </div>
+                </div>
               </div>
             ) : (
               <input
@@ -748,19 +692,18 @@ const RegisterPage = () => {
                   currentStep.field === "email"
                     ? "100"
                     : currentStep.field === "fullName"
-                    ? "100"
-                    : currentStep.field === "password"
-                    ? "50"
-                    : currentStep.field === "confirmPassword"
-                    ? "50"
-                    : currentStep.field === "phoneNumber"
-                    ? "18"
-                    : ""
+                      ? "100"
+                      : currentStep.field === "password"
+                        ? "50"
+                        : currentStep.field === "confirmPassword"
+                          ? "50"
+                          : currentStep.field === "phoneNumber"
+                            ? "18"
+                            : ""
                 }
               />
-            )}
-
-            {/* Показываем ошибку для конкретного поля */}
+            )
+            }
             {currentFieldError && (
               <div className="field-error-message">
                 <i className="fas fa-exclamation-circle"></i>
@@ -768,7 +711,7 @@ const RegisterPage = () => {
               </div>
             )}
 
-            {/* Общие ошибки */}
+
             {error && !currentFieldError && (
               <div className="error-message">
                 <i className="fas fa-exclamation-circle"></i>
@@ -777,7 +720,6 @@ const RegisterPage = () => {
             )}
           </div>
 
-          {/* Навигация */}
           <div className="navigation-buttons">
             {step > 0 && (
               <button
@@ -828,7 +770,6 @@ const RegisterPage = () => {
           </div>
         </form>
 
-        {/* Декоративные элементы */}
         <div className="art-elements">
           <div className="art-element paint-tube">
             <i className="fas fa-fill-drip"></i>

@@ -126,10 +126,6 @@ const Header = () => {
 
   const navItems = [
     { label: 'Главная', href: '/', active: true },
-    // { label: 'Выставки', href: '/exhibitions' }, 
-    // { label: 'Галереи', href: '/galleries' },
-    // { label: 'Художники', href: '/artists' },
-    // { label: 'О проекте', href: '/about' },
   ];
 
   return (
@@ -137,7 +133,7 @@ const Header = () => {
       <div className="container">
         <nav className="navbar">
           <div className="navbar-brand">
-            <Link to="/" className="logo" onClick={() => setIsMenuOpen(false)}> {/* Изменено */}
+            <Link to="/" className="logo" onClick={() => setIsMenuOpen(false)}>
               <span className="logo-icon">🎨</span>
               <span className="logo-text">АРТи<span className="logo-accent">ШОК</span></span>
             </Link>

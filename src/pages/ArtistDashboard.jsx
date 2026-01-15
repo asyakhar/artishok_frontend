@@ -285,7 +285,7 @@ const ArtistDashboard = () => {
 
   return (
     <div className="artist-dashboard">
-      {/* Шапка профиля */}
+
       <div className="artist-dashboard-header">
         <div className="artist-profile-card">
           <div className="artist-profile-avatar">
@@ -324,7 +324,6 @@ const ArtistDashboard = () => {
         </div>
       </div>
 
-      {/* Навигация по вкладкам */}
       <div className="artist-dashboard-tabs">
         <button
           className={`artist-tab-btn ${activeTab === "bookings" ? "artist-active" : ""}`}
