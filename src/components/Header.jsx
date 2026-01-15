@@ -61,7 +61,6 @@ const Header = () => {
       window.removeEventListener('authStateChanged', handleAuthStateChanged);
     };
   }, []);
-  // ==================================
 
 
   useEffect(() => {
@@ -102,55 +101,6 @@ const Header = () => {
     navigate('/');
   };
 
-  const testRegister = async (role = 'ARTIST') => {
-    setError('');
-    const testEmail = `test_${Date.now()}@example.com`;
-    const testPassword = 'password123';
-    const generateRandomPhone = () => {
-      let randomDigits = '';
-      for (let i = 0; i < 10; i++) {
-        randomDigits += Math.floor(Math.random() * 10);
-      }
-      return `+7${randomDigits}`;
-    };
-
-    try {
-      const requestData = {
-        email: testEmail,
-        password: testPassword,
-        fullName: `Тест ${role}`,
-        role: role,
-        phoneNumber: generateRandomPhone(),
-        bio: 'Тестовый пользователь',
-        avatarUrl: ''
-      };
-
-      console.log('Отправляемые данные:', requestData);
-
-      const response = await fetch(`${API_BASE_URL}/api/auth/register-no-verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestData)
-      });
-
-      const data = await response.json();
-      console.log('Ответ сервера:', data);
-
-      if (response.ok) {
-        sessionStorage.setItem('authToken', data.token);
-        sessionStorage.setItem('user', JSON.stringify(data.user));
-        setUserData(data.user);
-        alert(`✅ Регистрация успешна! Роль: ${role}`);
-      } else {
-        setError(`Ошибка ${response.status}: ${data.error || JSON.stringify(data)}`);
-      }
-    } catch (error) {
-      console.error('Тестовая регистрация не удалась:', error);
-      setError('Сетевая ошибка: ' + error.message);
-    }
-  };
-
-
   const getDashboardPath = () => {
     if (!userData) return '/login';
 
@@ -173,16 +123,6 @@ const Header = () => {
     }
   };
 
-  const getRoleIcon = () => {
-    if (!userData) return 'fa-user-circle';
-
-    switch (userData.role) {
-      case 'ADMIN': return 'fa-shield-alt';
-      case 'GALLERY_OWNER': return 'fa-building';
-      case 'ARTIST': return 'fa-palette';
-      default: return 'fa-user-circle';
-    }
-  };
 
   const navItems = [
     { label: 'Главная', href: '/', active: true },
@@ -228,7 +168,6 @@ const Header = () => {
                     className="btn btn-outline btn-sm btn-dashboard"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <i className={`fas ${getRoleIcon()}`}></i>
                     <span className="user-name">{userData.fullName || getDashboardLabel()}</span>
                   </Link>
 
@@ -270,61 +209,6 @@ const Header = () => {
         </nav>
       </div>
 
-      {/* Блок для тестирования */}
-      {process.env.NODE_ENV === 'development' && (
-        <div style={{
-          position: 'fixed',
-          bottom: '10px',
-          right: '10px',
-          background: '#333',
-          color: 'white',
-          padding: '10px',
-          borderRadius: '5px',
-          fontSize: '12px',
-          zIndex: 9999,
-          maxWidth: '300px'
-        }}>
-          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Тест авторизации:</div>
-
-          {error && (
-            <div style={{
-              color: '#ff6b6b',
-              fontSize: '11px',
-              marginBottom: '8px',
-              padding: '5px',
-              background: 'rgba(255,0,0,0.1)',
-              borderRadius: '3px'
-            }}>
-              {error}
-            </div>
-          )}
-
-          <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '5px' }}>
-            <button onClick={() => testRegister('ARTIST')} style={{ padding: '4px 8px', fontSize: '11px' }}>
-              Artist
-            </button>
-            <button onClick={() => testRegister('GALLERY_OWNER')} style={{ padding: '4px 8px', fontSize: '11px' }}>
-              Gallery Owner
-            </button>
-            <button onClick={() => testRegister('ADMIN')} style={{ padding: '4px 8px', fontSize: '11px' }}>
-              Admin
-            </button>
-          </div>
-
-          <button onClick={handleLogout} style={{
-            padding: '4px 8px',
-            fontSize: '11px',
-            background: '#dc3545',
-            width: '100%'
-          }}>
-            Выйти (Logout)
-          </button>
-
-          <div style={{ marginTop: '8px', fontSize: '10px', opacity: 0.7 }}>
-            Статус: {userData ? `Вошли как ${userData.role}` : 'Не авторизован'}
-          </div>
-        </div>
-      )}
     </header>
   );
 };

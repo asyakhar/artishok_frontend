@@ -1,4 +1,5 @@
 import "./CTASection.css";
+import { Link } from "react-router-dom";
 
 const CTASection = () => {
   return (
@@ -6,15 +7,19 @@ const CTASection = () => {
       <div className="container">
         <div className="cta-card">
           <div className="cta-content">
-            <h2 className="cta-title">Хотите организовать выставку?</h2>
+            <Link to="/register" className="cta-title-link">
+              <h2 className="cta-title">
+                Хотите организовать выставку?
+              </h2>
+            </Link>
             <p className="cta-text">
               Зарегистрируйте свою галерею на платформе и начните привлекать
               художников и посетителей уже сегодня.
             </p>
             <div className="cta-actions">
-              <a href="/register-gallery" className="btn btn-primary btn-lg">
+              <Link to="/register" className="btn btn-primary btn-lg">
                 <i className="fas fa-store"></i> Добавить галерею
-              </a>
+              </Link>
             </div>
           </div>
           <div className="cta-image">

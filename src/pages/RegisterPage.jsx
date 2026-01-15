@@ -580,9 +580,6 @@ const RegisterPage = () => {
           )}
 
           <div className="success-instructions">
-            <div className="instruction-icon">
-              <i className="fas fa-check-circle"></i>
-            </div>
             <p className="instruction-text">
               Пожалуйста, проверьте вашу почту и перейдите по ссылке в письме,
               чтобы активировать ваш аккаунт.
@@ -599,29 +596,8 @@ const RegisterPage = () => {
               onClick={() => window.location.reload()}
             >
               <i className="fas fa-user-plus"></i>
-              <span>Зарегистрировать ещё</span>
+              <span>Зарегистрироваться ещё раз</span>
             </button>
-          </div>
-
-          <div className="email-tips-card">
-            <div className="tips-header">
-              <i className="fas fa-question-circle"></i>
-              <h4>Не получили письмо?</h4>
-            </div>
-            <ul className="tips-list">
-              <li>
-                <i className="fas fa-inbox"></i>
-                <span>Проверьте папку "Спам" или "Рассылки"</span>
-              </li>
-              <li>
-                <i className="fas fa-check-double"></i>
-                <span>Убедитесь, что адрес указан верно: {formData.email}</span>
-              </li>
-              <li>
-                <i className="fas fa-redo"></i>
-                <span>Попробуйте отправить письмо повторно через 5 минут</span>
-              </li>
-            </ul>
           </div>
         </div>
       </div>
@@ -658,7 +634,7 @@ const RegisterPage = () => {
             <span className="step-title">{currentStep.title}</span>
             <div className="step-counter">
               <span className="current-step">Шаг {step + 1}</span>
-              <span className="total-steps">из {steps.length}</span>
+              <span className="total-steps"> из {steps.length}</span>
             </div>
           </div>
         </div>
@@ -680,9 +656,8 @@ const RegisterPage = () => {
                   <button
                     key={option.value}
                     type="button"
-                    className={`option-button ${
-                      formData.role === option.value ? "selected" : ""
-                    }`}
+                    className={`option-button ${formData.role === option.value ? "selected" : ""
+                      }`}
                     onClick={() => handleOptionSelect(option.value)}
                   >
                     <div className="option-content">
@@ -772,14 +747,14 @@ const RegisterPage = () => {
                   currentStep.field === "email"
                     ? "100"
                     : currentStep.field === "fullName"
-                    ? "100"
-                    : currentStep.field === "password"
-                    ? "50"
-                    : currentStep.field === "confirmPassword"
-                    ? "50"
-                    : currentStep.field === "phoneNumber"
-                    ? "18"
-                    : ""
+                      ? "100"
+                      : currentStep.field === "password"
+                        ? "50"
+                        : currentStep.field === "confirmPassword"
+                          ? "50"
+                          : currentStep.field === "phoneNumber"
+                            ? "18"
+                            : ""
                 }
               />
             )}

@@ -311,7 +311,7 @@ const AddGalleryModal = ({
 
                         <div className="add-gallery-form__group">
                             <label className="add-gallery-form__label">
-                                Логотип галереи
+                                Логотип галереи *
                             </label>
                             <div className="add-gallery-logo-upload">
                                 <input
