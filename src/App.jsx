@@ -38,7 +38,6 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   return children;
 };
 
-// Компонент для главной страницы (остальной контент)
 const HomePage = ({ events, galleries, loading, error }) => {
   return (
     <>
@@ -58,7 +57,6 @@ const HomePage = ({ events, galleries, loading, error }) => {
   );
 };
 
-// Layout компонент для страниц с Header и Footer
 const Layout = ({ children, showFooter = true }) => {
   return (
     <>
@@ -82,11 +80,10 @@ function App() {
   });
 
   useEffect(() => {
-    // Загрузка выставок с вашего сервера (БЕЗ /api/)
     const loadExhibitions = async () => {
       try {
         setLoading((prev) => ({ ...prev, events: true }));
-        const response = await fetch("http://localhost:8080/exhibition-events"); // ОРИГИНАЛЬНЫЙ URL
+        const response = await fetch("http://localhost:8080/exhibition-events");
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -94,7 +91,6 @@ function App() {
 
         const data = await response.json();
 
-        // Сортируем по дате, чтобы ближайшие были первыми
         const sortedEvents = data
           .filter((event) => event.startDate)
           .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
@@ -115,11 +111,10 @@ function App() {
       }
     };
 
-    // Загрузка галерей с вашего сервера (БЕЗ /api/)
     const loadGalleries = async () => {
       try {
         setLoading((prev) => ({ ...prev, galleries: true }));
-        const response = await fetch("http://localhost:8080/galleries"); // ОРИГИНАЛЬНЫЙ URL
+        const response = await fetch("http://localhost:8080/galleries");
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -127,7 +122,6 @@ function App() {
 
         const data = await response.json();
         console.log("logo_url значение:", data[0].logo_url);
-        // setGalleries(data.slice(0, 4))
         setGalleries(data);
         setError((prev) => ({ ...prev, galleries: null }));
       } catch (err) {
@@ -187,7 +181,6 @@ function App() {
               }
             />
 
-            {/* ========== НОВЫЙ МАРШРУТ ДЛЯ КАРТЫ ========== */}
             <Route
               path="/exhibition/:exhibitionId/map"
               element={
@@ -282,7 +275,6 @@ function App() {
   );
 }
 
-// Компонент для редиректа на правильный дашборд
 function DashboardRedirect() {
   const user = JSON.parse(sessionStorage.getItem("user") || "null");
 
