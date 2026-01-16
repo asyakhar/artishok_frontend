@@ -14,10 +14,10 @@ const ExhibitionsSection = () => {
   const API_BASE_URL = "http://localhost:8080";
 
   const filters = [
-    { id: "all", label: " Все", icon: "fas fa-th-large" },
-    { id: "current", label: " Идут сейчас", icon: "fas fa-play-circle" },
-    { id: "upcoming", label: " Скоро", icon: "fas fa-calendar-plus" },
-    { id: "past", label: " Прошедшие", icon: "fas fa-history" },
+    { id: "all", label: " Все" },
+    { id: "current", label: " Идут сейчас" },
+    { id: "upcoming", label: " Скоро" },
+    { id: "past", label: " Прошедшие" },
   ];
 
   const getAuthToken = () => {
@@ -309,8 +309,9 @@ const ExhibitionsSection = () => {
           {filters.map((filter) => (
             <button
               key={filter.id}
-              className={`filter-btn ${activeFilter === filter.id ? "active" : ""
-                }`}
+              className={`filter-btn ${
+                activeFilter === filter.id ? "active" : ""
+              }`}
               onClick={() => setActiveFilter(filter.id)}
               title={filter.label}
             >
@@ -378,10 +379,10 @@ const ExhibitionsSection = () => {
 
               {allEventsShown && (
                 <div className="all-shown-container">
-                  <div className="all-shown-info">
+                  {/* <div className="all-shown-info">
                     <i className="fas fa-check-circle"></i>
                     <span>Показаны все {filteredEvents.length} выставок</span>
-                  </div>
+                  </div> */}
                   <button
                     className="btn btn-outline collapse-btn"
                     onClick={handleCollapse}
@@ -412,8 +413,8 @@ const ExhibitionsSection = () => {
               {activeFilter === "current"
                 ? "В данный момент нет идущих выставок"
                 : activeFilter === "upcoming"
-                  ? "Нет предстоящих выставок"
-                  : "Нет прошедших выставок"}
+                ? "Нет предстоящих выставок"
+                : "Нет прошедших выставок"}
             </p>
             <div className="no-results-actions">
               <button
