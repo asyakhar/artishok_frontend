@@ -81,7 +81,7 @@ const ExhibitionCard = ({ event }) => {
 
         <p className="card-description">
           {event.description ||
-            "Краткое описание выставки современного искусства, которое рассказывает о концепции, художниках и особенностях экспозиции."}
+            "Краткое описание выставки современного искусства"}
         </p>
 
         <div className="card-details">
